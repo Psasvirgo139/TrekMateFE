@@ -1,0 +1,578 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+body{
+  background-color: #f8f8f8;
+}
+
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  transition: background-image 1s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-content {
+   position: absolute;
+  left: 50%;
+  bottom: 40px;       
+  transform: translateX(-50%);
+  z-index: 10;
+  text-align: center;
+  color: #fff;
+  max-width: 1400px;
+  width: 80%;
+  padding: 0 20px;
+  z-index: 10;;
+}
+
+.hero-content h2 {
+  font-family: "Pirata One", cursive;
+  font-size: 36px;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  letter-spacing: 2px;
+}
+
+.hero-content p {
+  font-size: 20px;
+  opacity: 0.9;
+  font-size: 24px;
+  font-family: "Grenze Gotisch", serif;
+}
+
+.hero-section {
+  height: 70vh;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.hero .overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+   z-index: 1;
+}
+
+.logo {
+  color: white; 
+  font-family: "Pirata One", cursive;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 0.5;
+}
+
+.menu-btn {
+   position: relative;   
+  cursor: pointer;
+}
+
+.menu-btn div {
+  width: 28px;
+  height: 3px;
+  background: white;
+  margin: 5px 0;
+}
+
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  z-index: 3000;
+  
+  display: flex;
+  align-items: center;
+
+  background: transparent;
+  transition: background 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
+}
+
+.header-inner {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 25px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-inner a{
+  text-decoration: none;
+}
+
+.site-header.scrolled {
+  background: white;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.site-header.scrolled .logo {
+  color: #76290D;
+}
+
+.site-header.scrolled .menu-btn div {
+  background: #76290D;
+}
+
+.hero-section {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  padding: 160px 0 120px;
+  text-align: center;
+  overflow: visible;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+}
+
+.hero-title {
+  position: relative;
+  z-index: 2;
+  color: #fff;
+  font-size: 42px;
+  font-weight: 700;
+  margin-bottom: 0;
+  font-family: "Pirata One", cursive;
+   margin-top:2rem;  
+}
+
+.hero-content-box {
+  position: relative;
+  z-index: 3;
+  max-width: 1300px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 40px 50px;
+  top: 20px; 
+  border-radius: 12px; 
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  width:90%;
+  margin: auto;
+}
+
+.hero-small-title {
+  text-align: center;
+  font-size: 24px;
+  font-family: "Grenze Gotisch", serif;
+  color: #787459;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.hero-bold-title {
+  text-align: center;
+  font-size: 42px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  font-family: "Pirata One", cursive;
+  color: #76290D;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+.hero-description {
+  text-align: center;
+  font-size: 16px;
+  line-height: 1.6;
+  font-family: 'Montserrat', sans-serif;
+  color: #787459;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;        
+  height: 100vh;
+  background: #fff;
+  z-index: 9999;
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: 4px 0 12px rgba(0,0,0,0.15);
+}
+
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.back-btn {
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.sidebar-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 25px;
+  font-family: "Pirata One", cursive;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.sidebar-links {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 30px;
+}
+
+.sidebar-links li {
+  padding: 12px 0;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.sidebar a{
+  text-decoration: none;
+  color: black;
+  font-family: 'Montserrat', sans-serif;
+   text-align: center;
+}
+
+.sidebar-footer-img {
+  width: 100%;
+  margin-top: auto;
+}
+
+.white-bg-wrapper{
+  width:100%;
+  background-color: #ffffff;
+}
+
+.home-about-section{
+  padding-top: 5rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1400px;
+  width:90%;
+  margin: auto;
+  gap:2rem;
+  padding-bottom: 5rem;
+  position: relative;
+}
+
+.home-about-section .img-section {
+  flex: 1;
+}
+
+.home-about-section .img-section img {
+  width: 100%;
+  height: 500px;
+  border-radius: 6px;
+  object-fit: cover;
+  position: relative;
+  z-index:5;
+}
+
+.home-about-section .text-section {
+  flex: 1.2;
+}
+
+
+.home-about-section .text-section p {
+  line-height: 1.6;
+  margin-bottom: 1.8rem;
+  font-size: 16px;
+  color: #787459;
+  transition: 0.2s ease;
+  font-weight: 300;
+  letter-spacing: 0.7px;
+  text-align: justify;
+}
+
+.bottom-btns-heading {
+  font-size: 24px;
+  font-weight: 300;
+  color: #76290D;
+  font-family: "Grenze Gotisch", serif;
+  margin-bottom: 0.7rem;
+  letter-spacing: 1px;
+}
+
+.home-about-section a{
+  text-decoration: none;
+  color: #787459;
+}
+
+.home-about-section ul,.seasons-section ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.home-about-section ul li,.seasons-section ul li {
+  border: 2px solid #76290D;
+  font-family: 'Montserrat', sans-serif;
+  padding: 1rem;
+  font-size: 16px;
+  color: #787459;
+  transition: 0.2s ease;
+  font-weight: 300;
+}
+
+.home-about-section ul li:hover,.seasons-section ul li:hover {
+  background: #e7dccd;
+  cursor: pointer;
+}
+
+.vector-img-home-about {
+  position: absolute;
+   top: -10%;
+   right:75%;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.plane-img-1 {
+   position: absolute;
+  top: 83%;  
+  right: max(88%, 55px);
+  width: 60px;
+  height: auto;
+  transform: rotate(-30deg);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.plane-img-2 {
+   position: absolute;
+  top: 11.5%;  
+  right: 100%; 
+  width: 50px;
+  height: auto;
+  transform: rotate(-100deg);
+  z-index: 3;
+  pointer-events: none;
+}
+
+
+.text-section{
+  width: 40%;
+}
+
+.section-heading{
+  font-family: "Pirata One", cursive;
+  font-size: 42px;
+  color: #76290D;
+  font-weight: 400;
+  line-height: 0.5;
+}
+
+.section-subheading{
+  font-family: "Grenze Gotisch", serif;
+  font-size: 30px;
+  color: #787459;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.destinations-section{
+  width: 90%;
+  max-width: 1400px;
+  margin: auto;
+  margin-top: -2rem;
+  padding-bottom: 5rem;
+  position: relative;
+}
+
+.destinations-section .section-heading,.destinations-section .section-subheading{
+  text-align: center;
+}
+
+.destinations-section .section-subheading{
+  padding-top: 2rem;
+}
+
+.destinations-cards{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.destination-card{
+  position: relative;
+  display: inline-block;
+  overflow:visible;
+  margin-bottom: 2rem;
+}
+
+.destination-card img{
+  display: block;
+  width: 100%;  
+  height: auto;
+}
+
+.card-content{
+  position: absolute;
+  bottom: -40px;
+  left: 50%;             
+  transform: translateX(-50%);
+  background: white;
+  color: black;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  width: 80%;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.card-content h3{
+  font-size: 26px;
+}
+
+.card-content p{
+  font-family: 'Montserrat', sans-serif;
+  color: #787459;
+  font-size: 14px;
+}
+
+
+.vector-img-location {
+  position: absolute;
+   top: -10%;
+   right:-15%;
+  height: 110%;
+  width: 50%;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.plane-img-1-location {
+  position: absolute;
+  top: 85%;   
+  right: max(-15%, 55px); 
+  width: 60px;
+  height: auto;
+  transform: rotate(-125deg);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.plane-img-2-location {
+   position: absolute;
+  top: 8%;   
+  right: -2%; 
+  width: 50px;
+  height: auto;
+  transform: rotate(10deg);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.footer-section {
+  background: #faf9f6;
+  padding: 80px 20px 0;
+}
+
+.footer-top {
+  max-width: 1400px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between; 
+  align-items: flex-start;       
+  gap: 40px;
+  flex-wrap: nowrap;            
+}
+
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  flex: 1;                        
+}
+
+.footer-col.brand {
+  flex: 1.2;                      
+}
+
+.footer-logo {
+  font-family: "Pirata One", cursive;
+  font-size: 38px;
+  letter-spacing: 1px;
+  line-height: 1;
+  margin-bottom: 15px;
+  color: #565656;
+}
+
+.footer-col p {
+  color: #787459;
+  line-height: 1.7;
+  font-size: 15px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.footer-col h4 {
+  font-family: "Grenze Gotisch", serif;
+  font-size: 24px;
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+  color: #787459;
+  text-align: left;
+}
+
+.footer-col ul {
+  padding: 0;
+  margin: 0;
+}
+
+.footer-col ul li {
+  list-style: none;
+  padding: 6px 0;
+  cursor: pointer;
+  text-align: left;
+  color: #292929;
+  line-height: 1.7;
+  font-size: 15px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+footer a{
+  text-decoration: none;
+  color:#292929 ;
+}
+
+.footer-bottom-img {
+  width: 100%;                
+  height: 500px;
+  background: url('./Images/footer.webp') center/cover no-repeat;
+}
+
+.margin-class{
+  margin-top: 5rem;
+}
+
+.no-margin-class{
+  margin-top: 0rem;
+}
+
+.special-margin{
+  margin-top: 8rem;
+}
