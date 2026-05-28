@@ -1,93 +1,85 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import "./Footer.css";
 
 const Footer = () => {
-  const footerColumns = [
+  const footerLinks = [
     {
-      title: "Quick Links",
-      items: [
-        { label: "Home", path: "/" },
-        { label: "About us", path: "/about" },
-        { label: "Adventures", path: "/adventures" },
-        { label: "Contact us", path: "/contact" },
-        { label: "FAQ", path: "/faq" }
+      title: "Platform",
+      links: [
+        { label: "Tours", path: "/locations" },
+        { label: "Safety Protocols", path: "/" },
+        { label: "Guide Registry", path: "/" }
       ]
     },
     {
-      title: "Recommended Travel",
-      items: [
-        { label: "Hampi", path: "/locationDetail" },
-        { label: "Coorg", path: "/locationDetail" },
-        { label: "Munnar", path: "/locationDetail" },
-        { label: "Rishikesh", path: "/locationDetail" },
-        { label: "Pondicherry", path: "/locationDetail" }
-      ]
-    },
-    {
-      title: "Adventures",
-      items: [
-        { label: "Hot Air Ballooning", path: "/adventureDetail" },
-        { label: "Wildlife Safari", path: "/adventureDetail" },
-        { label: "Scuba Diving", path: "/adventureDetail" },
-        { label: "Backwater Cruise", path: "/adventureDetail" },
-        { label: "Wildlife", path: "/adventureDetail" }
+      title: "Legal",
+      links: [
+        { label: "Terms of Service", path: "/" },
+        { label: "Privacy Policy", path: "/" }
       ]
     }
   ];
+
   return (
-    <footer className="footer-section">
-      <div className="footer-top">
+    <footer className="site-footer">
+      <div className="footer-container">
         <motion.div
-          className="footer-col brand"
+          className="footer-brand"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
           viewport={{ once: true }}
         >
-          <h2 className="footer-logo">IndiVoyage</h2>
+          <h2>TrekMate Danang</h2>
           <p>
-            Heritage and adventures, curated for your journey. Discover India
-            through an immersive gateway designed to connect you with the nation's
-            most iconic landscapes, cultures, and experiences.
+            Professional logistics for trekking enthusiasts in the Central Vietnam
+            region. Bridging the gap between wilderness and coordination.
           </p>
+          <p className="footer-copy">© 2024 TrekMate Danang. Professional Trekking Logistics.</p>
         </motion.div>
 
-        {footerColumns.map((col, i) => (
+        {footerLinks.map((group, index) => (
           <motion.div
-            className="footer-col"
-            key={i}
+            className="footer-group"
+            key={group.title}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: i * 0.2 }}
+            transition={{ duration: 0.7, delay: index * 0.1 }}
             viewport={{ once: true }}
           >
-            <h4>{col.title}</h4>
+            <h4>{group.title}</h4>
             <ul>
-              {col.items.map((item, index) => (
-                <motion.li
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                >
-                  <a href={item.path} className="hover:underline">
-                    {item.label}
-                  </a>
-                </motion.li>
+              {group.links.map((link) => (
+                <li key={link.label}>
+                  <Link to={link.path} className="footer-link">
+                    {link.label}
+                  </Link>
+                </li>
               ))}
             </ul>
           </motion.div>
         ))}
-      </div>
 
-      <motion.div
-        className="footer-bottom-img"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-        viewport={{ once: true }}
-      ></motion.div>
+        <motion.div
+          className="footer-group footer-contact"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.3 }}
+          viewport={{ once: true }}
+        >
+          <h4>Contact Us</h4>
+          <div className="footer-contact-list">
+            <a href="mailto:hello@trekmate.com" className="footer-contact-link">
+              <span aria-hidden="true">✉️</span> hello@trekmate.com
+            </a>
+            <a href="tel:+840123456789" className="footer-contact-link">
+              <span aria-hidden="true">📞</span> +84 012 345 6789
+            </a>
+          </div>
+        </motion.div>
+      </div>
     </footer>
   );
 };

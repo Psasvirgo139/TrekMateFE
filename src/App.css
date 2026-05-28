@@ -1,15 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap');
+
 * {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  font-family: 'Inter', sans-serif;
+  color: #121c2a;
+  background-color: #f8f9ff;
 }
 
-body{
-  background-color: #f8f8f8;
+body {
+  background-color: #f8f9ff;
 }
 
 .hero {
