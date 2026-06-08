@@ -1,18 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Modal,
-  Badge,
-  Spinner,
-  InputGroup
-} from "react-bootstrap";
 import Header from "../Components/Header";
-import "./Locations.css";
+import api from "../services/api";
 
 // Import local images for page header & tour cards
 import LocationsHeroBg from "../Images/hero-slider-3.webp";
@@ -40,46 +28,48 @@ const Locations = () => {
   const [selectedTour, setSelectedTour] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  // Fetch tours from backend
+  // Fetch tours from backend using Axios
   const fetchTours = async () => {
     setLoading(true);
     setError(null);
     try {
-      const params = new URLSearchParams();
-      params.append("page", page.toString());
-      params.append("size", size.toString());
-      params.append("status", "ACTIVE"); // Default to ACTIVE tours for public view
+      // Build API query parameters object
+      const queryParams = {
+        page: page,
+        size: size,
+        status: "ACTIVE", // Default to ACTIVE tours for public view
+      };
 
-      if (search.trim()) params.append("search", search);
-      if (difficulty) params.append("difficulty", difficulty);
-      if (sort) params.append("sort", sort);
+      if (search.trim()) queryParams.search = search;
+      if (difficulty) queryParams.difficulty = difficulty;
+      if (sort) queryParams.sort = sort;
 
       // Map duration range to minDuration & maxDuration
       if (durationRange === "short") {
-        params.append("maxDuration", "2");
+        queryParams.maxDuration = 2;
       } else if (durationRange === "medium") {
-        params.append("minDuration", "3");
-        params.append("maxDuration", "5");
+        queryParams.minDuration = 3;
+        queryParams.maxDuration = 5;
       } else if (durationRange === "long") {
-        params.append("minDuration", "6");
+        queryParams.minDuration = 6;
       }
 
-      const response = await fetch(`http://localhost:8080/api/api/tours?${params.toString()}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch tours. Is the server running?");
-      }
-
-      const json = await response.json();
-      if (json && json.status === 200 && json.data) {
-        setTours(json.data.content || []);
-        setTotalPages(json.data.totalPages || 0);
-        setTotalElements(json.data.totalElements || 0);
-      } else {
-        throw new Error(json.message || "Invalid API response structure");
+      // Axios call
+      const response = await api.get("/api/tours", { params: queryParams });
+      
+      if (response && response.status === 200 && response.data) {
+        const json = response.data;
+        if (json.status === 200 && json.data) {
+          setTours(json.data.content || []);
+          setTotalPages(json.data.totalPages || 0);
+          setTotalElements(json.data.totalElements || 0);
+        } else {
+          throw new Error(json.message || "Invalid API response structure");
+        }
       }
     } catch (err) {
       console.error(err);
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || "Failed to fetch tours.");
     } finally {
       setLoading(false);
     }
@@ -137,7 +127,7 @@ const Locations = () => {
     const rounded = Math.round(parseFloat(rating || 0));
     for (let i = 1; i <= 5; i++) {
       stars.push(
-        <span key={i} className={i <= rounded ? "text-warning" : "text-muted"}>
+        <span key={i} className={i <= rounded ? "text-brand-orange text-lg" : "text-gray-300 text-lg"}>
           {i <= rounded ? "★" : "☆"}
         </span>
       );
@@ -145,15 +135,15 @@ const Locations = () => {
     return stars;
   };
 
-  // Difficulty badge variant mapping
-  const getDifficultyVariant = (diff) => {
-    if (!diff) return "secondary";
+  // Difficulty badge background styling mapping
+  const getDifficultyColor = (diff) => {
+    if (!diff) return "bg-gray-500";
     switch (diff.toUpperCase()) {
-      case "EASY": return "success";
-      case "MODERATE": return "warning";
-      case "HARD": return "danger";
-      case "EXTREME": return "dark";
-      default: return "secondary";
+      case "EASY": return "bg-emerald-700 text-white";
+      case "MODERATE": return "bg-amber-600 text-white";
+      case "HARD": return "bg-rose-700 text-white";
+      case "EXTREME": return "bg-red-950 text-white border border-red-800";
+      default: return "bg-gray-500 text-white";
     }
   };
 
@@ -169,42 +159,44 @@ const Locations = () => {
   };
 
   return (
-    <div className="locations-page">
+    <div className="min-h-screen bg-brand-light font-sans">
       {/* Shared Header Component */}
       <Header
         bgImage={LocationsHeroBg}
         pageTitle="TrekMate Tours"
         subheading="CHINH PHỤC THỬ THÁCH — AN TOÀN TUYỆT ĐỐI"
         mainHeading="Danh Sách Các Tuyến Đường Trekking"
-        description="Khám phá bộ sưu tập các cung đường trekking được thiết kế tỉ mỉ bằng React Bootstrap, đầy đủ lộ trình, dự báo thời tiết và hướng dẫn viên bản địa giàu kinh nghiệm."
+        description="Khám phá bộ sưu tập các cung đường trekking được thiết kế tỉ mỉ bằng Tailwind CSS, đầy đủ lộ trình, dự báo thời tiết và hướng dẫn viên bản địa giàu kinh nghiệm."
         showDescription={true}
       />
 
-      <Container className="my-5 py-3">
-        {/* Controls Bar: Search, Filter, Sort */}
-        <Card className="border-0 shadow-sm p-4 mb-4 control-card">
-          <Row className="g-3">
+      <main className="max-w-7xl mx-auto px-6 py-12">
+        
+        {/* Controls Card: Search, Filter, Sort */}
+        <section className="bg-white rounded-2xl shadow-sm border border-[#012d1d]/10 p-6 md:p-8 mb-8">
+          <div className="flex flex-col gap-6">
+            
             {/* Search Input */}
-            <Col xs={12}>
-              <InputGroup className="search-group">
-                <InputGroup.Text className="bg-transparent border-end-0 text-muted">🔍</InputGroup.Text>
-                <Form.Control
-                  type="text"
-                  placeholder="Tìm kiếm tour theo tên, điểm xuất phát hoặc điểm kết thúc... (Nhấn Enter)"
-                  className="border-start-0 ps-1"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  onKeyDown={handleSearchKeyPress}
-                  onBlur={handleSearchBlur}
-                />
-              </InputGroup>
-            </Col>
+            <div className="relative w-full">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">🔍</span>
+              <input
+                type="text"
+                placeholder="Tìm kiếm tour theo tên, điểm xuất phát hoặc điểm kết thúc... (Nhấn Enter)"
+                className="w-full pl-11 pr-5 py-3.5 rounded-full border border-[#012d1d]/15 bg-slate-50 focus:bg-white text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-orange/40 focus:border-brand-orange transition-all placeholder:text-gray-400"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={handleSearchKeyPress}
+                onBlur={handleSearchBlur}
+              />
+            </div>
 
             {/* Filters */}
-            <Col xs={12} md={4}>
-              <Form.Group>
-                <Form.Label className="filter-label-text">Mức Độ Khó</Form.Label>
-                <Form.Select
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Difficulty Filter */}
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-[#855300]">Mức Độ Khó</label>
+                <select
+                  className="px-4 py-3 rounded-lg border border-[#012d1d]/15 bg-slate-50 focus:bg-white text-brand-dark cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-orange/40 focus:border-brand-orange transition-all"
                   value={difficulty}
                   onChange={(e) => {
                     setDifficulty(e.target.value);
@@ -216,14 +208,14 @@ const Locations = () => {
                   <option value="MODERATE">Moderate (Vừa phải)</option>
                   <option value="HARD">Hard (Khó)</option>
                   <option value="EXTREME">Extreme (Mạo hiểm)</option>
-                </Form.Select>
-              </Form.Group>
-            </Col>
+                </select>
+              </div>
 
-            <Col xs={12} md={4}>
-              <Form.Group>
-                <Form.Label className="filter-label-text">Thời Gian Đi</Form.Label>
-                <Form.Select
+              {/* Duration Filter */}
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-[#855300]">Thời Gian Đi</label>
+                <select
+                  className="px-4 py-3 rounded-lg border border-[#012d1d]/15 bg-slate-50 focus:bg-white text-brand-dark cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-orange/40 focus:border-brand-orange transition-all"
                   value={durationRange}
                   onChange={(e) => {
                     setDurationRange(e.target.value);
@@ -234,14 +226,14 @@ const Locations = () => {
                   <option value="short">Dưới 3 ngày</option>
                   <option value="medium">Từ 3 đến 5 ngày</option>
                   <option value="long">Trên 5 ngày</option>
-                </Form.Select>
-              </Form.Group>
-            </Col>
+                </select>
+              </div>
 
-            <Col xs={12} md={4}>
-              <Form.Group>
-                <Form.Label className="filter-label-text">Sắp Xếp Theo</Form.Label>
-                <Form.Select
+              {/* Sort Filter */}
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-[#855300]">Sắp Xếp Theo</label>
+                <select
+                  className="px-4 py-3 rounded-lg border border-[#012d1d]/15 bg-slate-50 focus:bg-white text-brand-dark cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-orange/40 focus:border-brand-orange transition-all"
                   value={sort}
                   onChange={(e) => {
                     setSort(e.target.value);
@@ -251,308 +243,340 @@ const Locations = () => {
                   <option value="avgRating,desc">Đánh giá cao nhất</option>
                   <option value="durationDays,asc">Thời gian ngắn nhất</option>
                   <option value="durationDays,desc">Thời gian dài nhất</option>
-                </Form.Select>
-              </Form.Group>
-            </Col>
-          </Row>
-
-          {/* Reset Filter Button Row */}
-          {(search || difficulty || durationRange || sort !== "avgRating,desc") && (
-            <div className="d-flex justify-content-end mt-3">
-              <Button variant="outline-danger" size="sm" onClick={handleResetFilters}>
-                🔄 Xóa bộ lọc
-              </Button>
+                </select>
+              </div>
             </div>
-          )}
-        </Card>
+
+            {/* Reset Filter Button */}
+            {(search || difficulty || durationRange || sort !== "avgRating,desc") && (
+              <div className="flex justify-end">
+                <button
+                  className="px-4 py-2 border border-rose-600 text-rose-600 rounded-md text-sm font-semibold hover:bg-rose-50 transition-colors"
+                  onClick={handleResetFilters}
+                >
+                  🔄 Xóa bộ lọc
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
 
         {/* Active Badges */}
         {(difficulty || durationRange || search) && (
-          <div className="d-flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap gap-2 mb-6">
             {search && (
-              <Badge bg="info" className="p-2 d-flex align-items-center gap-1 active-filter-badge">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-sky-50 text-sky-900 border border-sky-200 text-xs font-semibold">
                 Từ khóa: "{search}"
-                <span className="ms-1 cursor-pointer" onClick={() => { setSearch(""); setPage(0); setTimeout(fetchTours, 50); }}>×</span>
-              </Badge>
+                <button className="text-sky-600 hover:text-sky-800 font-bold" onClick={() => { setSearch(""); setPage(0); setTimeout(fetchTours, 50); }}>×</button>
+              </span>
             )}
             {difficulty && (
-              <Badge bg={getDifficultyVariant(difficulty)} className="p-2 d-flex align-items-center gap-1 active-filter-badge">
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold ${getDifficultyColor(difficulty)}`}>
                 Độ khó: {difficulty}
-                <span className="ms-1 cursor-pointer" onClick={() => { setDifficulty(""); setPage(0); }}>×</span>
-              </Badge>
+                <button className="hover:text-red-200 font-bold" onClick={() => { setDifficulty(""); setPage(0); }}>×</button>
+              </span>
             )}
             {durationRange && (
-              <Badge bg="secondary" className="p-2 d-flex align-items-center gap-1 active-filter-badge">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-slate-100 text-slate-800 border border-slate-200 text-xs font-semibold">
                 Thời gian: {durationRange === "short" ? "< 3 ngày" : durationRange === "medium" ? "3 - 5 ngày" : "> 5 ngày"}
-                <span className="ms-1 cursor-pointer" onClick={() => { setDurationRange(""); setPage(0); }}>×</span>
-              </Badge>
+                <button className="text-slate-600 hover:text-slate-900 font-bold" onClick={() => { setDurationRange(""); setPage(0); }}>×</button>
+              </span>
             )}
           </div>
         )}
 
         {/* Error State */}
         {error && (
-          <div className="text-center py-5 shadow-sm rounded-3 bg-white border">
-            <div className="fs-1 mb-3">⚠️</div>
-            <h3 className="text-danger fw-bold">Không thể kết nối máy chủ</h3>
-            <p className="text-muted mb-4">{error}</p>
-            <Button variant="warning" onClick={fetchTours} className="rounded-pill px-4">
+          <div className="text-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm">
+            <div className="text-5xl mb-4">⚠️</div>
+            <h3 className="text-red-600 text-2xl font-bold mb-2">Không thể kết nối máy chủ</h3>
+            <p className="text-gray-500 mb-6">{error}</p>
+            <button
+              className="px-6 py-2.5 bg-brand-orange text-brand-dark font-bold rounded-full shadow-lg hover:shadow-xl transition-all"
+              onClick={fetchTours}
+            >
               Thử lại
-            </Button>
+            </button>
           </div>
         )}
 
         {/* Loading Spinner */}
         {loading && !error && (
-          <div className="d-flex justify-content-center align-items-center py-5 my-5">
-            <Spinner animation="border" variant="success" className="me-2" />
-            <span className="fs-5 text-success font-weight-bold">Đang tải danh sách Tour...</span>
+          <div className="flex flex-col items-center justify-center py-16 my-8">
+            <div className="w-12 h-12 border-4 border-brand-dark/20 border-t-brand-dark rounded-full animate-spin mb-4"></div>
+            <span className="text-brand-dark font-semibold text-lg">Đang tải danh sách Tour...</span>
           </div>
         )}
 
         {/* Empty State */}
         {!loading && !error && tours.length === 0 && (
-          <div className="text-center py-5 shadow-sm rounded-3 bg-white border">
-            <div className="fs-1 mb-3">🔍</div>
-            <h3 className="text-dark fw-bold">Không tìm thấy tour phù hợp</h3>
-            <p className="text-muted mb-4">Hãy thử thay đổi từ khóa tìm kiếm hoặc các cài đặt lọc hiện tại của bạn.</p>
-            <Button variant="warning" onClick={handleResetFilters} className="rounded-pill px-4">
+          <div className="text-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm">
+            <div className="text-5xl mb-4">🔍</div>
+            <h3 className="text-gray-800 text-2xl font-bold mb-2">Không tìm thấy tour phù hợp</h3>
+            <p className="text-gray-500 mb-6">Hãy thử thay đổi từ khóa tìm kiếm hoặc các cài đặt lọc hiện tại của bạn.</p>
+            <button
+              className="px-6 py-2.5 bg-brand-orange text-brand-dark font-bold rounded-full shadow-lg hover:shadow-xl transition-all"
+              onClick={handleResetFilters}
+            >
               Xóa tất cả bộ lọc
-            </Button>
+            </button>
           </div>
         )}
 
         {/* Tour Grid */}
         {!loading && !error && tours.length > 0 && (
           <>
-            <Row className="g-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {tours.map((tour) => (
-                <Col key={tour.id} xs={12} md={6} lg={4}>
-                  <Card className="h-100 border-0 shadow-sm tour-bootstrap-card">
-                    {/* Tour Image Header */}
-                    <div className="position-relative card-image-container">
-                      <Card.Img
-                        variant="top"
-                        src={getTourImage(tour.slug)}
-                        alt={tour.title}
-                        className="tour-card-image"
-                      />
-                      <Badge
-                        bg={getDifficultyVariant(tour.difficulty)}
-                        className="position-absolute top-0 start-0 m-3 px-3 py-2 text-uppercase badge-difficulty"
-                      >
-                        {tour.difficulty}
-                      </Badge>
-                      <div className="price-tag-badge">
-                        {tour.priceFrom ? formatPrice(tour.priceFrom) : "Liên hệ"}
+                <article key={tour.id} className="group flex flex-col h-full bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-gray-100 hover:-translate-y-2 transition-all duration-300 relative">
+                  
+                  {/* Tour Image Header */}
+                  <div className="relative h-56 overflow-hidden bg-slate-100">
+                    <img
+                      src={getTourImage(tour.slug)}
+                      alt={tour.title}
+                      className="w-full h-full object-cover group-hover:scale-108 transition-all duration-500"
+                      loading="lazy"
+                    />
+                    <span className={`absolute top-4 left-4 px-3 py-1.5 rounded text-[10px] font-extrabold uppercase tracking-wider shadow ${getDifficultyColor(tour.difficulty)}`}>
+                      {tour.difficulty}
+                    </span>
+                    <span className="absolute bottom-4 right-4 bg-brand-orange text-brand-dark px-3.5 py-1.5 rounded-lg font-extrabold text-sm shadow">
+                      {tour.priceFrom ? formatPrice(tour.priceFrom) : "Liên hệ"}
+                    </span>
+                  </div>
+
+                  {/* Card Body */}
+                  <div className="flex flex-col flex-grow p-6">
+                    {/* Rating Row */}
+                    <div className="flex items-center gap-1 mb-2.5">
+                      <div className="flex gap-0.5">{renderStars(tour.avgRating)}</div>
+                      <span className="font-bold text-gray-800 text-xs ml-1">{tour.avgRating ? parseFloat(tour.avgRating).toFixed(1) : "0.0"}</span>
+                      <span className="text-gray-400 text-xs">({tour.totalReviews || 0} đánh giá)</span>
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="font-montserrat font-bold text-gray-800 text-lg leading-snug h-[3.4rem] overflow-hidden line-clamp-2 mb-4">
+                      {tour.title}
+                    </h3>
+
+                    {/* Quick Details Table */}
+                    <div className="grid grid-cols-2 gap-y-3 gap-x-2 text-gray-500 text-xs border-b pb-4 mb-4">
+                      <div className="flex items-center gap-1.5">
+                        <span>⏱️</span>
+                        <span>{tour.durationDays} Ngày {tour.durationNights} Đêm</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span>🏃</span>
+                        <span>{tour.distanceKm} km</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span>🏔️</span>
+                        <span>Cực đại: {tour.maxElevationM}m</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span>📍</span>
+                        <span>{tour.startLocation?.split(",")[0]}</span>
                       </div>
                     </div>
 
-                    {/* Card Body */}
-                    <Card.Body className="d-flex flex-column p-4">
-                      {/* Rating Row */}
-                      <div className="d-flex align-items-center gap-1 mb-2">
-                        <div className="me-1">{renderStars(tour.avgRating)}</div>
-                        <span className="fw-bold text-dark small">{tour.avgRating ? parseFloat(tour.avgRating).toFixed(1) : "0.0"}</span>
-                        <span className="text-muted small">({tour.totalReviews || 0} đánh giá)</span>
+                    {/* Highlights */}
+                    {tour.highlights && tour.highlights.length > 0 && (
+                      <div className="mb-5">
+                        <div className="text-[10px] uppercase text-gray-400 font-extrabold tracking-wider mb-2">Điểm Nổi Bật</div>
+                        <ul className="flex flex-col gap-1.5">
+                          {tour.highlights.slice(0, 2).map((hl, idx) => (
+                            <li key={idx} className="text-xs text-gray-700 flex items-start gap-2">
+                              <span className="text-brand-orange">✓</span>
+                              <span className="line-clamp-1">{hl}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Card Footer Actions */}
+                    <div className="flex items-center justify-content-between mt-auto pt-4 border-t w-full">
+                      {/* Availability */}
+                      <div className="flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full relative flex`}>
+                          {tour.upcomingDeparturesCount > 0 ? (
+                            <>
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </>
+                          ) : (
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-gray-400"></span>
+                          )}
+                        </span>
+                        <span className="text-xs font-semibold text-gray-500">
+                          {tour.upcomingDeparturesCount > 0
+                            ? `${tour.upcomingDeparturesCount} chuyến sắp đi`
+                            : "Chưa có lịch"}
+                        </span>
                       </div>
 
-                      {/* Card Title */}
-                      <Card.Title className="fw-bold mb-3 text-dark fs-5 card-main-title">
-                        {tour.title}
-                      </Card.Title>
-
-                      {/* Quick Details Table */}
-                      <Row className="g-2 text-muted small mb-3 border-bottom pb-3">
-                        <Col xs={6} className="d-flex align-items-center gap-2">
-                          <span>⏱️</span>
-                          <span>{tour.durationDays} Ngày {tour.durationNights} Đêm</span>
-                        </Col>
-                        <Col xs={6} className="d-flex align-items-center gap-2">
-                          <span>🏃</span>
-                          <span>{tour.distanceKm} km</span>
-                        </Col>
-                        <Col xs={6} className="d-flex align-items-center gap-2">
-                          <span>🏔️</span>
-                          <span>Cực đại: {tour.maxElevationM}m</span>
-                        </Col>
-                        <Col xs={6} className="d-flex align-items-center gap-2">
-                          <span>📍</span>
-                          <span>{tour.startLocation?.split(",")[0]}</span>
-                        </Col>
-                      </Row>
-
-                      {/* Highlights */}
-                      {tour.highlights && tour.highlights.length > 0 && (
-                        <div className="mb-4">
-                          <div className="text-uppercase text-muted fw-bold small-label mb-2">Điểm Nổi Bật</div>
-                          <ul className="list-unstyled d-flex flex-column gap-1 mb-0">
-                            {tour.highlights.slice(0, 2).map((hl, idx) => (
-                              <li key={idx} className="small text-dark d-flex align-items-start gap-2">
-                                <span className="text-warning">✓</span>
-                                <span>{hl}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
-                      {/* Card Footer Actions */}
-                      <div className="d-flex align-items-center justify-content-between mt-auto pt-3 border-top w-100">
-                        {/* Availability */}
-                        <div className="d-flex align-items-center gap-2">
-                          <span className={`pulse-dot ${tour.upcomingDeparturesCount > 0 ? "active" : "inactive"}`}></span>
-                          <span className="small fw-semibold text-muted">
-                            {tour.upcomingDeparturesCount > 0
-                              ? `${tour.upcomingDeparturesCount} chuyến sắp đi`
-                              : "Chưa có lịch"}
-                          </span>
-                        </div>
-
-                        {/* Trigger Modal */}
-                        <Button
-                          variant="success"
-                          className="rounded-pill px-4 btn-detail-action"
-                          onClick={() => handleOpenDetail(tour)}
-                        >
-                          Xem chi tiết
-                        </Button>
-                      </div>
-                    </Card.Body>
-                  </Card>
-                </Col>
+                      {/* Detail CTA Button */}
+                      <button
+                        onClick={() => handleOpenDetail(tour)}
+                        className="px-4 py-2 text-xs font-bold bg-brand-dark hover:bg-brand-orange text-white hover:text-brand-dark rounded-full transition-all duration-200 shadow hover:shadow-md"
+                      >
+                        Xem chi tiết
+                      </button>
+                    </div>
+                  </div>
+                </article>
               ))}
-            </Row>
+            </div>
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="d-flex justify-content-center align-items-center gap-3 mt-5">
-                <Button
-                  variant="outline-success"
-                  className="rounded-circle d-flex align-items-center justify-content-center page-btn"
+              <div className="flex justify-center items-center gap-4 mt-12">
+                <button
                   onClick={() => setPage((prev) => Math.max(0, prev - 1))}
                   disabled={page === 0}
+                  className="w-11 h-11 border border-brand-dark/15 text-brand-dark rounded-full flex items-center justify-center hover:bg-brand-dark hover:text-white transition-colors disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-brand-dark cursor-pointer disabled:cursor-not-allowed"
                 >
                   ‹
-                </Button>
-                <span className="text-muted fw-bold">
+                </button>
+                <span className="text-gray-600 font-bold text-sm">
                   Trang {page + 1} / {totalPages} (Tổng số: {totalElements} tour)
                 </span>
-                <Button
-                  variant="outline-success"
-                  className="rounded-circle d-flex align-items-center justify-content-center page-btn"
+                <button
                   onClick={() => setPage((prev) => Math.min(totalPages - 1, prev + 1))}
                   disabled={page === totalPages - 1}
+                  className="w-11 h-11 border border-brand-dark/15 text-brand-dark rounded-full flex items-center justify-center hover:bg-brand-dark hover:text-white transition-colors disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-brand-dark cursor-pointer disabled:cursor-not-allowed"
                 >
                   ›
-                </Button>
+                </button>
               </div>
             )}
           </>
         )}
-      </Container>
+      </main>
 
-      {/* Immersive Tour Detail Modal */}
-      {selectedTour && (
-        <Modal show={showModal} onHide={handleCloseModal} size="lg" centered className="tour-detail-modal">
-          <Modal.Header closeButton className="border-0 pb-0">
-            <Modal.Title className="fw-bold fs-4 text-success">{selectedTour.title}</Modal.Title>
-          </Modal.Header>
-          <Modal.Body className="pt-3">
-            {/* Banner Image */}
-            <div className="rounded-3 overflow-hidden mb-4 modal-image-wrapper">
-              <img
-                src={getTourImage(selectedTour.slug)}
-                alt={selectedTour.title}
-                className="w-100 object-fit-cover modal-image"
-                height="320px"
-              />
+      {/* Immersive Tour Detail Modal popup (Tailwind CSS custom modal) */}
+      {selectedTour && showModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto transform transition-transform duration-300 scale-100 flex flex-col">
+            
+            {/* Modal Header */}
+            <div className="flex justify-between items-center p-6 border-b border-gray-100">
+              <h4 className="font-montserrat font-bold text-lg text-brand-dark">{selectedTour.title}</h4>
+              <button 
+                onClick={handleCloseModal} 
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-800 transition-colors text-lg"
+              >
+                ×
+              </button>
             </div>
 
-            <Row className="g-4">
-              {/* Tour Key Statistics */}
-              <Col xs={12} md={7}>
-                <h5 className="fw-bold text-dark mb-3 border-bottom pb-2">Thông Tin Hành Trình</h5>
-                <Row className="g-3">
-                  <Col xs={6}>
-                    <div className="text-muted small">Thời Gian</div>
-                    <div className="fw-bold text-dark">{selectedTour.durationDays} Ngày {selectedTour.durationNights} Đêm</div>
-                  </Col>
-                  <Col xs={6}>
-                    <div className="text-muted small">Độ Khó</div>
-                    <div>
-                      <Badge bg={getDifficultyVariant(selectedTour.difficulty)} className="text-uppercase px-3 py-1">
-                        {selectedTour.difficulty}
-                      </Badge>
-                    </div>
-                  </Col>
-                  <Col xs={6}>
-                    <div className="text-muted small">Quãng Đường</div>
-                    <div className="fw-bold text-dark">{selectedTour.distanceKm} Kilometres</div>
-                  </Col>
-                  <Col xs={6}>
-                    <div className="text-muted small">Độ Cao Cực Đại</div>
-                    <div className="fw-bold text-dark">{selectedTour.maxElevationM} Mét</div>
-                  </Col>
-                  <Col xs={6}>
-                    <div className="text-muted small">Điểm Xuất Phát</div>
-                    <div className="fw-bold text-dark">{selectedTour.startLocation}</div>
-                  </Col>
-                  <Col xs={6}>
-                    <div className="text-muted small">Điểm Kết Thúc</div>
-                    <div className="fw-bold text-dark">{selectedTour.endLocation}</div>
-                  </Col>
-                </Row>
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto">
+              {/* Banner Image */}
+              <div className="rounded-xl overflow-hidden mb-6 shadow-sm">
+                <img
+                  src={getTourImage(selectedTour.slug)}
+                  alt={selectedTour.title}
+                  className="w-full object-cover"
+                  style={{ height: '300px' }}
+                />
+              </div>
 
-                {/* Rating summary */}
-                <div className="mt-4 p-3 bg-light rounded-3 d-flex align-items-center gap-3">
-                  <div className="fs-1 fw-bold text-dark">{selectedTour.avgRating ? parseFloat(selectedTour.avgRating).toFixed(1) : "0.0"}</div>
-                  <div>
-                    <div>{renderStars(selectedTour.avgRating)}</div>
-                    <div className="small text-muted">{selectedTour.totalReviews || 0} lượt đánh giá từ khách hàng</div>
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+                {/* Tour Key Statistics (Left side) */}
+                <div className="md:col-span-7">
+                  <h5 className="font-bold text-gray-800 mb-4 border-b pb-2 text-sm uppercase tracking-wider">Thông Tin Hành Trình</h5>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-gray-400 text-xs">Thời Gian</div>
+                      <div className="font-bold text-gray-800 text-sm">{selectedTour.durationDays} Ngày {selectedTour.durationNights} Đêm</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-400 text-xs">Độ Khó</div>
+                      <div className="mt-1">
+                        <span className={`px-3 py-1 rounded text-[10px] font-extrabold uppercase tracking-wider ${getDifficultyColor(selectedTour.difficulty)}`}>
+                          {selectedTour.difficulty}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-gray-400 text-xs">Quãng Đường</div>
+                      <div className="font-bold text-gray-800 text-sm">{selectedTour.distanceKm} Kilometres</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-400 text-xs">Độ Cao Cực Đại</div>
+                      <div className="font-bold text-gray-800 text-sm">{selectedTour.maxElevationM} Mét</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-400 text-xs">Điểm Xuất Phát</div>
+                      <div className="font-bold text-gray-800 text-sm">{selectedTour.startLocation}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-400 text-xs">Điểm Kết Thúc</div>
+                      <div className="font-bold text-gray-800 text-sm">{selectedTour.endLocation}</div>
+                    </div>
+                  </div>
+
+                  {/* Rating summary */}
+                  <div className="mt-6 p-4 bg-gray-50 rounded-xl flex items-center gap-4">
+                    <div className="text-4xl font-bold text-gray-800">{selectedTour.avgRating ? parseFloat(selectedTour.avgRating).toFixed(1) : "0.0"}</div>
+                    <div>
+                      <div className="flex gap-0.5">{renderStars(selectedTour.avgRating)}</div>
+                      <div className="text-xs text-gray-400 mt-1">{selectedTour.totalReviews || 0} lượt đánh giá từ khách hàng</div>
+                    </div>
                   </div>
                 </div>
-              </Col>
 
-              {/* Highlights & Quick booking */}
-              <Col xs={12} md={5}>
-                <h5 className="fw-bold text-dark mb-3 border-bottom pb-2">Điểm Nổi Bật</h5>
-                {selectedTour.highlights && selectedTour.highlights.length > 0 ? (
-                  <ul className="d-flex flex-column gap-2 ps-3 mb-4 text-dark small">
-                    {selectedTour.highlights.map((hl, index) => (
-                      <li key={index} className="lh-base">
-                        {hl}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-muted small mb-4">Đang cập nhật các điểm nổi bật...</p>
-                )}
+                {/* Highlights & Quick booking (Right side) */}
+                <div className="md:col-span-5 flex flex-col">
+                  <h5 className="font-bold text-gray-800 mb-4 border-b pb-2 text-sm uppercase tracking-wider">Điểm Nổi Bật</h5>
+                  {selectedTour.highlights && selectedTour.highlights.length > 0 ? (
+                    <ul className="flex flex-col gap-2.5 list-disc pl-4 mb-6 text-gray-700 text-xs">
+                      {selectedTour.highlights.map((hl, index) => (
+                        <li key={index} className="leading-relaxed">
+                          {hl}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-400 text-xs mb-6">Đang cập nhật các điểm nổi bật...</p>
+                  )}
 
-                {/* Price and Action */}
-                <Card className="border-0 bg-success bg-opacity-10 p-3 rounded-3 mt-3">
-                  <div className="small text-muted mb-1">Giá Tour Khởi Điểm</div>
-                  <div className="fs-4 fw-bold text-success mb-2">
-                    {selectedTour.priceFrom ? formatPrice(selectedTour.priceFrom) : "Liên Hệ Trực Tiếp"}
+                  {/* Price and Action Card */}
+                  <div className="mt-auto bg-emerald-50/50 border border-emerald-100 p-4 rounded-xl">
+                    <div className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">Giá Tour Khởi Điểm</div>
+                    <div className="text-2xl font-bold text-emerald-800 mb-2">
+                      {selectedTour.priceFrom ? formatPrice(selectedTour.priceFrom) : "Liên Hệ Trực Tiếp"}
+                    </div>
+                    <div className="text-[11px] text-gray-500 mb-4">
+                      {selectedTour.upcomingDeparturesCount > 0
+                        ? `Hiện có ${selectedTour.upcomingDeparturesCount} lịch khởi hành đang mở đăng ký.`
+                        : "Chưa có lịch khởi hành sắp tới."}
+                    </div>
+                    <button 
+                      className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-full shadow transition-colors"
+                      onClick={handleCloseModal}
+                    >
+                      Yêu Cầu Đặt Chuyến
+                    </button>
                   </div>
-                  <div className="small text-muted mb-3">
-                    {selectedTour.upcomingDeparturesCount > 0
-                      ? `Hiện có ${selectedTour.upcomingDeparturesCount} lịch khởi hành đang mở đăng ký.`
-                      : "Chưa có lịch khởi hành sắp tới."}
-                  </div>
-                  <Button variant="success" className="w-100 rounded-pill fw-bold" onClick={handleCloseModal}>
-                    Yêu Cầu Đặt Chuyến
-                  </Button>
-                </Card>
-              </Col>
-            </Row>
-          </Modal.Body>
-          <Modal.Footer className="border-0 pt-0">
-            <Button variant="secondary" className="rounded-pill px-4" onClick={handleCloseModal}>
-              Đóng lại
-            </Button>
-          </Modal.Footer>
-        </Modal>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex justify-end p-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
+              <button
+                className="px-5 py-2 bg-white hover:bg-gray-100 text-gray-600 border border-gray-200 rounded-full font-bold text-xs transition-colors"
+                onClick={handleCloseModal}
+              >
+                Đóng lại
+              </button>
+            </div>
+
+          </div>
+        </div>
       )}
     </div>
   );
