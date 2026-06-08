@@ -27,9 +27,12 @@ const Home = () => {
             <Link to="/contact" className="home-nav-link">
               Contact
             </Link>
+            <Link to="/payment" className="home-nav-link">
+              Payment
+            </Link>
           </nav>
 
-          <Link to="/contact" className="home-button primary-button">
+          <Link to="/payment" className="home-button primary-button">
             Book Now
           </Link>
         </div>

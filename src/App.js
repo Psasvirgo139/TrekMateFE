@@ -7,6 +7,9 @@ import Locations from './Pages/Locations';
 import Adventures from './Pages/Adventures';
 import Contact from './Pages/Contact';
 import FAQ from './Pages/FAQ';
+import Payment from './Pages/Payment';
+import PaymentSuccess from './Pages/PaymentSuccess';
+import PaymentCancel from './Pages/PaymentCancel';
 import ScrollToTop from './Components/ScrollToTop';
 import Footer from './Components/Footer';
 
@@ -23,6 +26,9 @@ function App() {
         <Route path='/adventures' element={<Adventures />} />
         <Route path='/contact' element={<Contact/>} />
         <Route path='/faq' element={<FAQ/>} />
+        <Route path='/payment' element={<Payment />} />
+        <Route path='/payment/success' element={<PaymentSuccess />} />
+        <Route path='/payment/cancel' element={<PaymentCancel />} />
       </Routes>
       <Footer />
     </BrowserRouter>
