@@ -1,0 +1,240 @@
+/* Custom CSS for TourEditPage using React Bootstrap & Custom Styling */
+
+.tour-edit-page {
+  margin-top: 40px; /* Aligned nicely with modern dashboard margins */
+  margin-bottom: 4rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #1e293b;
+}
+
+/* 1. Top Navigation & Breadcrumbs */
+.back-link {
+  color: #64748b;
+  font-size: 0.95rem;
+  transition: color 0.2s ease-in-out;
+}
+
+.back-link:hover {
+  color: #012d1d !important;
+}
+
+.back-icon {
+  transition: transform 0.2s ease-in-out;
+}
+
+.back-link:hover .back-icon {
+  transform: translateX(-4px);
+}
+
+/* 2. Page Headers & Badges */
+.edit-title-block h1 {
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: -0.02em;
+  color: #012d1d !important;
+}
+
+.edit-title-block .badge {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  border-radius: 6px;
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1;
+}
+
+.edit-title-block .badge.bg-success {
+  background-color: #ecfdf5 !important;
+  color: #065f46 !important;
+  border: 1px solid #a7f3d0;
+}
+
+/* 3. Section Typography (Bottom Border Refactor) */
+.section-heading-wrapper {
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 0.75rem;
+}
+
+.section-heading {
+  font-family: 'Montserrat', sans-serif;
+  color: #012d1d !important;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.section-heading-wrapper .badge {
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* 4. Form inputs (Uniform 8px radius & focus styles) */
+.form-control, .form-select {
+  border-radius: 8px !important;
+  border: 1px solid #cbd5e1 !important;
+  font-size: 0.9rem;
+  color: #1e293b;
+  padding: 10px 14px;
+  transition: all 0.15s ease-in-out;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #012d1d !important;
+  box-shadow: 0 0 0 3px rgba(1, 45, 29, 0.15) !important;
+}
+
+/* Muted / Un-editable looking slug input */
+.slug-input-muted {
+  background-color: #f8fafc !important;
+  color: #64748b !important;
+  font-family: monospace;
+  font-size: 0.85rem;
+  cursor: not-allowed;
+  border: 1px solid #e2e8f0 !important;
+}
+
+/* Textarea typography line height upgrade */
+textarea.form-control {
+  line-height: 1.625 !important; /* leading-relaxed editing */
+}
+
+/* 5. Tag Display & Dynamic Tags design system */
+.tags-display-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.tag-neutral {
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.tag-emerald {
+  background-color: #ecfdf5 !important;
+  color: #065f46 !important;
+  border: 1px solid #a7f3d0 !important;
+}
+
+.tag-delete-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+  opacity: 0.7;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+}
+
+.tag-delete-btn:hover {
+  opacity: 1;
+}
+
+/* Flush InputGroup layout */
+.input-group {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.input-group > .form-control {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.input-group > .btn {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-color: #cbd5e1 !important;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background-color: #ffffff;
+  color: #334155;
+  transition: all 0.2s ease;
+}
+
+.input-group > .btn:hover {
+  background-color: #012d1d !important;
+  color: #ffffff !important;
+  border-color: #012d1d !important;
+}
+
+/* 6. Tabs layout customization */
+.tabs-nav {
+  margin-top: 10px;
+}
+
+.tabs-nav .nav-link {
+  color: #64748b !important;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.tabs-nav .nav-link:hover {
+  color: #012d1d !important;
+  border-color: #e2e8f0 !important;
+}
+
+.tabs-nav .nav-link.active {
+  color: #012d1d !important;
+  border-bottom: 3px solid #012d1d !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  background-color: transparent !important;
+}
+
+/* 7. Save CTA Button */
+.save-changes-btn {
+  background-color: #012d1d !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  transition: all 0.25s ease-in-out !important;
+  box-shadow: 0 4px 12px rgba(1, 45, 29, 0.15) !important;
+}
+
+.save-changes-btn:hover {
+  background-color: #0c432d !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(1, 45, 29, 0.25) !important;
+}
+
+/* 8. Waypoints Timeline Adjustments */
+.waypoints-timeline::before {
+  content: "";
+  position: absolute;
+  left: -25px;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  background-color: #dee2e6;
+  z-index: 1;
+}
+
+/* Responsive elements */
+@media (max-width: 768px) {
+  .waypoints-timeline::before {
+    display: none;
+  }
+}

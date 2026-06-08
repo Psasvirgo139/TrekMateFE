@@ -7,6 +7,8 @@ import Locations from './Pages/Locations';
 import Adventures from './Pages/Adventures';
 import Contact from './Pages/Contact';
 import FAQ from './Pages/FAQ';
+import TourManagement from './Pages/TourManagement';
+import TourEditPage from './Pages/TourEditPage';
 import ScrollToTop from './Components/ScrollToTop';
 import Footer from './Components/Footer';
 
@@ -23,6 +25,8 @@ function App() {
         <Route path='/adventures' element={<Adventures />} />
         <Route path='/contact' element={<Contact/>} />
         <Route path='/faq' element={<FAQ/>} />
+        <Route path='/admin/tours' element={<TourManagement />} />
+        <Route path='/admin/tours/:id' element={<TourEditPage />} />
       </Routes>
       <Footer />
     </BrowserRouter>
