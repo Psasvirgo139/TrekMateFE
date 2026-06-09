@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Button, Row, Col } from 'react-bootstrap';
 
 const CreateTourModal = ({ show, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -33,9 +32,7 @@ const CreateTourModal = ({ show, onClose, onSave }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const form = e.currentTarget;
-    if (form.checkValidity() === false) {
-      e.stopPropagation();
+    if (!formData.title.trim()) {
       setValidated(true);
       return;
     }
@@ -50,141 +47,165 @@ const CreateTourModal = ({ show, onClose, onSave }) => {
     }
   };
 
-  return (
-    <Modal show={show} onHide={onClose} centered size="lg" className="rounded-3">
-      <Modal.Header closeButton className="bg-dark text-white border-0 py-3 px-4" style={{ borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}>
-        <Modal.Title className="fw-bold fs-5" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-          Create New Tour
-        </Modal.Title>
-      </Modal.Header>
-      
-      <Form noValidate validated={validated} onSubmit={handleSubmit}>
-        <Modal.Body className="p-4 bg-white">
-          <Form.Group className="mb-3">
-            <Form.Label className="fw-semibold text-secondary small">Tour Title <span className="text-danger">*</span></Form.Label>
-            <Form.Control 
-              type="text" 
-              required 
-              placeholder="e.g., Trekking Giang Troi Waterfall 2D1N"
-              value={formData.title}
-              onChange={(e) => setFormData({...formData, title: e.target.value})}
-              className="rounded-3 border-secondary-subtle"
-              style={{ borderRadius: '8px' }}
-            />
-            <Form.Control.Feedback type="invalid">
-              Please specify a tour title.
-            </Form.Control.Feedback>
-          </Form.Group>
+  if (!show) return null;
 
-          <Row className="mb-3">
-            <Col md={6}>
-              <Form.Group>
-                <Form.Label className="fw-semibold text-secondary small">Difficulty Level</Form.Label>
-                <Form.Select 
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
+      {/* Modal Container */}
+      <div className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl flex flex-col max-h-[90vh] my-8 animate-fade-in">
+        {/* Header */}
+        <div className="flex items-center justify-between bg-[#012d1d] text-white py-4 px-6 rounded-t-xl">
+          <h3 className="font-montserrat font-bold text-lg">
+            Create New Tour
+          </h3>
+          <button 
+            type="button" 
+            onClick={onClose}
+            className="text-white/80 hover:text-white text-2xl font-light leading-none focus:outline-none"
+            aria-label="Close"
+          >
+            &times;
+          </button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="flex flex-col overflow-hidden">
+          {/* Scrollable Body */}
+          <div className="p-6 overflow-y-auto space-y-4">
+            {/* Tour Title */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                Tour Title <span className="text-red-500">*</span>
+              </label>
+              <input 
+                type="text" 
+                required 
+                placeholder="e.g., Trekking Giang Troi Waterfall 2D1N"
+                value={formData.title}
+                onChange={(e) => setFormData({...formData, title: e.target.value})}
+                className={`w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#012d1d]/20 transition-all ${
+                  validated && !formData.title.trim() 
+                    ? 'border-red-500 focus:border-red-500' 
+                    : 'border-gray-300 focus:border-[#012d1d]'
+                }`}
+              />
+              {validated && !formData.title.trim() && (
+                <p className="mt-1 text-xs text-red-500">Please specify a tour title.</p>
+              )}
+            </div>
+
+            {/* Difficulty & Status */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  Difficulty Level
+                </label>
+                <select 
                   value={formData.difficulty}
                   onChange={(e) => setFormData({...formData, difficulty: e.target.value})}
-                  className="rounded-3 border-secondary-subtle"
-                  style={{ borderRadius: '8px' }}
+                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
                 >
                   <option value="EASY">Easy</option>
                   <option value="MODERATE">Moderate</option>
                   <option value="HARD">Hard</option>
                   <option value="EXPERT">Expert</option>
-                </Form.Select>
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group>
-                <Form.Label className="fw-semibold text-secondary small">Initial Status</Form.Label>
-                <Form.Select 
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  Initial Status
+                </label>
+                <select 
                   value={formData.status}
                   onChange={(e) => setFormData({...formData, status: e.target.value})}
-                  className="rounded-3 border-secondary-subtle"
-                  style={{ borderRadius: '8px' }}
+                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
                 >
                   <option value="DRAFT">Draft</option>
                   <option value="ACTIVE">Active</option>
-                </Form.Select>
-              </Form.Group>
-            </Col>
-          </Row>
+                </select>
+              </div>
+            </div>
 
-          <Row className="mb-3">
-            <Col md={6}>
-              <Form.Group>
-                <Form.Label className="fw-semibold text-secondary small">Duration Days <span className="text-danger">*</span></Form.Label>
-                <Form.Control 
+            {/* Duration Days & Nights */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  Duration Days <span className="text-red-500">*</span>
+                </label>
+                <input 
                   type="number" 
                   min="1" 
                   required
                   value={formData.durationDays}
                   onChange={(e) => setFormData({...formData, durationDays: parseInt(e.target.value) || 1})}
-                  className="rounded-3 border-secondary-subtle"
-                  style={{ borderRadius: '8px' }}
+                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
                 />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group>
-                <Form.Label className="fw-semibold text-secondary small">Duration Nights <span className="text-danger">*</span></Form.Label>
-                <Form.Control 
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  Duration Nights <span className="text-red-500">*</span>
+                </label>
+                <input 
                   type="number" 
                   min="0" 
                   required
                   value={formData.durationNights}
                   onChange={(e) => setFormData({...formData, durationNights: parseInt(e.target.value) || 0})}
-                  className="rounded-3 border-secondary-subtle"
-                  style={{ borderRadius: '8px' }}
+                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
                 />
-              </Form.Group>
-            </Col>
-          </Row>
+              </div>
+            </div>
 
-          <Row>
-            <Col md={6}>
-              <Form.Group className="mb-3 mb-md-0">
-                <Form.Label className="fw-semibold text-secondary small">Start Location</Form.Label>
-                <Form.Control 
+            {/* Start & End Locations */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  Start Location
+                </label>
+                <input 
                   type="text" 
                   placeholder="e.g., Da Nang City Center"
                   value={formData.startLocation}
                   onChange={(e) => setFormData({...formData, startLocation: e.target.value})}
-                  className="rounded-3 border-secondary-subtle"
-                  style={{ borderRadius: '8px' }}
+                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
                 />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group>
-                <Form.Label className="fw-semibold text-secondary small">End Location</Form.Label>
-                <Form.Control 
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  End Location
+                </label>
+                <input 
                   type="text" 
                   placeholder="e.g., Hoa Ninh, Hoa Vang"
                   value={formData.endLocation}
                   onChange={(e) => setFormData({...formData, endLocation: e.target.value})}
-                  className="rounded-3 border-secondary-subtle"
-                  style={{ borderRadius: '8px' }}
+                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
                 />
-              </Form.Group>
-            </Col>
-          </Row>
-        </Modal.Body>
+              </div>
+            </div>
+          </div>
 
-        <Modal.Footer className="bg-light p-3 border-0" style={{ borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px' }}>
-          <Button variant="secondary" onClick={onClose} disabled={saving} className="fw-semibold px-4 py-2" style={{ borderRadius: '8px' }}>
-            Cancel
-          </Button>
-          <Button 
-            type="submit" 
-            disabled={saving}
-            className="fw-bold px-4 py-2 border-0"
-            style={{ backgroundColor: '#012d1d', borderRadius: '8px' }}
-          >
-            {saving ? 'Saving...' : 'Create & Edit Details'}
-          </Button>
-        </Modal.Footer>
-      </Form>
-    </Modal>
+          {/* Footer */}
+          <div className="flex justify-end gap-3 bg-gray-50 px-6 py-4 border-t rounded-b-xl">
+            <button 
+              type="button" 
+              onClick={onClose} 
+              disabled={saving} 
+              className="px-5 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors duration-150 disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              disabled={saving}
+              className="px-5 py-2 text-sm font-bold text-white bg-[#012d1d] hover:bg-[#0c432d] rounded-lg transition-colors duration-150 shadow-sm disabled:opacity-50"
+            >
+              {saving ? 'Saving...' : 'Create & Edit Details'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 

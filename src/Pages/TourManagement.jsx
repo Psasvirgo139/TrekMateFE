@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Table, Button, Form, Pagination, Spinner, Toast, ToastContainer, Row, Col } from 'react-bootstrap';
 import { ArrowLeft, Search, Edit2, Trash2, Plus, MapPin } from 'lucide-react';
 import { getTours, createTour, deleteTour } from '../Services/tourManagementApi';
 import CreateTourModal from '../Components/CreateTourModal';
 import ConfirmDeleteModal from '../Components/ConfirmDeleteModal';
-import './TourManagement.css';
 
 const TourManagement = () => {
   const navigate = useNavigate();
@@ -33,6 +31,10 @@ const TourManagement = () => {
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type, visible: true });
+    // Auto hide toast
+    setTimeout(() => {
+      setToast(prev => ({ ...prev, visible: false }));
+    }, 3500);
   };
 
   // 1. Debounce search term to avoid spamming the backend API
@@ -138,245 +140,274 @@ const TourManagement = () => {
   const getDifficultyBadge = (level) => {
     switch (level) {
       case 'EASY':
-        return <span className="difficulty-badge badge-easy">Easy</span>;
+        return <span className="px-2.5 py-1 text-xs font-semibold rounded bg-cyan-50 text-cyan-600 border border-cyan-100">Easy</span>;
       case 'MODERATE':
-        return <span className="difficulty-badge badge-moderate">Moderate</span>;
+        return <span className="px-2.5 py-1 text-xs font-semibold rounded bg-amber-50 text-amber-600 border border-amber-100">Moderate</span>;
       case 'HARD':
-        return <span className="difficulty-badge badge-hard">Hard</span>;
+        return <span className="px-2.5 py-1 text-xs font-semibold rounded bg-orange-50 text-orange-600 border border-orange-100">Hard</span>;
       case 'EXTREME':
-        return <span className="difficulty-badge badge-extreme">Extreme</span>;
+      case 'EXPERT':
+        return <span className="px-2.5 py-1 text-xs font-semibold rounded bg-purple-50 text-purple-600 border border-purple-100">Extreme</span>;
       default:
-        return <span className="difficulty-badge">{level}</span>;
+        return <span className="px-2.5 py-1 text-xs font-semibold rounded bg-gray-50 text-gray-600 border border-gray-100">{level}</span>;
     }
   };
 
   const getStatusBadge = (status) => {
     switch (status) {
       case 'ACTIVE':
-        return <span className="badge-status status-active">Active</span>;
+        return <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Active</span>;
       case 'DRAFT':
-        return <span className="badge-status status-draft">Draft</span>;
+        return <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-700 border border-gray-200">Draft</span>;
       case 'INACTIVE':
-        return <span className="badge-status status-inactive">Inactive</span>;
+        return <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200">Inactive</span>;
       case 'ARCHIVED':
-        return <span className="badge-status status-archived">Archived</span>;
+        return <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">Archived</span>;
       default:
-        return <span className="badge-status">{status}</span>;
+        return <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-gray-50 text-gray-600 border border-gray-200">{status}</span>;
     }
   };
 
   return (
-    <div className="tour-list-page container-fluid px-md-5">
-      {/* Toast Alert Container */}
-      <ToastContainer position="top-end" className="p-3" style={{ zIndex: 10000 }}>
-        <Toast 
-          show={toast.visible} 
-          onClose={() => setToast({ ...toast, visible: false })} 
-          delay={3500} 
-          autohide
-          bg={toast.type}
-          className="text-white"
+    <div className="bg-[#f8f9ff] min-h-screen py-10 px-4 md:px-12 font-sans text-gray-800">
+      {/* Toast Alert */}
+      {toast.visible && (
+        <div 
+          className="fixed top-5 right-5 z-[10000] p-4 rounded-xl shadow-xl flex items-center justify-between gap-4 text-white bg-opacity-95 transform transition-all duration-300 animate-slide-in"
+          style={{ backgroundColor: toast.type === 'danger' ? '#dc2626' : '#10b981' }}
         >
-          <Toast.Body className="d-flex align-items-center justify-content-between">
-            <div className="d-flex align-items-center gap-2">
-              <span className="fs-5">{toast.type === 'success' ? '✓' : '✗'}</span>
-              <span>{toast.message}</span>
-            </div>
-            <Button variant="close" className="btn-close-white" onClick={() => setToast({ ...toast, visible: false })} />
-          </Toast.Body>
-        </Toast>
-      </ToastContainer>
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-bold">{toast.type === 'danger' ? '✗' : '✓'}</span>
+            <span className="text-sm font-semibold">{toast.message}</span>
+          </div>
+          <button 
+            type="button" 
+            onClick={() => setToast({ ...toast, visible: false })} 
+            className="text-white hover:opacity-80 text-xl font-bold leading-none focus:outline-none"
+          >
+            &times;
+          </button>
+        </div>
+      )}
 
       {/* Top Header & Navigation */}
-      <div className="mb-3 pt-3">
-        <Link to="/" className="back-link fw-semibold d-inline-flex align-items-center gap-2 text-decoration-none">
+      <div className="mb-4">
+        <Link to="/" className="text-gray-500 hover:text-[#012d1d] font-semibold flex items-center gap-2 text-sm transition-all duration-150 transform hover:-translate-x-1 d-inline-flex">
           <ArrowLeft size={16} /> Back to Home
         </Link>
       </div>
 
-      <Row className="list-header align-items-center mb-4">
-        <Col md={8} className="header-info">
-          <h1 className="fw-bold fs-2" style={{ color: '#012d1d', fontFamily: 'Montserrat, sans-serif' }}>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+        <div>
+          <h1 className="font-montserrat font-bold text-2xl md:text-3xl text-[#012d1d]">
             Tour Management
           </h1>
-          <p className="text-muted mb-0">Monitor and adjust trekking tour itineraries and active routes.</p>
-        </Col>
-        <Col md={4} className="text-md-end mt-3 mt-md-0">
-          <Button 
-            className="add-tour-btn border-0 px-4 py-2.5 fw-semibold d-inline-flex align-items-center gap-2"
-            style={{ backgroundColor: '#012d1d', borderRadius: '8px' }}
+          <p className="text-gray-500 text-sm mt-1">Monitor and adjust trekking tour itineraries and active routes.</p>
+        </div>
+        <div>
+          <button 
             onClick={() => setIsNewModalOpen(true)}
+            className="w-full md:w-auto bg-[#012d1d] hover:bg-[#0c432d] text-white px-5 py-2.5 font-semibold rounded-lg shadow-md flex items-center justify-center gap-2 transition-all duration-150 transform hover:-translate-y-0.5"
           >
             <Plus size={18} /> Add New Tour
-          </Button>
-        </Col>
-      </Row>
+          </button>
+        </div>
+      </div>
 
       {/* Filters & Search Row */}
-      <Row className="filter-wrapper align-items-center p-3 mb-4 bg-white rounded shadow-sm border mx-0" style={{ borderRadius: '8px' }}>
-        <Col lg={4} md={6} className="mb-3 mb-lg-0 px-0">
-          <div className="status-pills bg-light p-1 d-inline-flex" style={{ borderRadius: '8px' }}>
-            <Button 
-              variant={statusTab === 'ALL' ? 'white shadow-sm fw-semibold text-dark' : 'link text-secondary text-decoration-none'} 
-              size="sm"
-              onClick={() => setStatusTab('ALL')}
-              className="px-3 py-1.5"
-              style={{ borderRadius: '6px' }}
-            >
-              All
-            </Button>
-            <Button 
-              variant={statusTab === 'ACTIVE' ? 'white shadow-sm fw-semibold text-dark' : 'link text-secondary text-decoration-none'} 
-              size="sm"
-              onClick={() => setStatusTab('ACTIVE')}
-              className="px-3 py-1.5"
-              style={{ borderRadius: '6px' }}
-            >
-              Active
-            </Button>
-            <Button 
-              variant={statusTab === 'DRAFT' ? 'white shadow-sm fw-semibold text-dark' : 'link text-secondary text-decoration-none'} 
-              size="sm"
-              onClick={() => setStatusTab('DRAFT')}
-              className="px-3 py-1.5"
-              style={{ borderRadius: '6px' }}
-            >
-              Draft
-            </Button>
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between p-4 mb-6 bg-white rounded-xl shadow-sm border border-gray-200 gap-4">
+        {/* Status Pills */}
+        <div className="bg-gray-100 p-1 flex rounded-lg self-start">
+          <button 
+            onClick={() => setStatusTab('ALL')}
+            className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
+              statusTab === 'ALL' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'
+            }`}
+          >
+            All
+          </button>
+          <button 
+            onClick={() => setStatusTab('ACTIVE')}
+            className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
+              statusTab === 'ACTIVE' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'
+            }`}
+          >
+            Active
+          </button>
+          <button 
+            onClick={() => setStatusTab('DRAFT')}
+            className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
+              statusTab === 'DRAFT' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'
+            }`}
+          >
+            Draft
+          </button>
+        </div>
+
+        {/* Search & Difficulty */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full lg:w-auto">
+          <select 
+            value={difficulty} 
+            onChange={(e) => setDifficulty(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all font-medium"
+          >
+            <option value="ALL">All Difficulties</option>
+            <option value="EASY">Easy</option>
+            <option value="MODERATE">Moderate</option>
+            <option value="HARD">Hard</option>
+            <option value="EXTREME">Extreme</option>
+          </select>
+
+          <div className="relative flex-grow md:w-72">
+            <Search size={18} className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <input 
+              type="text" 
+              placeholder="Search by title or location..." 
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+            />
           </div>
-        </Col>
-
-        <Col lg={8} md={6} className="px-0">
-          <Form onSubmit={(e) => e.preventDefault()} className="d-flex align-items-center gap-2 justify-content-md-end flex-wrap flex-md-nowrap">
-            <Form.Select 
-              value={difficulty} 
-              onChange={(e) => setDifficulty(e.target.value)}
-              className="w-auto border-secondary-subtle font-medium"
-              style={{ minWidth: '160px', borderRadius: '8px' }}
-            >
-              <option value="ALL">All Difficulties</option>
-              <option value="EASY">Easy</option>
-              <option value="MODERATE">Moderate</option>
-              <option value="HARD">Hard</option>
-              <option value="EXTREME">Extreme</option>
-            </Form.Select>
-
-            <div className="search-input-container flex-grow-1 max-width-md-300">
-              <Search size={18} className="search-icon-svg" />
-              <Form.Control 
-                type="text" 
-                placeholder="Search by title or location..." 
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="border-secondary-subtle ps-5 py-2"
-                style={{ borderRadius: '8px' }}
-              />
-            </div>
-          </Form>
-        </Col>
-      </Row>
+        </div>
+      </div>
 
       {/* Main Data Table */}
-      <div className="table-responsive bg-white border shadow-sm" style={{ borderRadius: '8px' }}>
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
         {loading ? (
-          <div className="text-center py-5">
-            <Spinner animation="border" style={{ color: '#012d1d' }} className="mb-3" />
-            <p className="text-muted small">Loading tours list from the database...</p>
+          <div className="text-center py-12">
+            <div className="w-8 h-8 border-4 border-[#012d1d] border-t-transparent rounded-full animate-spin mb-3 mx-auto"></div>
+            <p className="text-gray-500 text-sm">Loading tours list from the database...</p>
           </div>
         ) : tours.length === 0 ? (
-          <div className="text-center py-5 px-3">
-            <div className="fs-1 text-muted mb-2">🏔️</div>
-            <h5 className="fw-bold text-dark">No tours found</h5>
-            <p className="text-muted small mb-0">Try adjusting your filters or search term.</p>
+          <div className="text-center py-12 px-4">
+            <div className="text-4xl text-gray-300 mb-2">🏔️</div>
+            <h5 className="font-bold text-gray-700">No tours found</h5>
+            <p className="text-gray-500 text-sm">Try adjusting your filters or search term.</p>
           </div>
         ) : (
-          <Table responsive hover className="align-middle mb-0 text-left border-0">
-            <thead className="text-white text-uppercase small text-secondary" style={{ backgroundColor: '#012d1d' }}>
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="hidden md:table-header-group bg-[#012d1d] text-white">
               <tr>
-                <th className="py-3 ps-4" style={{ width: '35%' }}>Tour / Location</th>
-                <th className="py-3">Difficulty</th>
-                <th className="py-3">Duration</th>
-                <th className="py-3">Bookings & Departures</th>
-                <th className="py-3">Status</th>
-                <th className="py-3 pe-4 text-end" style={{ width: '12%' }}>Actions</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider font-montserrat">Tour / Location</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider font-montserrat">Difficulty</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider font-montserrat">Duration</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider font-montserrat">Bookings & Departures</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider font-montserrat">Status</th>
+                <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider font-montserrat w-[12%]">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="bg-white divide-y divide-gray-100 flex flex-col md:table-row-group p-4 md:p-0">
               {tours.map((tour) => (
-                <tr key={tour.id}>
-                  <td data-label="Tour / Location" className="ps-4 py-3">
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="tour-thumbnail-placeholder d-flex align-items-center justify-content-center bg-light rounded" style={{ width: '48px', height: '48px', flexShrink: 0 }}>
-                        <MapPin size={20} className="text-muted opacity-75" />
+                <tr 
+                  key={tour.id} 
+                  className="flex flex-col md:table-row border border-gray-200 md:border-0 rounded-xl p-4 md:p-0 mb-4 md:mb-0 hover:bg-emerald-50/10 transition-colors duration-150"
+                >
+                  {/* Tour/Location cell */}
+                  <td className="px-0 md:px-6 py-2 md:py-4 flex justify-between items-center md:table-cell border-b md:border-b-0 border-gray-100">
+                    <span className="md:hidden font-montserrat font-bold text-xs text-gray-400 uppercase tracking-wider mr-2">Tour / Location</span>
+                    <div className="flex items-center gap-3 text-right md:text-left justify-end md:justify-start">
+                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 border border-gray-200">
+                        <MapPin size={20} className="text-gray-400" />
                       </div>
                       <div>
-                        <Link to={`/admin/tours/${tour.id}`} className="tour-link-name fw-bold text-decoration-none">
+                        <Link to={`/admin/tours/${tour.id}`} className="font-bold text-[#012d1d] hover:text-[#fea619] transition-colors duration-150">
                           {tour.title}
                         </Link>
-                        <div className="text-muted small mt-1 d-flex align-items-center gap-1">
+                        <div className="text-gray-500 text-xs mt-0.5">
                           {tour.startLocation && tour.startLocation.trim() !== "" ? tour.startLocation : "Location not specified"}
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td data-label="Difficulty" className="py-3">{getDifficultyBadge(tour.difficulty)}</td>
-                  <td data-label="Duration" className="py-3">
-                    <div className="fw-bold text-dark">
-                      {tour.durationDays} Days / {tour.durationNights || 0} Nights
-                    </div>
-                    <div className="text-muted small mt-1">{tour.distanceKm ? `${tour.distanceKm} km` : '0 km'}</div>
-                  </td>
-                  <td data-label="Bookings & Departures" className="py-3">
-                    <div className="d-flex flex-column gap-1 small text-start">
-                      <span className="fw-semibold text-dark">Bookings: {tour.totalBookings || 0}</span>
-                      <span className="text-muted">Departures: {tour.totalDepartures || 0}</span>
+
+                  {/* Difficulty cell */}
+                  <td className="px-0 md:px-6 py-2 md:py-4 flex justify-between items-center md:table-cell border-b md:border-b-0 border-gray-100">
+                    <span className="md:hidden font-montserrat font-bold text-xs text-gray-400 uppercase tracking-wider mr-2">Difficulty</span>
+                    <div className="text-right md:text-left">
+                      {getDifficultyBadge(tour.difficulty)}
                     </div>
                   </td>
-                  <td data-label="Status" className="py-3">{getStatusBadge(tour.status)}</td>
-                  <td data-label="Actions" className="pe-4 py-3 text-end">
-                    <div className="d-flex justify-content-end gap-1">
-                      <Button 
-                        variant="link" 
-                        className="action-btn-icon edit-btn p-2 rounded-3 border-0"
-                        title="Edit Tour"
+
+                  {/* Duration cell */}
+                  <td className="px-0 md:px-6 py-2 md:py-4 flex justify-between items-center md:table-cell border-b md:border-b-0 border-gray-100">
+                    <span className="md:hidden font-montserrat font-bold text-xs text-gray-400 uppercase tracking-wider mr-2">Duration</span>
+                    <div className="text-right md:text-left">
+                      <div className="font-bold text-gray-950">
+                        {tour.durationDays} Days / {tour.durationNights || 0} Nights
+                      </div>
+                      <div className="text-gray-500 text-xs mt-0.5">{tour.distanceKm ? `${tour.distanceKm} km` : '0 km'}</div>
+                    </div>
+                  </td>
+
+                  {/* Bookings & Departures cell */}
+                  <td className="px-0 md:px-6 py-2 md:py-4 flex justify-between items-center md:table-cell border-b md:border-b-0 border-gray-100">
+                    <span className="md:hidden font-montserrat font-bold text-xs text-gray-400 uppercase tracking-wider mr-2">Bookings</span>
+                    <div className="flex flex-col text-right md:text-left">
+                      <span className="font-semibold text-gray-800 text-sm">Bookings: {tour.totalBookings || 0}</span>
+                      <span className="text-gray-500 text-xs">Departures: {tour.totalDepartures || 0}</span>
+                    </div>
+                  </td>
+
+                  {/* Status cell */}
+                  <td className="px-0 md:px-6 py-2 md:py-4 flex justify-between items-center md:table-cell border-b md:border-b-0 border-gray-100">
+                    <span className="md:hidden font-montserrat font-bold text-xs text-gray-400 uppercase tracking-wider mr-2">Status</span>
+                    <div className="text-right md:text-left">
+                      {getStatusBadge(tour.status)}
+                    </div>
+                  </td>
+
+                  {/* Actions cell */}
+                  <td className="px-0 md:px-6 py-2 md:py-4 flex justify-between items-center md:table-cell text-right">
+                    <span className="md:hidden font-montserrat font-bold text-xs text-gray-400 uppercase tracking-wider mr-2">Actions</span>
+                    <div className="flex justify-end gap-1">
+                      <button 
                         onClick={() => navigate(`/admin/tours/${tour.id}`)}
+                        className="p-2 text-gray-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors focus:outline-none"
+                        title="Edit Tour"
                       >
                         <Edit2 size={16} />
-                      </Button>
-                      <Button 
-                        variant="link" 
-                        className="action-btn-icon delete-btn p-2 rounded-3 border-0"
-                        title="Archive Tour"
+                      </button>
+                      <button 
                         onClick={() => setDeleteId(tour.id)}
+                        className="p-2 text-gray-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors focus:outline-none"
+                        title="Archive Tour"
                       >
                         <Trash2 size={16} />
-                      </Button>
+                      </button>
                     </div>
                   </td>
                 </tr>
               ))}
             </tbody>
-          </Table>
+          </table>
         )}
       </div>
 
-      {/* Pagination component */}
+      {/* Pagination */}
       {!loading && totalPages > 1 && (
-        <div className="d-flex justify-content-between align-items-center mt-3 small text-muted">
+        <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4 text-sm text-gray-500">
           <div>
-            Showing <strong>{tours.length}</strong> of <strong>{totalElements}</strong> results
+            Showing <strong className="text-gray-800">{tours.length}</strong> of <strong className="text-gray-800">{totalElements}</strong> results
           </div>
-          <Pagination className="mb-0">
-            <Pagination.Prev 
+          <div className="flex items-center gap-2">
+            <button 
               disabled={page === 0}
               onClick={() => setPage(prev => Math.max(0, prev - 1))}
-            />
-            <Pagination.Item active>{page + 1}</Pagination.Item>
-            <Pagination.Next 
+              className="px-4 py-2 text-xs font-semibold border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none"
+            >
+              Previous
+            </button>
+            <span className="px-4 py-2 text-xs font-bold bg-[#012d1d] text-white rounded-lg">
+              {page + 1}
+            </span>
+            <button 
               disabled={page === totalPages - 1}
               onClick={() => setPage(prev => Math.min(totalPages - 1, prev + 1))}
-            />
-          </Pagination>
+              className="px-4 py-2 text-xs font-semibold border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none"
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
 

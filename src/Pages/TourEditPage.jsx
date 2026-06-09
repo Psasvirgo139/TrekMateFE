@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Tabs, Tab, Accordion, Form, Button, Row, Col, Badge, Spinner, Toast, ToastContainer, Card, InputGroup } from 'react-bootstrap';
 import { ArrowLeft, Plus, X } from 'lucide-react';
 import { 
   getTourDetail, 
@@ -14,7 +13,6 @@ import {
   deleteTourImage
 } from '../Services/tourManagementApi';
 import WaypointModal from '../Components/WaypointModal';
-import './TourEditPage.css';
 
 // Sanitization utilities
 const cleanStringValue = (val) => (val === 'string' || val === 'STRING') ? '' : val;
@@ -86,6 +84,10 @@ const TourEditPage = () => {
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type, visible: true });
+    // Auto hide toast
+    setTimeout(() => {
+      setToast(prev => ({ ...prev, visible: false }));
+    }, 3500);
   };
 
   // Fetch Tour details from Backend API
@@ -377,935 +379,999 @@ const TourEditPage = () => {
 
   if (loading) {
     return (
-      <div className="tour-edit-page text-center py-5">
-        <Spinner animation="border" style={{ color: '#012d1d' }} className="mb-3" />
-        <p className="text-muted">Loading tour details...</p>
+      <div className="flex flex-col items-center justify-center py-20 bg-gray-50 min-h-screen">
+        <div className="w-10 h-10 border-4 border-[#012d1d] border-t-transparent rounded-full animate-spin mb-3"></div>
+        <p className="text-gray-500 text-sm">Loading tour details...</p>
       </div>
     );
   }
 
   if (errorMsg || !tour) {
     return (
-      <div className="tour-edit-page container py-5 text-center">
-        <Card className="p-5 border-danger shadow-sm mx-auto" style={{ maxWidth: '600px' }}>
-          <Card.Body>
-            <div className="fs-1 text-danger mb-3">⚠️</div>
-            <Card.Title className="fw-bold mb-3">Tour Not Found</Card.Title>
-            <Card.Text className="text-muted mb-4">{errorMsg || 'The requested Tour ID does not exist in the system.'}</Card.Text>
-            <Link to="/admin/tours" className="btn btn-primary border-0" style={{ backgroundColor: '#012d1d' }}>
-              Back to Tour List
-            </Link>
-          </Card.Body>
-        </Card>
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 py-12 px-4">
+        <div className="w-full max-w-md bg-white rounded-xl shadow-xl border border-red-100 p-8 text-center">
+          <div className="text-5xl text-red-500 mb-4">⚠️</div>
+          <h3 className="font-montserrat font-bold text-xl text-gray-900 mb-2">Tour Not Found</h3>
+          <p className="text-gray-500 text-sm mb-6 leading-relaxed">{errorMsg || 'The requested Tour ID does not exist in the system.'}</p>
+          <Link to="/admin/tours" className="inline-block bg-[#012d1d] hover:bg-[#0c432d] text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-md shadow-[#012d1d]/10">
+            Back to Tour List
+          </Link>
+        </div>
       </div>
     );
   }
 
+  const tabItems = [
+    { id: 'basic', label: 'Basic Info' },
+    { id: 'waypoints', label: `Waypoints (${waypoints.length})` },
+    { id: 'itinerary', label: `Daily Itinerary (${itineraries.length})` },
+    { id: 'gallery', label: `Image Gallery (${images.length})` },
+  ];
+
   return (
-    <div className="tour-edit-page container-fluid px-md-5">
-      {/* Toast notifications */}
-      <ToastContainer position="top-end" className="p-3" style={{ zIndex: 10000 }}>
-        <Toast 
-          show={toast.visible} 
-          onClose={() => setToast({ ...toast, visible: false })} 
-          delay={3500} 
-          autohide
-          bg={toast.type}
-          className="text-white"
+    <div className="bg-[#f8f9ff] min-h-screen py-10 px-4 md:px-12 font-sans text-gray-800">
+      {/* Toast Alert */}
+      {toast.visible && (
+        <div 
+          className="fixed top-5 right-5 z-[10000] p-4 rounded-xl shadow-xl flex items-center justify-between gap-4 text-white bg-opacity-95 transform transition-all duration-300 animate-slide-in"
+          style={{ backgroundColor: toast.type === 'danger' ? '#dc2626' : '#10b981' }}
         >
-          <Toast.Body className="d-flex align-items-center justify-content-between">
-            <div className="d-flex align-items-center gap-2">
-              <span className="fs-5">{toast.type === 'success' ? '✓' : '✗'}</span>
-              <span>{toast.message}</span>
-            </div>
-            <Button variant="close" className="btn-close-white" onClick={() => setToast({ ...toast, visible: false })} />
-          </Toast.Body>
-        </Toast>
-      </ToastContainer>
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-bold">{toast.type === 'danger' ? '✗' : '✓'}</span>
+            <span className="text-sm font-semibold">{toast.message}</span>
+          </div>
+          <button 
+            type="button" 
+            onClick={() => setToast({ ...toast, visible: false })} 
+            className="text-white hover:opacity-80 text-xl font-bold leading-none focus:outline-none"
+          >
+            &times;
+          </button>
+        </div>
+      )}
 
       {/* Back navigation */}
-      <div className="edit-breadcrumbs mb-3 pt-3">
-        <Link to="/admin/tours" className="back-link fw-semibold d-inline-flex align-items-center gap-2 text-decoration-none">
-          <ArrowLeft size={16} className="back-icon" /> Back to Tour List
+      <div className="mb-4">
+        <Link to="/admin/tours" className="text-gray-500 hover:text-[#012d1d] font-semibold flex items-center gap-2 text-sm transition-all duration-150 transform hover:-translate-x-1 d-inline-flex">
+          <ArrowLeft size={16} /> Back to Tour List
         </Link>
       </div>
       
       {/* Header Info */}
-      <Row className="edit-title-block align-items-center mb-4 pb-3 border-bottom">
-        <Col>
-          <Badge bg={tour.status === 'ACTIVE' ? 'success' : 'secondary'} className="mb-2 px-2.5 py-1.5 fw-semibold text-uppercase">
-            {tour.status === 'ACTIVE' ? 'Active' : tour.status}
-          </Badge>
-          <h1 className="fw-bold fs-2 text-dark m-0" style={{ fontFamily: 'Montserrat, sans-serif' }}>{tour.title}</h1>
-          <p className="slug-line text-muted small mt-1 mb-0">Slug: <code>{tour.slug || 'not-created'}</code></p>
-        </Col>
-      </Row>
+      <div className="mb-6 pb-4 border-b border-gray-200">
+        <span className={`inline-block px-2.5 py-1 text-xs font-semibold rounded-md uppercase tracking-wider mb-2 ${
+          tour.status === 'ACTIVE' 
+            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
+            : 'bg-gray-100 text-gray-700 border border-gray-200'
+        }`}>
+          {tour.status === 'ACTIVE' ? 'Active' : tour.status}
+        </span>
+        <h1 className="font-montserrat font-bold text-2xl md:text-3xl text-[#012d1d]">{tour.title}</h1>
+        <p className="text-gray-500 text-xs mt-1">Slug: <code className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-700 text-[11px] font-mono">{tour.slug || 'not-created'}</code></p>
+      </div>
 
-      {/* Main Tabs */}
-      <Tabs 
-        activeKey={activeTab} 
-        onSelect={(k) => setActiveTab(k)} 
-        className="mb-4 tabs-nav fw-semibold border-bottom"
-      >
+      {/* Main Tabs Navigation */}
+      <div className="flex border-b border-gray-200 mb-6 overflow-x-auto gap-4 scrollbar-thin">
+        {tabItems.map(item => (
+          <button
+            key={item.id}
+            onClick={() => setActiveTab(item.id)}
+            className={`pb-3 text-sm font-semibold border-b-2 whitespace-nowrap transition-all font-montserrat ${
+              activeTab === item.id 
+                ? 'border-[#012d1d] text-[#012d1d]' 
+                : 'border-transparent text-gray-500 hover:text-[#012d1d] hover:border-gray-300'
+            }`}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      {/* TAB CONTENT SPACES */}
+      <div>
         {/* TAB 1: BASIC INFO */}
-        <Tab eventKey="basic" title="📝 Basic Info">
-          <Form onSubmit={handleBasicInfoSubmit} className="edit-form-container">
+        {activeTab === 'basic' && (
+          <form onSubmit={handleBasicInfoSubmit} className="space-y-6 w-full">
             {/* General & Status */}
-            <Card className="mb-4 border shadow-sm rounded-3">
-              <Card.Body className="p-4">
-                <div className="section-heading-wrapper mb-4 pb-2 border-bottom d-flex align-items-center justify-content-between">
-                  <h3 className="section-heading m-0">General & Status</h3>
-                  <span className="badge bg-secondary-subtle text-secondary-emphasis border px-2.5 py-1.5 rounded-3 fw-semibold small">Step 1</span>
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="flex justify-between items-center bg-gray-50/50 p-4 border-b border-gray-200">
+                <h3 className="font-montserrat font-bold text-[#012d1d]">General & Status</h3>
+                <span className="px-2 py-0.5 text-[11px] font-bold bg-gray-100 border text-gray-600 rounded">Step 1</span>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Tour Title <span className="text-red-500">*</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      required 
+                      placeholder="Enter tour title..."
+                      value={tour.title || ''}
+                      onChange={handleTitleChange}
+                      className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Slug (URL Path)
+                    </label>
+                    <input 
+                      type="text" 
+                      placeholder="auto-generated-slug-path"
+                      value={tour.slug || ''}
+                      onChange={(e) => setTour({...tour, slug: generateSlug(e.target.value)})}
+                      className="w-full px-4 py-2 text-sm border border-gray-200 bg-gray-50 text-gray-500 rounded-lg cursor-not-allowed font-mono text-xs focus:outline-none"
+                    />
+                  </div>
                 </div>
 
-                <Row className="mb-3">
-                  <Col md={6}>
-                    <Form.Group>
-                      <Form.Label className="fw-semibold text-secondary small">Tour Title <span className="text-danger">*</span></Form.Label>
-                      <Form.Control 
-                        type="text" 
-                        required 
-                        placeholder="Enter tour title..."
-                        value={tour.title || ''}
-                        onChange={handleTitleChange}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group>
-                      <Form.Label className="fw-semibold text-secondary small">Slug (URL Path)</Form.Label>
-                      <Form.Control 
-                        type="text" 
-                        placeholder="auto-generated-slug-path"
-                        value={tour.slug || ''}
-                        className="slug-input-muted bg-light text-muted"
-                        onChange={(e) => setTour({...tour, slug: generateSlug(e.target.value)})}
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Status
+                    </label>
+                    <select 
+                      value={tour.status || 'DRAFT'}
+                      onChange={(e) => setTour({...tour, status: e.target.value})}
+                      className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                    >
+                      <option value="DRAFT">Draft</option>
+                      <option value="ACTIVE">Active</option>
+                      <option value="INACTIVE">Inactive</option>
+                      <option value="ARCHIVED">Archived</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Difficulty
+                    </label>
+                    <select 
+                      value={tour.difficulty || 'EASY'}
+                      onChange={(e) => setTour({...tour, difficulty: e.target.value})}
+                      className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                    >
+                      <option value="EASY">Easy</option>
+                      <option value="MODERATE">Moderate</option>
+                      <option value="HARD">Hard</option>
+                      <option value="EXTREME">Extreme</option>
+                    </select>
+                  </div>
+                </div>
 
-                <Row className="mb-3">
-                  <Col md={6}>
-                    <Form.Group>
-                      <Form.Label className="fw-semibold text-secondary small">Status</Form.Label>
-                      <Form.Select 
-                        value={tour.status || 'DRAFT'}
-                        onChange={(e) => setTour({...tour, status: e.target.value})}
-                      >
-                        <option value="DRAFT">Draft</option>
-                        <option value="ACTIVE">Active</option>
-                        <option value="INACTIVE">Inactive</option>
-                        <option value="ARCHIVED">Archived</option>
-                      </Form.Select>
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group>
-                      <Form.Label className="fw-semibold text-secondary small">Difficulty</Form.Label>
-                      <Form.Select 
-                        value={tour.difficulty || 'EASY'}
-                        onChange={(e) => setTour({...tour, difficulty: e.target.value})}
-                      >
-                        <option value="EASY">Easy</option>
-                        <option value="MODERATE">Moderate</option>
-                        <option value="HARD">Hard</option>
-                        <option value="EXTREME">Extreme</option>
-                      </Form.Select>
-                    </Form.Group>
-                  </Col>
-                </Row>
-
-                {/* 4-column metric layout */}
-                <Row className="g-3 mb-2">
-                  <Col xs={6} md={3}>
-                    <Form.Group>
-                      <Form.Label className="fw-semibold text-secondary small">Duration (Days) *</Form.Label>
-                      <Form.Control 
-                        type="number" 
-                        required
-                        placeholder="e.g., 3"
-                        value={tour.durationDays || ''}
-                        onChange={(e) => setTour({...tour, durationDays: e.target.value})}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col xs={6} md={3}>
-                    <Form.Group>
-                      <Form.Label className="fw-semibold text-secondary small">Duration (Nights) *</Form.Label>
-                      <Form.Control 
-                        type="number" 
-                        required
-                        placeholder="e.g., 2"
-                        value={tour.durationNights || ''}
-                        onChange={(e) => setTour({...tour, durationNights: e.target.value})}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col xs={6} md={3}>
-                    <Form.Group>
-                      <Form.Label className="fw-semibold text-secondary small">Distance (Km)</Form.Label>
-                      <Form.Control 
-                        type="number" 
-                        step="0.1" 
-                        placeholder="e.g., 25"
-                        value={tour.distanceKm || ''}
-                        onChange={(e) => setTour({...tour, distanceKm: e.target.value})}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col xs={6} md={3}>
-                    <Form.Group>
-                      <Form.Label className="fw-semibold text-secondary small">Max Elevation (m)</Form.Label>
-                      <Form.Control 
-                        type="number" 
-                        placeholder="e.g., 1500"
-                        value={tour.maxElevationM || ''}
-                        onChange={(e) => setTour({...tour, maxElevationM: e.target.value})}
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
-              </Card.Body>
-            </Card>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Duration (Days) *
+                    </label>
+                    <input 
+                      type="number" 
+                      required
+                      placeholder="e.g., 3"
+                      value={tour.durationDays || ''}
+                      onChange={(e) => setTour({...tour, durationDays: e.target.value})}
+                      className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Duration (Nights) *
+                    </label>
+                    <input 
+                      type="number" 
+                      required
+                      placeholder="e.g., 2"
+                      value={tour.durationNights || ''}
+                      onChange={(e) => setTour({...tour, durationNights: e.target.value})}
+                      className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Distance (Km)
+                    </label>
+                    <input 
+                      type="number" 
+                      step="0.1" 
+                      placeholder="e.g., 25"
+                      value={tour.distanceKm || ''}
+                      onChange={(e) => setTour({...tour, distanceKm: e.target.value})}
+                      className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Max Elevation (m)
+                    </label>
+                    <input 
+                      type="number" 
+                      placeholder="e.g., 1500"
+                      value={tour.maxElevationM || ''}
+                      onChange={(e) => setTour({...tour, maxElevationM: e.target.value})}
+                      className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* Summary & Description */}
-            <Card className="mb-4 border shadow-sm rounded-3">
-              <Card.Body className="p-4">
-                <div className="section-heading-wrapper mb-4 pb-2 border-bottom d-flex align-items-center justify-content-between">
-                  <h3 className="section-heading m-0">Summary & Description</h3>
-                  <span className="badge bg-secondary-subtle text-secondary-emphasis border px-2.5 py-1.5 rounded-3 fw-semibold small">Step 2</span>
-                </div>
-                <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold text-secondary small">Short Description (Card Summary)</Form.Label>
-                  <Form.Control 
-                    as="textarea"
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="flex justify-between items-center bg-gray-50/50 p-4 border-b border-gray-200">
+                <h3 className="font-montserrat font-bold text-[#012d1d]">Summary & Description</h3>
+                <span className="px-2 py-0.5 text-[11px] font-bold bg-gray-100 border text-gray-600 rounded">Step 2</span>
+              </div>
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                    Short Description (Card Summary)
+                  </label>
+                  <textarea 
                     rows={2}
                     maxLength={500}
                     placeholder="Enter brief tour summary (max 500 characters)..."
                     value={tour.shortDescription || ''}
                     onChange={(e) => setTour({...tour, shortDescription: e.target.value})}
+                    className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all leading-relaxed"
                   />
-                </Form.Group>
-                <Form.Group>
-                  <Form.Label className="fw-semibold text-secondary small">Detailed Description</Form.Label>
-                  <Form.Control 
-                    as="textarea"
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                    Detailed Description
+                  </label>
+                  <textarea 
                     rows={6}
                     placeholder="Enter detailed description of the trek..."
                     value={tour.description || ''}
                     onChange={(e) => setTour({...tour, description: e.target.value})}
+                    className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all leading-relaxed"
                   />
-                </Form.Group>
-              </Card.Body>
-            </Card>
+                </div>
+              </div>
+            </div>
 
             {/* Location & Map */}
-            <Card className="mb-4 border shadow-sm rounded-3">
-              <Card.Body className="p-4">
-                <div className="section-heading-wrapper mb-4 pb-2 border-bottom d-flex align-items-center justify-content-between">
-                  <h3 className="section-heading m-0">Location & Map</h3>
-                  <span className="badge bg-secondary-subtle text-secondary-emphasis border px-2.5 py-1.5 rounded-3 fw-semibold small">Step 3</span>
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="flex justify-between items-center bg-gray-50/50 p-4 border-b border-gray-200">
+                <h3 className="font-montserrat font-bold text-[#012d1d]">Location & Map</h3>
+                <span className="px-2 py-0.5 text-[11px] font-bold bg-gray-100 border text-gray-600 rounded">Step 3</span>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Start Location (Name)
+                    </label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g., Sapa Town, Lao Cai"
+                      value={tour.startLocation || ''}
+                      onChange={(e) => setTour({...tour, startLocation: e.target.value})}
+                      className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      End Location (Name)
+                    </label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g., Fansipan Summit"
+                      value={tour.endLocation || ''}
+                      onChange={(e) => setTour({...tour, endLocation: e.target.value})}
+                      className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                    />
+                  </div>
                 </div>
-                <Row className="mb-3">
-                  <Col md={6}>
-                    <Form.Group>
-                      <Form.Label className="fw-semibold text-secondary small">Start Location (Name)</Form.Label>
-                      <Form.Control 
-                        type="text" 
-                        placeholder="e.g., Sapa Town, Lao Cai"
-                        value={tour.startLocation || ''}
-                        onChange={(e) => setTour({...tour, startLocation: e.target.value})}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group>
-                      <Form.Label className="fw-semibold text-secondary small">End Location (Name)</Form.Label>
-                      <Form.Control 
-                        type="text" 
-                        placeholder="e.g., Fansipan Summit"
-                        value={tour.endLocation || ''}
-                        onChange={(e) => setTour({...tour, endLocation: e.target.value})}
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
 
-                <Row className="mb-3">
-                  <Col md={3}>
-                    <Form.Group>
-                      <Form.Label className="fw-semibold text-secondary small">Start Latitude</Form.Label>
-                      <Form.Control 
-                        type="number" 
-                        step="0.000001"
-                        placeholder="e.g., 22.336"
-                        value={tour.startLat || ''}
-                        onChange={(e) => setTour({...tour, startLat: e.target.value})}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={3}>
-                    <Form.Group>
-                      <Form.Label className="fw-semibold text-secondary small">Start Longitude</Form.Label>
-                      <Form.Control 
-                        type="number" 
-                        step="0.000001"
-                        placeholder="e.g., 103.843"
-                        value={tour.startLng || ''}
-                        onChange={(e) => setTour({...tour, startLng: e.target.value})}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={3}>
-                    <Form.Group>
-                      <Form.Label className="fw-semibold text-secondary small">End Latitude</Form.Label>
-                      <Form.Control 
-                        type="number" 
-                        step="0.000001"
-                        placeholder="e.g., 22.302"
-                        value={tour.endLat || ''}
-                        onChange={(e) => setTour({...tour, endLat: e.target.value})}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={3}>
-                    <Form.Group>
-                      <Form.Label className="fw-semibold text-secondary small">End Longitude</Form.Label>
-                      <Form.Control 
-                        type="number" 
-                        step="0.000001"
-                        placeholder="e.g., 103.775"
-                        value={tour.endLng || ''}
-                        onChange={(e) => setTour({...tour, endLng: e.target.value})}
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Start Latitude
+                    </label>
+                    <input 
+                      type="number" 
+                      step="0.000001"
+                      placeholder="e.g., 22.336"
+                      value={tour.startLat || ''}
+                      onChange={(e) => setTour({...tour, startLat: e.target.value})}
+                      className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Start Longitude
+                    </label>
+                    <input 
+                      type="number" 
+                      step="0.000001"
+                      placeholder="e.g., 103.843"
+                      value={tour.startLng || ''}
+                      onChange={(e) => setTour({...tour, startLng: e.target.value})}
+                      className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      End Latitude
+                    </label>
+                    <input 
+                      type="number" 
+                      step="0.000001"
+                      placeholder="e.g., 22.302"
+                      value={tour.endLat || ''}
+                      onChange={(e) => setTour({...tour, endLat: e.target.value})}
+                      className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      End Longitude
+                    </label>
+                    <input 
+                      type="number" 
+                      step="0.000001"
+                      placeholder="e.g., 103.775"
+                      value={tour.endLng || ''}
+                      onChange={(e) => setTour({...tour, endLng: e.target.value})}
+                      className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                    />
+                  </div>
+                </div>
 
-                <Form.Group>
-                  <Form.Label className="fw-semibold text-secondary small">GPX Route File URL</Form.Label>
-                  <Form.Control 
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                    GPX Route File URL
+                  </label>
+                  <input 
                     type="url" 
                     placeholder="e.g., https://maps.trekmate.com/gpx/fansipan.gpx"
                     value={tour.routeGpxUrl || ''}
                     onChange={(e) => setTour({...tour, routeGpxUrl: e.target.value})}
+                    className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
                   />
-                </Form.Group>
-              </Card.Body>
-            </Card>
+                </div>
+              </div>
+            </div>
 
             {/* Highlights & Amenities */}
-            <Card className="mb-4 border shadow-sm rounded-3">
-              <Card.Body className="p-4">
-                <div className="section-heading-wrapper mb-4 pb-2 border-bottom d-flex align-items-center justify-content-between">
-                  <h3 className="section-heading m-0">Highlights & Amenities</h3>
-                  <span className="badge bg-secondary-subtle text-secondary-emphasis border px-2.5 py-1.5 rounded-3 fw-semibold small">Step 4</span>
-                </div>
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="flex justify-between items-center bg-gray-50/50 p-4 border-b border-gray-200">
+                <h3 className="font-montserrat font-bold text-[#012d1d]">Highlights & Amenities</h3>
+                <span className="px-2 py-0.5 text-[11px] font-bold bg-gray-100 border text-gray-600 rounded">Step 4</span>
+              </div>
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 
-                <Row className="gy-4">
-                  {/* Highlights */}
-                  <Col lg={6}>
-                    <Form.Group className="mb-2">
-                      <Form.Label className="fw-semibold text-dark small">Highlights</Form.Label>
-                      <InputGroup>
-                        <Form.Control 
-                          type="text" 
-                          placeholder="e.g., Sunset above the clouds..."
-                          value={tagInputs.highlight}
-                          onChange={(e) => setTagInputs({...tagInputs, highlight: e.target.value})}
-                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag('highlight'))}
-                        />
-                        <Button variant="outline-dark" onClick={() => addTag('highlight')}>
-                          <Plus size={16} className="me-1" /> Add
-                        </Button>
-                      </InputGroup>
-                    </Form.Group>
-                    <div className="tags-display-box rounded-3 p-3 bg-light border" style={{ minHeight: '80px' }}>
-                      {tour.highlights && tour.highlights.map((h, idx) => (
-                        <Badge key={idx} className="tag-item tag-neutral me-1.5 mb-1.5">
-                          {h}
-                          <button type="button" className="tag-delete-btn" onClick={() => removeTag('highlight', idx)}>
-                            <X size={14} />
-                          </button>
-                        </Badge>
-                      ))}
-                    </div>
-                  </Col>
+                {/* Highlights */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">Highlights</label>
+                  <div className="flex overflow-hidden border border-gray-300 rounded-lg focus-within:border-[#012d1d] focus-within:ring-2 focus-within:ring-[#012d1d]/20 transition-all bg-white">
+                    <input 
+                      type="text" 
+                      placeholder="e.g., Sunset above the clouds..."
+                      value={tagInputs.highlight}
+                      onChange={(e) => setTagInputs({...tagInputs, highlight: e.target.value})}
+                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag('highlight'))}
+                      className="w-full px-4 py-2 text-sm border-0 focus:outline-none focus:ring-0"
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => addTag('highlight')}
+                      className="px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-semibold border-l border-gray-300 flex items-center gap-1 transition-all"
+                    >
+                      <Plus size={16} /> Add
+                    </button>
+                  </div>
+                  <div className="min-h-[80px] rounded-lg p-3 bg-gray-50 border border-gray-200 flex flex-wrap gap-2">
+                    {tour.highlights && tour.highlights.map((h, idx) => (
+                      <span key={idx} className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-300 text-gray-700 rounded-md text-xs font-semibold">
+                        {h}
+                        <button type="button" className="text-gray-400 hover:text-red-500 transition-colors" onClick={() => removeTag('highlight', idx)}>
+                          <X size={14} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
 
-                  {/* Includes */}
-                  <Col lg={6}>
-                    <Form.Group className="mb-2">
-                      <Form.Label className="fw-semibold text-dark small">Includes</Form.Label>
-                      <InputGroup>
-                        <Form.Control 
-                          type="text" 
-                          placeholder="e.g., Support team, Porter service..."
-                          value={tagInputs.include}
-                          onChange={(e) => setTagInputs({...tagInputs, include: e.target.value})}
-                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag('include'))}
-                        />
-                        <Button variant="outline-dark" onClick={() => addTag('include')}>
-                          <Plus size={16} className="me-1" /> Add
-                        </Button>
-                      </InputGroup>
-                    </Form.Group>
-                    <div className="tags-display-box rounded-3 p-3 bg-light border" style={{ minHeight: '80px' }}>
-                      {tour.includes && tour.includes.map((i, idx) => (
-                        <Badge key={idx} className="tag-item tag-emerald me-1.5 mb-1.5">
-                          {i}
-                          <button type="button" className="tag-delete-btn" onClick={() => removeTag('include', idx)}>
-                            <X size={14} />
-                          </button>
-                        </Badge>
-                      ))}
-                    </div>
-                  </Col>
+                {/* Includes */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">Includes</label>
+                  <div className="flex overflow-hidden border border-gray-300 rounded-lg focus-within:border-[#012d1d] focus-within:ring-2 focus-within:ring-[#012d1d]/20 transition-all bg-white">
+                    <input 
+                      type="text" 
+                      placeholder="e.g., Support team, Porter service..."
+                      value={tagInputs.include}
+                      onChange={(e) => setTagInputs({...tagInputs, include: e.target.value})}
+                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag('include'))}
+                      className="w-full px-4 py-2 text-sm border-0 focus:outline-none focus:ring-0"
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => addTag('include')}
+                      className="px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-semibold border-l border-gray-300 flex items-center gap-1 transition-all"
+                    >
+                      <Plus size={16} /> Add
+                    </button>
+                  </div>
+                  <div className="min-h-[80px] rounded-lg p-3 bg-gray-50 border border-gray-200 flex flex-wrap gap-2">
+                    {tour.includes && tour.includes.map((i, idx) => (
+                      <span key={idx} className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-md text-xs font-semibold">
+                        {i}
+                        <button type="button" className="text-emerald-400 hover:text-red-500 transition-colors" onClick={() => removeTag('include', idx)}>
+                          <X size={14} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
 
-                  {/* Excludes */}
-                  <Col lg={6}>
-                    <Form.Group className="mb-2">
-                      <Form.Label className="fw-semibold text-dark small">Excludes</Form.Label>
-                      <InputGroup>
-                        <Form.Control 
-                          type="text" 
-                          placeholder="e.g., Personal gear, Alcoholic drinks..."
-                          value={tagInputs.exclude}
-                          onChange={(e) => setTagInputs({...tagInputs, exclude: e.target.value})}
-                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag('exclude'))}
-                        />
-                        <Button variant="outline-dark" onClick={() => addTag('exclude')}>
-                          <Plus size={16} className="me-1" /> Add
-                        </Button>
-                      </InputGroup>
-                    </Form.Group>
-                    <div className="tags-display-box rounded-3 p-3 bg-light border" style={{ minHeight: '80px' }}>
-                      {tour.excludes && tour.excludes.map((ex, idx) => (
-                        <Badge key={idx} className="tag-item tag-neutral me-1.5 mb-1.5">
-                          {ex}
-                          <button type="button" className="tag-delete-btn" onClick={() => removeTag('exclude', idx)}>
-                            <X size={14} />
-                          </button>
-                        </Badge>
-                      ))}
-                    </div>
-                  </Col>
+                {/* Excludes */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">Excludes</label>
+                  <div className="flex overflow-hidden border border-gray-300 rounded-lg focus-within:border-[#012d1d] focus-within:ring-2 focus-within:ring-[#012d1d]/20 transition-all bg-white">
+                    <input 
+                      type="text" 
+                      placeholder="e.g., Personal gear, Alcoholic drinks..."
+                      value={tagInputs.exclude}
+                      onChange={(e) => setTagInputs({...tagInputs, exclude: e.target.value})}
+                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag('exclude'))}
+                      className="w-full px-4 py-2 text-sm border-0 focus:outline-none focus:ring-0"
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => addTag('exclude')}
+                      className="px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-semibold border-l border-gray-300 flex items-center gap-1 transition-all"
+                    >
+                      <Plus size={16} /> Add
+                    </button>
+                  </div>
+                  <div className="min-h-[80px] rounded-lg p-3 bg-gray-50 border border-gray-200 flex flex-wrap gap-2">
+                    {tour.excludes && tour.excludes.map((ex, idx) => (
+                      <span key={idx} className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-300 text-gray-700 rounded-md text-xs font-semibold">
+                        {ex}
+                        <button type="button" className="text-gray-400 hover:text-red-500 transition-colors" onClick={() => removeTag('exclude', idx)}>
+                          <X size={14} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
 
-                  {/* Requirements */}
-                  <Col lg={6}>
-                    <Form.Group className="mb-2">
-                      <Form.Label className="fw-semibold text-dark small">Requirements</Form.Label>
-                      <InputGroup>
-                        <Form.Control 
-                          type="text" 
-                          placeholder="e.g., Trekking shoes, Physical stamina..."
-                          value={tagInputs.requirement}
-                          onChange={(e) => setTagInputs({...tagInputs, requirement: e.target.value})}
-                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag('requirement'))}
-                        />
-                        <Button variant="outline-dark" onClick={() => addTag('requirement')}>
-                          <Plus size={16} className="me-1" /> Add
-                        </Button>
-                      </InputGroup>
-                    </Form.Group>
-                    <div className="tags-display-box rounded-3 p-3 bg-light border" style={{ minHeight: '80px' }}>
-                      {tour.requirements && tour.requirements.map((r, idx) => (
-                        <Badge key={idx} className="tag-item tag-neutral me-1.5 mb-1.5">
-                          {r}
-                          <button type="button" className="tag-delete-btn" onClick={() => removeTag('requirement', idx)}>
-                            <X size={14} />
-                          </button>
-                        </Badge>
-                      ))}
-                    </div>
-                  </Col>
-                </Row>
-              </Card.Body>
-            </Card>
+                {/* Requirements */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">Requirements</label>
+                  <div className="flex overflow-hidden border border-gray-300 rounded-lg focus-within:border-[#012d1d] focus-within:ring-2 focus-within:ring-[#012d1d]/20 transition-all bg-white">
+                    <input 
+                      type="text" 
+                      placeholder="e.g., Trekking shoes, Physical stamina..."
+                      value={tagInputs.requirement}
+                      onChange={(e) => setTagInputs({...tagInputs, requirement: e.target.value})}
+                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag('requirement'))}
+                      className="w-full px-4 py-2 text-sm border-0 focus:outline-none focus:ring-0"
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => addTag('requirement')}
+                      className="px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-semibold border-l border-gray-300 flex items-center gap-1 transition-all"
+                    >
+                      <Plus size={16} /> Add
+                    </button>
+                  </div>
+                  <div className="min-h-[80px] rounded-lg p-3 bg-gray-50 border border-gray-200 flex flex-wrap gap-2">
+                    {tour.requirements && tour.requirements.map((r, idx) => (
+                      <span key={idx} className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-300 text-gray-700 rounded-md text-xs font-semibold">
+                        {r}
+                        <button type="button" className="text-gray-400 hover:text-red-500 transition-colors" onClick={() => removeTag('requirement', idx)}>
+                          <X size={14} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
 
-            <div className="d-flex justify-content-end mb-4">
-              <Button 
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-4">
+              <button 
                 type="submit" 
-                className="save-changes-btn px-5 py-3 border-0 fw-bold shadow-sm"
+                className="bg-[#012d1d] hover:bg-[#0c432d] text-white px-8 py-3.5 font-bold rounded-lg transition-all shadow-md hover:-translate-y-0.5"
               >
                 Save All Changes
-              </Button>
+              </button>
             </div>
-          </Form>
-        </Tab>
+          </form>
+        )}
 
         {/* TAB 2: WAYPOINTS */}
-        <Tab eventKey="waypoints" title={`📍 Waypoints (${waypoints.length})`}>
-          <div className="waypoints-tab-content bg-white p-4 border rounded shadow-sm">
-            <div className="tab-section-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+        {activeTab === 'waypoints' && (
+          <div className="bg-white p-6 border border-gray-200 rounded-xl shadow-sm w-full">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 pb-4 border-b border-gray-200 gap-4">
               <div>
-                <h3 className="fw-bold fs-5 mb-1" style={{ color: '#012d1d' }}>Route Waypoints List</h3>
-                <p className="text-muted small mb-0">Start, intermediate, overnight shelter, and end points of the trekking route.</p>
+                <h3 className="font-montserrat font-bold text-lg text-[#012d1d]">Route Waypoints List</h3>
+                <p className="text-gray-500 text-xs mt-0.5">Start, intermediate, overnight shelter, and end points of the trekking route.</p>
               </div>
-              <Button 
-                className="border-0 fw-semibold px-4"
-                style={{ backgroundColor: '#012d1d' }}
+              <button 
                 onClick={() => { setCurrentWp(null); setIsWpModalOpen(true); }}
+                className="bg-[#012d1d] hover:bg-[#0c432d] text-white px-4 py-2 font-semibold rounded-lg text-sm transition-all"
               >
                 + Add Waypoint
-              </Button>
+              </button>
             </div>
 
             {waypoints.length === 0 ? (
-              <div className="text-center py-5 text-muted">
-                <span className="fs-1">📍</span>
-                <p className="mt-2">No waypoints have been set for this tour route yet.</p>
+              <div className="text-center py-12 text-gray-500">
+                <span className="text-4xl block mb-2">📍</span>
+                <p className="text-sm">No waypoints have been set for this tour route yet.</p>
               </div>
             ) : (
-              <div className="waypoints-timeline position-relative ps-4 ms-2">
-                {waypoints.map((wp, index) => (
-                  <div key={wp.id} className="timeline-node position-relative mb-4">
-                    <div 
-                      className="node-number position-absolute rounded-circle text-white d-flex align-items-center justify-content-center fw-bold text-center"
-                      style={{ left: '-38px', top: '4px', width: '26px', height: '26px', backgroundColor: '#fea619', fontSize: '0.75rem', zIndex: 2, boxShadow: '0 0 0 4px white' }}
-                    >
+              <div className="relative pl-8 border-l-2 border-dashed border-gray-200 ml-4 space-y-6 py-2">
+                {waypoints.map((wp) => (
+                  <div key={wp.id} className="relative">
+                    {/* Node Sequence Indicator */}
+                    <div className="absolute -left-12 top-1.5 w-7 h-7 rounded-full bg-[#fea619] text-white flex items-center justify-center font-bold text-xs ring-4 ring-white shadow-sm">
                       {wp.sequenceOrder}
                     </div>
-                    <Card className="node-card border-secondary-subtle border-start-0 shadow-sm border-2">
-                      <div className="card-header-line p-3 border-bottom d-flex justify-content-between align-items-center">
-                        <div className="d-flex align-items-center gap-2">
-                          <h5 className="fw-bold m-0 fs-6" style={{ color: '#012d1d' }}>{wp.name}</h5>
-                          <Badge bg="secondary" className="small text-uppercase" style={{ fontSize: '0.65rem' }}>{wp.waypointType}</Badge>
+                    
+                    {/* Card container */}
+                    <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:border-[#012d1d]/30 transition-all">
+                      <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50/30 rounded-t-xl">
+                        <div className="flex items-center gap-2">
+                          <h5 className="font-bold text-sm text-[#012d1d]">{wp.name}</h5>
+                          <span className="px-2 py-0.5 text-[10px] font-bold bg-gray-200 text-gray-600 rounded uppercase">{wp.waypointType}</span>
                         </div>
-                        <div className="d-flex gap-1">
-                          <Button variant="outline-dark" size="sm" className="py-0.5 px-2" style={{ fontSize: '0.75rem' }} onClick={() => { setCurrentWp(wp); setIsWpModalOpen(true); }}>Edit</Button>
-                          <Button variant="outline-danger" size="sm" className="py-0.5 px-2" style={{ fontSize: '0.75rem' }} onClick={() => handleDeleteWp(wp.id)}>Delete</Button>
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => { setCurrentWp(wp); setIsWpModalOpen(true); }} className="px-3 py-1 text-xs font-semibold border border-gray-300 rounded bg-white hover:bg-gray-50 text-gray-700">Edit</button>
+                          <button onClick={() => handleDeleteWp(wp.id)} className="px-3 py-1 text-xs font-semibold border border-red-200 rounded bg-white hover:bg-red-50 text-red-600">Delete</button>
                         </div>
                       </div>
-                      <Card.Body className="p-3">
-                        {wp.description && <p className="text-muted small mb-2">{wp.description}</p>}
-                        <Row className="g-2 text-secondary small bg-light rounded p-2 mb-2">
-                          {wp.elevationM && <Col sm={4}>📐 Elevation: <strong>{wp.elevationM}m</strong></Col>}
-                          {(wp.lat && wp.lng) && <Col sm={4}>🌐 Coordinates: <strong>{wp.lat}, {wp.lng}</strong></Col>}
-                          {wp.waterSource && <Col sm={4}>💧 Water Source: <strong>{wp.waterSource}</strong></Col>}
-                        </Row>
-                        <div className="d-flex gap-1.5 flex-wrap">
-                          <span className={`badge border small py-1 px-2 ${wp.hasToilet ? 'text-success bg-success-subtle border-success-subtle' : 'text-muted bg-light border-light-subtle'}`}>🚽 Toilet</span>
-                          <span className={`badge border small py-1 px-2 ${wp.hasShelter ? 'text-success bg-success-subtle border-success-subtle' : 'text-muted bg-light border-light-subtle'}`}>🛖 Shelter</span>
-                          <span className={`badge border small py-1 px-2 ${wp.hasPhoneSignal ? 'text-success bg-success-subtle border-success-subtle' : 'text-muted bg-light border-light-subtle'}`}>📶 Phone Signal</span>
-                          <span className={`badge border small py-1 px-2 ${wp.hasFirstAid ? 'text-success bg-success-subtle border-success-subtle' : 'text-muted bg-light border-light-subtle'}`}>🩺 First Aid</span>
+                      <div className="p-4 space-y-3">
+                        {wp.description && <p className="text-gray-500 text-xs leading-relaxed">{wp.description}</p>}
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-gray-50 rounded-lg p-3 text-xs text-gray-600 border border-gray-100">
+                          {wp.elevationM && <div>📐 Elevation: <strong className="text-gray-800">{wp.elevationM}m</strong></div>}
+                          {(wp.lat && wp.lng) && <div>🌐 Coordinates: <strong className="text-gray-800">{wp.lat}, {wp.lng}</strong></div>}
+                          {wp.waterSource && <div>💧 Water Source: <strong className="text-gray-800">{wp.waterSource}</strong></div>}
                         </div>
-                      </Card.Body>
-                    </Card>
+
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          <span className={`px-2 py-1 text-[10px] font-semibold border rounded-md ${wp.hasToilet ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-gray-400 bg-gray-50 border-gray-200'}`}>🚽 Toilet</span>
+                          <span className={`px-2 py-1 text-[10px] font-semibold border rounded-md ${wp.hasShelter ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-gray-400 bg-gray-50 border-gray-200'}`}>🛖 Shelter</span>
+                          <span className={`px-2 py-1 text-[10px] font-semibold border rounded-md ${wp.hasPhoneSignal ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-gray-400 bg-gray-50 border-gray-200'}`}>📶 Phone Signal</span>
+                          <span className={`px-2 py-1 text-[10px] font-semibold border rounded-md ${wp.hasFirstAid ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-gray-400 bg-gray-50 border-gray-200'}`}>🩺 First Aid</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
             )}
           </div>
-        </Tab>
+        )}
 
         {/* TAB 3: DAILY ITINERARY */}
-        <Tab eventKey="itinerary" title={`📅 Daily Itinerary (${itineraries.length})`}>
-          <div className="itinerary-tab-content bg-white p-4 border rounded shadow-sm">
-            <div className="tab-section-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+        {activeTab === 'itinerary' && (
+          <div className="bg-white p-6 border border-gray-200 rounded-xl shadow-sm w-full">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 pb-4 border-b border-gray-200 gap-4">
               <div>
-                <h3 className="fw-bold fs-5 mb-1" style={{ color: '#012d1d' }}>Daily Itinerary Details</h3>
-                <p className="text-muted small mb-0">Configure trekking activities, distance metrics, and connected waypoints for each day.</p>
+                <h3 className="font-montserrat font-bold text-lg text-[#012d1d]">Daily Itinerary Details</h3>
+                <p className="text-gray-500 text-xs mt-0.5">Configure trekking activities, distance metrics, and connected waypoints for each day.</p>
               </div>
-              <Button 
-                className="border-0 fw-semibold px-4"
-                style={{ backgroundColor: '#012d1d' }}
+              <button 
                 onClick={addNewDayItinerary}
+                className="bg-[#012d1d] hover:bg-[#0c432d] text-white px-4 py-2 font-semibold rounded-lg text-sm transition-all"
               >
                 + Add Day Itinerary
-              </Button>
+              </button>
             </div>
 
             {itineraries.length === 0 ? (
-              <div className="text-center py-5 text-muted">
-                <span className="fs-1">📅</span>
-                <p className="mt-2">No daily itinerary has been defined for this tour yet.</p>
+              <div className="text-center py-12 text-gray-500">
+                <span className="text-4xl block mb-2">📅</span>
+                <p className="text-sm">No daily itinerary has been defined for this tour yet.</p>
               </div>
             ) : (
-              <Accordion activeKey={expandedItineraryId} onSelect={(k) => setExpandedItineraryId(k)}>
-                {itineraries.map((it, idx) => (
-                  <Accordion.Item key={it.id} eventKey={it.id} className="mb-3 border rounded shadow-sm">
-                    <Accordion.Header className="fw-bold">
-                      <div className="d-flex align-items-center w-100 justify-content-between pe-3">
-                        <div>
-                          <Badge bg="dark" className="me-2" style={{ backgroundColor: '#012d1d' }}>Day {idx + 1}</Badge>
-                          <span className="fw-bold text-dark">{it.dayTitle}</span>
+              <div className="space-y-4">
+                {itineraries.map((it, idx) => {
+                  const isExpanded = expandedItineraryId === it.id;
+                  return (
+                    <div key={it.id} className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white">
+                      {/* Header */}
+                      <button
+                        type="button"
+                        onClick={() => setExpandedItineraryId(isExpanded ? null : it.id)}
+                        className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100/60 transition-colors focus:outline-none"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="px-2.5 py-1 text-xs font-bold text-white bg-[#012d1d] rounded-md">Day {idx + 1}</span>
+                          <span className="font-bold text-gray-900 text-sm md:text-base text-left">{it.dayTitle}</span>
                         </div>
-                        <span className="text-muted small d-none d-sm-inline">
-                          {it.distanceKm ? `${it.distanceKm} km` : ''} 
-                          {it.dayDifficulty ? ` • Difficulty: ${it.dayDifficulty}` : ''}
-                        </span>
-                      </div>
-                    </Accordion.Header>
-                    <Accordion.Body className="p-4 border-top">
-                      <Row className="gy-3">
-                        <Col lg={8} className="border-end pe-lg-4">
-                          <Form.Group className="mb-3">
-                            <Form.Label className="fw-semibold small text-secondary">Day Title</Form.Label>
-                            <Form.Control 
-                              type="text" 
-                              value={it.dayTitle || ''} 
-                              onChange={(e) => handleItineraryChange(it.id, 'dayTitle', e.target.value)}
-                            />
-                          </Form.Group>
-                          
-                          <Form.Group className="mb-3">
-                            <Form.Label className="fw-semibold small text-secondary">Day Description</Form.Label>
-                            <Form.Control 
-                              as="textarea"
-                              rows={3}
-                              value={it.dayDescription || ''}
-                              onChange={(e) => handleItineraryChange(it.id, 'dayDescription', e.target.value)}
-                            />
-                          </Form.Group>
+                        <div className="flex items-center gap-3 text-gray-500 text-xs md:text-sm font-semibold">
+                          <span className="hidden sm:inline">
+                            {it.distanceKm ? `${it.distanceKm} km` : ''} 
+                            {it.dayDifficulty ? ` • Difficulty: ${it.dayDifficulty}` : ''}
+                          </span>
+                          <span className={`transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+                        </div>
+                      </button>
 
-                          <Row className="mb-3">
-                            <Col md={4}>
-                              <Form.Group>
-                                <Form.Label className="fw-semibold small text-secondary">Start Waypoint</Form.Label>
-                                <Form.Select
-                                  value={it.startWaypointId || ''}
-                                  onChange={(e) => handleItineraryChange(it.id, 'startWaypointId', e.target.value)}
-                                >
-                                  <option value="">-- Select Start Point --</option>
-                                  {waypoints.map(w => (
-                                    <option key={w.id} value={w.id}>#{w.sequenceOrder} - {w.name}</option>
-                                  ))}
-                                </Form.Select>
-                              </Form.Group>
-                            </Col>
-                            <Col md={4}>
-                              <Form.Group>
-                                <Form.Label className="fw-semibold small text-secondary">End Waypoint</Form.Label>
-                                <Form.Select
-                                  value={it.endWaypointId || ''}
-                                  onChange={(e) => handleItineraryChange(it.id, 'endWaypointId', e.target.value)}
-                                >
-                                  <option value="">-- Select End Point --</option>
-                                  {waypoints.map(w => (
-                                    <option key={w.id} value={w.id}>#{w.sequenceOrder} - {w.name}</option>
-                                  ))}
-                                </Form.Select>
-                              </Form.Group>
-                            </Col>
-                            <Col md={4}>
-                              <Form.Group>
-                                <Form.Label className="fw-semibold small text-secondary">Overnight Waypoint (optional)</Form.Label>
-                                <Form.Select
-                                  value={it.overnightWaypointId || ''}
-                                  onChange={(e) => handleItineraryChange(it.id, 'overnightWaypointId', e.target.value)}
-                                >
-                                  <option value="">-- No Overnight Stay --</option>
-                                  {waypoints.map(w => (
-                                    <option key={w.id} value={w.id}>#{w.sequenceOrder} - {w.name}</option>
-                                  ))}
-                                </Form.Select>
-                              </Form.Group>
-                            </Col>
-                          </Row>
-
-                          <Row className="mb-3">
-                            <Col md={4}>
-                              <Form.Group>
-                                <Form.Label className="fw-semibold small text-secondary">Day Distance (Km)</Form.Label>
-                                <Form.Control 
-                                  type="number" 
-                                  step="0.1"
-                                  value={it.distanceKm || ''} 
-                                  onChange={(e) => handleItineraryChange(it.id, 'distanceKm', e.target.value)}
-                                />
-                              </Form.Group>
-                            </Col>
-                            <Col md={4}>
-                              <Form.Group>
-                                <Form.Label className="fw-semibold small text-secondary">Elevation Gain (m)</Form.Label>
-                                <Form.Control 
-                                  type="number" 
-                                  value={it.elevationGainM || ''} 
-                                  onChange={(e) => handleItineraryChange(it.id, 'elevationGainM', e.target.value)}
-                                />
-                              </Form.Group>
-                            </Col>
-                            <Col md={4}>
-                              <Form.Group>
-                                <Form.Label className="fw-semibold small text-secondary">Elevation Loss (m)</Form.Label>
-                                <Form.Control 
-                                  type="number" 
-                                  value={it.elevationLossM || ''} 
-                                  onChange={(e) => handleItineraryChange(it.id, 'elevationLossM', e.target.value)}
-                                />
-                              </Form.Group>
-                            </Col>
-                          </Row>
-
-                          <Row className="mb-3">
-                            <Col md={4}>
-                              <Form.Group>
-                                <Form.Label className="fw-semibold small text-secondary">Day Difficulty</Form.Label>
-                                <Form.Select 
-                                  value={it.dayDifficulty || 'EASY'}
-                                  onChange={(e) => handleItineraryChange(it.id, 'dayDifficulty', e.target.value)}
-                                >
-                                  <option value="EASY">Easy</option>
-                                  <option value="MODERATE">Moderate</option>
-                                  <option value="HARD">Hard</option>
-                                  <option value="EXTREME">Extreme</option>
-                                </Form.Select>
-                              </Form.Group>
-                            </Col>
-                            <Col md={4}>
-                              <Form.Group>
-                                <Form.Label className="fw-semibold small text-secondary">Min Walking Hours</Form.Label>
-                                <Form.Control 
-                                  type="number" 
-                                  value={it.walkingHoursMin || ''} 
-                                  onChange={(e) => handleItineraryChange(it.id, 'walkingHoursMin', e.target.value)}
-                                />
-                              </Form.Group>
-                            </Col>
-                            <Col md={4}>
-                              <Form.Group>
-                                <Form.Label className="fw-semibold small text-secondary">Max Walking Hours</Form.Label>
-                                <Form.Control 
-                                  type="number" 
-                                  value={it.walkingHoursMax || ''} 
-                                  onChange={(e) => handleItineraryChange(it.id, 'walkingHoursMax', e.target.value)}
-                                />
-                              </Form.Group>
-                            </Col>
-                          </Row>
-
-                          <Row className="mb-3">
-                            <Col md={6}>
-                              <Form.Group>
-                                <Form.Label className="fw-semibold small text-secondary">Estimated Start Time</Form.Label>
-                                <Form.Control 
+                      {/* Collapse Body */}
+                      {isExpanded && (
+                        <div className="p-6 border-t border-gray-200 bg-white">
+                          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                            {/* Left Form Content */}
+                            <div className="lg:col-span-8 space-y-4 border-r-0 lg:border-r border-gray-200 lg:pr-6">
+                              <div>
+                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Day Title</label>
+                                <input 
                                   type="text" 
-                                  placeholder="08:00"
-                                  value={it.suggestedStartTime || ''} 
-                                  onChange={(e) => handleItineraryChange(it.id, 'suggestedStartTime', e.target.value)}
+                                  value={it.dayTitle || ''} 
+                                  onChange={(e) => handleItineraryChange(it.id, 'dayTitle', e.target.value)}
+                                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all font-medium"
                                 />
-                              </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                              <Form.Group>
-                                <Form.Label className="fw-semibold small text-secondary">Estimated End Time</Form.Label>
-                                <Form.Control 
+                              </div>
+                              
+                              <div>
+                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Day Description</label>
+                                <textarea 
+                                  rows={3}
+                                  value={it.dayDescription || ''}
+                                  onChange={(e) => handleItineraryChange(it.id, 'dayDescription', e.target.value)}
+                                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all leading-relaxed"
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Start Waypoint</label>
+                                  <select
+                                    value={it.startWaypointId || ''}
+                                    onChange={(e) => handleItineraryChange(it.id, 'startWaypointId', e.target.value)}
+                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                                  >
+                                    <option value="">-- Select Start Point --</option>
+                                    {waypoints.map(w => (
+                                      <option key={w.id} value={w.id}>#{w.sequenceOrder} - {w.name}</option>
+                                    ))}
+                                  </select>
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">End Waypoint</label>
+                                  <select
+                                    value={it.endWaypointId || ''}
+                                    onChange={(e) => handleItineraryChange(it.id, 'endWaypointId', e.target.value)}
+                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                                  >
+                                    <option value="">-- Select End Point --</option>
+                                    {waypoints.map(w => (
+                                      <option key={w.id} value={w.id}>#{w.sequenceOrder} - {w.name}</option>
+                                    ))}
+                                  </select>
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Overnight Waypoint (optional)</label>
+                                  <select
+                                    value={it.overnightWaypointId || ''}
+                                    onChange={(e) => handleItineraryChange(it.id, 'overnightWaypointId', e.target.value)}
+                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                                  >
+                                    <option value="">-- No Overnight Stay --</option>
+                                    {waypoints.map(w => (
+                                      <option key={w.id} value={w.id}>#{w.sequenceOrder} - {w.name}</option>
+                                    ))}
+                                  </select>
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Day Distance (Km)</label>
+                                  <input 
+                                    type="number" 
+                                    step="0.1"
+                                    value={it.distanceKm || ''} 
+                                    onChange={(e) => handleItineraryChange(it.id, 'distanceKm', e.target.value)}
+                                    className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Elevation Gain (m)</label>
+                                  <input 
+                                    type="number" 
+                                    value={it.elevationGainM || ''} 
+                                    onChange={(e) => handleItineraryChange(it.id, 'elevationGainM', e.target.value)}
+                                    className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Elevation Loss (m)</label>
+                                  <input 
+                                    type="number" 
+                                    value={it.elevationLossM || ''} 
+                                    onChange={(e) => handleItineraryChange(it.id, 'elevationLossM', e.target.value)}
+                                    className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Day Difficulty</label>
+                                  <select 
+                                    value={it.dayDifficulty || 'EASY'}
+                                    onChange={(e) => handleItineraryChange(it.id, 'dayDifficulty', e.target.value)}
+                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                                  >
+                                    <option value="EASY">Easy</option>
+                                    <option value="MODERATE">Moderate</option>
+                                    <option value="HARD">Hard</option>
+                                    <option value="EXTREME">Extreme</option>
+                                  </select>
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Min Walking Hours</label>
+                                  <input 
+                                    type="number" 
+                                    value={it.walkingHoursMin || ''} 
+                                    onChange={(e) => handleItineraryChange(it.id, 'walkingHoursMin', e.target.value)}
+                                    className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Max Walking Hours</label>
+                                  <input 
+                                    type="number" 
+                                    value={it.walkingHoursMax || ''} 
+                                    onChange={(e) => handleItineraryChange(it.id, 'walkingHoursMax', e.target.value)}
+                                    className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Estimated Start Time</label>
+                                  <input 
+                                    type="text" 
+                                    placeholder="08:00"
+                                    value={it.suggestedStartTime || ''} 
+                                    onChange={(e) => handleItineraryChange(it.id, 'suggestedStartTime', e.target.value)}
+                                    className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Estimated End Time</label>
+                                  <input 
+                                    type="text" 
+                                    placeholder="16:00"
+                                    value={it.suggestedEndTime || ''} 
+                                    onChange={(e) => handleItineraryChange(it.id, 'suggestedEndTime', e.target.value)}
+                                    className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                                  />
+                                </div>
+                              </div>
+
+                              <div>
+                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Meal Notes</label>
+                                <input 
                                   type="text" 
-                                  placeholder="16:00"
-                                  value={it.suggestedEndTime || ''} 
-                                  onChange={(e) => handleItineraryChange(it.id, 'suggestedEndTime', e.target.value)}
+                                  placeholder="Breakfast: self-catering, Lunch: packed lunch..."
+                                  value={it.mealNotes || ''} 
+                                  onChange={(e) => handleItineraryChange(it.id, 'mealNotes', e.target.value)}
+                                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
                                 />
-                              </Form.Group>
-                            </Col>
-                          </Row>
-
-                          <Form.Group className="mb-3">
-                            <Form.Label className="fw-semibold small text-secondary">Meal Notes</Form.Label>
-                            <Form.Control 
-                              type="text" 
-                              placeholder="Breakfast: self-catering, Lunch: packed lunch..."
-                              value={it.mealNotes || ''} 
-                              onChange={(e) => handleItineraryChange(it.id, 'mealNotes', e.target.value)}
-                            />
-                          </Form.Group>
-                          <Form.Group className="mb-3">
-                            <Form.Label className="fw-semibold small text-secondary">Day Safety Instructions</Form.Label>
-                            <Form.Control 
-                              as="textarea"
-                              rows={2}
-                              placeholder="Describe rocky path precautions, hydration targets..."
-                              value={it.safetyNotes || ''} 
-                              onChange={(e) => handleItineraryChange(it.id, 'safetyNotes', e.target.value)}
-                            />
-                          </Form.Group>
-                          <Form.Group className="mb-3">
-                            <Form.Label className="fw-semibold small text-secondary">Guide Special Instructions (Internal)</Form.Label>
-                            <Form.Control 
-                              as="textarea"
-                              rows={2}
-                              placeholder="Private notes for team guides, porter pickups..."
-                              value={it.guideNotes || ''} 
-                              onChange={(e) => handleItineraryChange(it.id, 'guideNotes', e.target.value)}
-                            />
-                          </Form.Group>
-                        </Col>
-
-                        <Col lg={4} className="ps-lg-4 mt-3 mt-lg-0">
-                          <h6 className="fw-bold mb-2 text-dark small">Waypoints Visited Today</h6>
-                          <p className="text-muted small" style={{ fontSize: '0.8rem' }}>Check the waypoints visited during this day:</p>
-                          
-                          {waypoints.length === 0 ? (
-                            <div className="small-warning text-warning border border-warning-subtle bg-warning-subtle p-3 rounded small">
-                              No waypoints available. Please add waypoints in Tab 2 first.
+                              </div>
+                              <div>
+                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Day Safety Instructions</label>
+                                <textarea 
+                                  rows={2}
+                                  placeholder="Describe rocky path precautions, hydration targets..."
+                                  value={it.safetyNotes || ''} 
+                                  onChange={(e) => handleItineraryChange(it.id, 'safetyNotes', e.target.value)}
+                                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all leading-relaxed"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Guide Special Instructions (Internal)</label>
+                                <textarea 
+                                  rows={2}
+                                  placeholder="Private notes for team guides, porter pickups..."
+                                  value={it.guideNotes || ''} 
+                                  onChange={(e) => handleItineraryChange(it.id, 'guideNotes', e.target.value)}
+                                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all leading-relaxed"
+                                />
+                              </div>
                             </div>
-                          ) : (
-                            <div className="d-flex flex-column gap-2 bg-light border rounded p-3 overflow-auto" style={{ maxHeight: '380px' }}>
-                              {waypoints.map(wp => {
-                                const links = it.waypointLinks || [];
-                                const linked = links.some(link => link.waypointId === wp.id);
-                                const linkObj = links.find(link => link.waypointId === wp.id);
-                                return (
-                                  <div key={wp.id} className={`p-2 border rounded d-flex align-items-center justify-content-between ${linked ? 'border-warning bg-warning-subtle bg-opacity-25' : 'bg-white'}`}>
-                                    <Form.Check 
-                                      type="checkbox"
-                                      id={`wp-check-${it.id}-${wp.id}`}
-                                      label={`#${wp.sequenceOrder} - ${wp.name}`}
-                                      checked={linked}
-                                      onChange={() => toggleWaypointInDay(it.id, wp.id)}
-                                      className="small fw-semibold text-dark m-0"
-                                    />
-                                    {linked && (
-                                      <Badge bg="warning" className="text-dark small">Order: {linkObj.visitOrder}</Badge>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </Col>
-                      </Row>
 
-                      <div className="d-flex justify-content-between mt-4 border-top pt-3">
-                        <Button variant="outline-danger" onClick={() => handleDeleteItinerary(it.id)}>Delete this Day</Button>
-                        <Button 
-                          className="border-0 fw-bold px-4" 
-                          style={{ backgroundColor: '#012d1d' }}
-                          onClick={() => handleSaveItinerary(it)}
-                        >
-                          Save Day Details
-                        </Button>
-                      </div>
-                    </Accordion.Body>
-                  </Accordion.Item>
-                ))}
-              </Accordion>
+                            {/* Right Side Visited Waypoints Checklist */}
+                            <div className="lg:col-span-4 lg:pl-4">
+                              <h6 className="font-bold mb-2 text-gray-900 text-sm">Waypoints Visited Today</h6>
+                              <p className="text-gray-500 text-xs mb-3">Check the waypoints visited during this day:</p>
+                              
+                              {waypoints.length === 0 ? (
+                                <div className="p-4 border border-amber-200 bg-amber-50 rounded-lg text-amber-800 text-xs">
+                                  No waypoints available. Please add waypoints in Tab 2 first.
+                                </div>
+                              ) : (
+                                <div className="flex flex-col gap-2 bg-gray-50 border border-gray-200 rounded-lg p-3 max-h-[380px] overflow-y-auto">
+                                  {waypoints.map(wp => {
+                                    const links = it.waypointLinks || [];
+                                    const linked = links.some(link => link.waypointId === wp.id);
+                                    const linkObj = links.find(link => link.waypointId === wp.id);
+                                    return (
+                                      <div key={wp.id} className={`p-2 border rounded-lg flex items-center justify-between transition-colors ${linked ? 'border-amber-400 bg-amber-50/50' : 'bg-white border-gray-200'}`}>
+                                        <label className="flex items-center space-x-2 text-xs font-semibold text-gray-800 cursor-pointer w-full">
+                                          <input 
+                                            type="checkbox"
+                                            checked={linked}
+                                            onChange={() => toggleWaypointInDay(it.id, wp.id)}
+                                            className="w-4 h-4 text-amber-500 border-gray-300 rounded focus:ring-amber-500"
+                                          />
+                                          <span>#{wp.sequenceOrder} - {wp.name}</span>
+                                        </label>
+                                        {linked && (
+                                          <span className="px-2 py-0.5 text-[10px] font-bold bg-[#fea619] text-white rounded">Order: {linkObj?.visitOrder}</span>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex justify-between items-center mt-6 border-t border-gray-200 pt-4">
+                            <button 
+                              type="button" 
+                              onClick={() => handleDeleteItinerary(it.id)}
+                              className="px-4 py-2 border border-red-200 hover:bg-red-50 text-red-600 rounded-lg text-xs font-semibold transition-all"
+                            >
+                              Delete this Day
+                            </button>
+                            <button 
+                              type="button" 
+                              onClick={() => handleSaveItinerary(it)}
+                              className="bg-[#012d1d] hover:bg-[#0c432d] text-white px-5 py-2 font-bold rounded-lg text-xs transition-all shadow-sm"
+                            >
+                              Save Day Details
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </div>
-        </Tab>
+        )}
 
         {/* TAB 4: IMAGE GALLERY */}
-        <Tab eventKey="gallery" title={`🖼️ Image Gallery (${images.length})`}>
-          <div className="gallery-tab-content bg-white p-4 border rounded shadow-sm">
-            <Row className="gy-4">
+        {activeTab === 'gallery' && (
+          <div className="bg-white p-6 border border-gray-200 rounded-xl shadow-sm w-full">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              
               {/* Image list grid */}
-              <Col lg={8} className="border-end pe-lg-4">
-                <h3 className="fw-bold fs-5 mb-4" style={{ color: '#012d1d' }}>Image Collection</h3>
+              <div className="lg:col-span-8 lg:border-r border-gray-200 lg:pr-6">
+                <h3 className="font-montserrat font-bold text-lg text-[#012d1d] mb-4">Image Collection</h3>
                 
                 {images.length === 0 ? (
-                  <div className="text-center py-5 text-muted">
-                    <span className="fs-1">🖼️</span>
-                    <p className="mt-2">No images stored for this tour yet.</p>
+                  <div className="text-center py-12 text-gray-500">
+                    <span className="text-4xl block mb-2">🖼️</span>
+                    <p className="text-sm">No images stored for this tour yet.</p>
                   </div>
                 ) : (
-                  <Row className="g-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {images.map((img) => (
-                      <Col sm={6} key={img.id}>
-                        <Card className={`h-100 ${img.isCover ? 'border-warning shadow-sm border-2' : ''}`}>
-                          <div className="position-relative" style={{ height: '160px', overflow: 'hidden' }}>
-                            <Card.Img 
-                              variant="top" 
-                              src={img.imageUrl} 
-                              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                            />
-                            {img.isCover && (
-                              <Badge bg="warning" className="position-absolute top-0 start-0 m-2 text-dark text-uppercase small">
-                                Main Cover
-                              </Badge>
-                            )}
+                      <div key={img.id} className={`bg-white rounded-xl border overflow-hidden flex flex-col shadow-sm transition-all ${img.isCover ? 'border-[#fea619] ring-2 ring-[#fea619]/10' : 'border-gray-200'}`}>
+                        <div className="relative h-40 overflow-hidden bg-gray-100">
+                          <img 
+                            src={img.imageUrl} 
+                            alt={img.caption || 'Tour media'} 
+                            className="w-full h-full object-cover" 
+                          />
+                          {img.isCover && (
+                            <span className="absolute top-2 left-2 px-2 py-0.5 text-[9px] font-bold bg-[#fea619] text-white rounded uppercase tracking-wider">
+                              Main Cover
+                            </span>
+                          )}
+                        </div>
+                        <div className="p-3 flex flex-col justify-between flex-grow">
+                          <p className="font-semibold text-xs text-gray-800 line-clamp-1 mb-3">{img.caption || 'No caption'}</p>
+                          <div className="flex items-center justify-between border-t border-gray-100 pt-2 text-xs">
+                            <span className="px-2 py-0.5 bg-gray-100 border text-gray-500 rounded text-[10px] font-semibold">Order: {img.sortOrder}</span>
+                            <button 
+                              type="button" 
+                              onClick={() => handleDeleteImage(img.id)}
+                              className="text-red-600 hover:text-red-700 font-bold transition-all text-[11px]"
+                            >
+                              Delete
+                            </button>
                           </div>
-                          <Card.Body className="p-3 d-flex flex-column justify-content-between">
-                            <p className="fw-semibold small text-truncate text-dark mb-2">{img.caption || 'No caption'}</p>
-                            <div className="d-flex align-items-center justify-content-between mt-auto pt-2 border-top">
-                              <Badge bg="light" className="text-secondary border">Order: {img.sortOrder}</Badge>
-                              <Button 
-                                variant="link" 
-                                className="text-danger p-0 text-decoration-none fw-semibold small"
-                                onClick={() => handleDeleteImage(img.id)}
-                              >
-                                Delete
-                              </Button>
-                            </div>
-                          </Card.Body>
-                        </Card>
-                      </Col>
+                        </div>
+                      </div>
                     ))}
-                  </Row>
+                  </div>
                 )}
-              </Col>
+              </div>
 
               {/* Add image form */}
-              <Col lg={4} className="ps-lg-4 mt-3 mt-lg-0">
-                <h3 className="fw-bold fs-5 mb-4" style={{ color: '#012d1d' }}>Add New Image</h3>
-                <Form onSubmit={handleAddImage} className="bg-light border p-4 rounded-3 shadow-sm">
-                  <Form.Group className="mb-3">
-                    <Form.Label className="fw-semibold text-secondary small">Image URL *</Form.Label>
-                    <Form.Control 
+              <div className="lg:col-span-4 lg:pl-4 space-y-4">
+                <h3 className="font-montserrat font-bold text-lg text-[#012d1d]">Add New Image</h3>
+                <form onSubmit={handleAddImage} className="bg-gray-50 border border-gray-200 p-5 rounded-xl space-y-3 shadow-sm">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Image URL *</label>
+                    <input 
                       type="url" 
                       required 
                       placeholder="https://example.com/trekking-photo.webp"
                       value={newImgData.imageUrl}
                       onChange={(e) => setNewImgData({...newImgData, imageUrl: e.target.value})}
+                      className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all bg-white"
                     />
-                  </Form.Group>
+                  </div>
 
-                  <Form.Group className="mb-3">
-                    <Form.Label className="fw-semibold text-secondary small">Caption</Form.Label>
-                    <Form.Control 
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Caption</label>
+                    <input 
                       type="text" 
                       placeholder="Sunset view from the ridge..."
                       value={newImgData.caption}
                       onChange={(e) => setNewImgData({...newImgData, caption: e.target.value})}
+                      className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all bg-white"
                     />
-                  </Form.Group>
+                  </div>
 
-                  <Form.Group className="mb-3">
-                    <Form.Label className="fw-semibold text-secondary small">Alt Text</Form.Label>
-                    <Form.Control 
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Alt Text</label>
+                    <input 
                       type="text" 
                       placeholder="Descriptive alt text for SEO..."
                       value={newImgData.altText}
                       onChange={(e) => setNewImgData({...newImgData, altText: e.target.value})}
+                      className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all bg-white"
                     />
-                  </Form.Group>
+                  </div>
 
-                  <Row className="align-items-center mb-3">
-                    <Col xs={6}>
-                      <Form.Group>
-                        <Form.Label className="fw-semibold text-secondary small">Display Order</Form.Label>
-                        <Form.Control 
-                          type="number" 
-                          min="1" 
-                          value={newImgData.sortOrder}
-                          onChange={(e) => setNewImgData({...newImgData, sortOrder: parseInt(e.target.value) || 1})}
-                        />
-                      </Form.Group>
-                    </Col>
-                    <Col xs={6} className="pt-4">
-                      <Form.Check 
-                        type="checkbox"
-                        id="isCover-img-check"
-                        label="Set as Cover Image"
-                        checked={newImgData.isCover}
-                        onChange={(e) => setNewImgData({...newImgData, isCover: e.target.checked})}
-                        className="small fw-semibold text-dark"
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Display Order</label>
+                      <input 
+                        type="number" 
+                        min="1" 
+                        value={newImgData.sortOrder}
+                        onChange={(e) => setNewImgData({...newImgData, sortOrder: parseInt(e.target.value) || 1})}
+                        className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all bg-white"
                       />
-                    </Col>
-                  </Row>
+                    </div>
+                    <div className="flex items-end pb-2.5">
+                      <label className="flex items-center space-x-2 text-xs font-semibold text-gray-800 cursor-pointer">
+                        <input 
+                          type="checkbox"
+                          checked={newImgData.isCover}
+                          onChange={(e) => setNewImgData({...newImgData, isCover: e.target.checked})}
+                          className="w-4 h-4 text-[#012d1d] border-gray-300 rounded focus:ring-[#012d1d]"
+                        />
+                        <span>Cover Image</span>
+                      </label>
+                    </div>
+                  </div>
 
-                  <Button 
+                  <button 
                     type="submit" 
-                    className="w-100 border-0 fw-bold py-2 mt-3"
-                    style={{ backgroundColor: '#012d1d' }}
+                    className="w-full bg-[#012d1d] hover:bg-[#0c432d] text-white font-bold py-2.5 rounded-lg text-sm transition-all mt-4 shadow-sm"
                   >
                     Add to Gallery
-                  </Button>
-                </Form>
-              </Col>
-            </Row>
+                  </button>
+                </form>
+              </div>
+
+            </div>
           </div>
-        </Tab>
-      </Tabs>
+        )}
+      </div>
 
       {/* Extracted Waypoint Modal component */}
       <WaypointModal 

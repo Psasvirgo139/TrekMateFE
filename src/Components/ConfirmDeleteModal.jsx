@@ -1,27 +1,39 @@
 import React from 'react';
-import { Modal, Button } from 'react-bootstrap';
 
 const ConfirmDeleteModal = ({ show, onClose, onConfirm, tourTitle }) => {
+  if (!show) return null;
+
   return (
-    <Modal show={show} onHide={onClose} centered size="sm" className="rounded-3">
-      <Modal.Body className="text-center p-4 bg-white" style={{ borderRadius: '8px' }}>
-        <div className="fs-1 mb-2 text-warning">⚠️</div>
-        <Modal.Title className="fw-bold mb-3 text-dark fs-5" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      {/* Modal Container */}
+      <div className="relative w-full max-w-md overflow-hidden bg-white rounded-xl shadow-2xl p-6 text-center transform transition-all duration-300">
+        <div className="text-4xl mb-3 text-amber-500">⚠️</div>
+        <h3 className="font-montserrat font-bold text-xl text-gray-900 mb-2">
           Confirm Deletion
-        </Modal.Title>
-        <p className="text-muted small mb-4">
-          Are you sure you want to archive the tour <strong>"{tourTitle}"</strong>? It will be marked as <strong>ARCHIVED</strong> and hidden from active listings.
+        </h3>
+        <p className="text-sm text-gray-500 mb-6 leading-relaxed px-2">
+          Are you sure you want to archive the tour <strong className="text-gray-800">"{tourTitle}"</strong>? It will be marked as <strong className="text-gray-800">ARCHIVED</strong> and hidden from active listings.
         </p>
-        <div className="d-flex justify-content-center gap-2">
-          <Button variant="secondary" onClick={onClose} size="sm" className="fw-semibold px-3 py-2" style={{ borderRadius: '8px' }}>
+        
+        {/* Buttons */}
+        <div className="flex justify-center gap-3">
+          <button 
+            type="button"
+            onClick={onClose} 
+            className="px-5 py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-150"
+          >
             Cancel
-          </Button>
-          <Button variant="danger" onClick={onConfirm} size="sm" className="fw-bold px-3 py-2" style={{ borderRadius: '8px' }}>
+          </button>
+          <button 
+            type="button"
+            onClick={onConfirm} 
+            className="px-5 py-2.5 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors duration-150 shadow-sm shadow-red-500/10"
+          >
             Yes, Archive
-          </Button>
+          </button>
         </div>
-      </Modal.Body>
-    </Modal>
+      </div>
+    </div>
   );
 };
 
