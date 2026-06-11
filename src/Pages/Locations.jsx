@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Components/Header";
-import api from "../services/api";
+import api from "../Services/api";
 
 // Import local images for page header & tour cards
 import LocationsHeroBg from "../Images/hero-slider-3.webp";
