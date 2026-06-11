@@ -38,7 +38,7 @@ const Header = ({
       {/* NAVBAR BUTTON */}
        <header className={`site-header ${scrolled ? "scrolled" : ""}`}>
   <div className="header-inner">
-    <Link to='/'><h1 className="logo">IndiVoyage</h1></Link>
+    <Link to='/'><h1 className="logo">TrekMate</h1></Link>
 
     <div className="menu-btn" onClick={() => setOpenSidebar(true)}>
       <div></div>

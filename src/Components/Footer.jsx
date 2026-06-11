@@ -32,12 +32,12 @@ const Footer = () => {
           transition={{ duration: 0.7 }}
           viewport={{ once: true }}
         >
-          <h2>TrekMate Danang</h2>
+          <h2>TrekMate</h2>
           <p>
             Professional logistics for trekking enthusiasts in the Central Vietnam
             region. Bridging the gap between wilderness and coordination.
           </p>
-          <p className="footer-copy">© 2024 TrekMate Danang. Professional Trekking Logistics.</p>
+          <p className="footer-copy">© 2024 TrekMate. Professional Trekking Logistics.</p>
         </motion.div>
 
         {footerLinks.map((group, index) => (
