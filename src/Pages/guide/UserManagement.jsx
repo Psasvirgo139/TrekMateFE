@@ -8,7 +8,7 @@ import {
   fetchUsers,
   unbanUser,
   updateUser,
-} from '../../Services/adminUserApi';
+} from '../../services/adminUserApi';
 import './UserManagement.css';
 
 const ROLE_TABS = [
