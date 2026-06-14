@@ -5,6 +5,7 @@ import Home from './Pages/Home';
 import About from './Pages/About';
 import Locations from './Pages/Locations';
 import Adventures from './Pages/Adventures';
+import TourDetail from './Pages/TourDetail';
 import Contact from './Pages/Contact';
 import FAQ from './Pages/FAQ';
 import Payment from './Pages/Payment';
@@ -24,6 +25,7 @@ function App() {
         <Route path='/about' element={<About />} />
         <Route path='/locations' element={<Locations />} />
         <Route path='/adventures' element={<Adventures />} />
+        <Route path='/tours/:idOrSlug' element={<TourDetail />} />
         <Route path='/contact' element={<Contact/>} />
         <Route path='/faq' element={<FAQ/>} />
         <Route path='/payment' element={<Payment />} />

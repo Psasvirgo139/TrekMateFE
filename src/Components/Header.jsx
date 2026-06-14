@@ -1,4 +1,4 @@
-import React, { useState, useEffect,  useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Sidebar from "./Sidebar";
@@ -6,45 +6,41 @@ import Sidebar from "./Sidebar";
 
 const Header = ({
    bgImage,
-  pageTitle,
   subheading,
   mainHeading,
   description,
-  showDescription = true
+  showDescription = true,
+  hideMenuButton = false
 }) => {
   const [openSidebar, setOpenSidebar] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  
+  useEffect(() => {
+      const handleScroll = () => {
+        setScrolled(window.scrollY > 18);
+      };
 
-  const heroRef = useRef(null);
-    const [scrolled, setScrolled] = useState(false);
-  
-    useEffect(() => {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          setScrolled(!entry.isIntersecting);
-        },
-        {
-          threshold: 0.2,
-        }
-      );
-  
-      if (heroRef.current) observer.observe(heroRef.current);
-  
-      return () => observer.disconnect();
+      handleScroll();
+      window.addEventListener("scroll", handleScroll, { passive: true });
+
+      return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
   return (
     <>
-    <section ref={heroRef}>
+    <section>
       {/* NAVBAR BUTTON */}
        <header className={`site-header ${scrolled ? "scrolled" : ""}`}>
   <div className="header-inner">
     <Link to='/'><h1 className="logo">IndiVoyage</h1></Link>
 
-    <div className="menu-btn" onClick={() => setOpenSidebar(true)}>
-      <div></div>
-      <div></div>
-      <div></div>
-    </div>
+    {!hideMenuButton && (
+      <div className="menu-btn" onClick={() => setOpenSidebar((previous) => !previous)}>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    )}
   </div>
 </header>
 
@@ -54,15 +50,6 @@ const Header = ({
       <div className="hero-overlay"></div>
 
       {/* CENTER HEADING ON IMAGE */}
-      {pageTitle && <motion.h1
-        className="hero-title"
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-      >
-        {pageTitle}
-      </motion.h1>}
-
       {/* WHITE CONTENT BOX */}
       {showDescription && <motion.div
         className="hero-content-box"
@@ -100,7 +87,10 @@ const Header = ({
       </motion.div>}
     </section>
 
-      <Sidebar open={openSidebar} setOpen={setOpenSidebar} />
+      {openSidebar && (
+        <div className="sidebar-backdrop" onClick={() => setOpenSidebar(false)} />
+      )}
+    <Sidebar open={openSidebar} setOpen={setOpenSidebar} />
       </section>
     </>
   );
