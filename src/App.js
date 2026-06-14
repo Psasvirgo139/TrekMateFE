@@ -18,6 +18,9 @@ import GuideDashboardLayout from './layouts/GuideDashboardLayout';
 import UserManagement from './Pages/guide/UserManagement';
 import GuidePlaceholder from './Pages/guide/GuidePlaceholder';
 
+import BookingHistory from './Pages/BookingHistory';
+import BookingDetail from './Pages/BookingDetail';
+
 function AppRoutes() {
   const location = useLocation();
   const isGuideArea = location.pathname.startsWith('/guide');
@@ -75,6 +78,8 @@ function AppRoutes() {
         <Route path='/payment' element={<Payment />} />
         <Route path='/payment/success' element={<PaymentSuccess />} />
         <Route path='/payment/cancel' element={<PaymentCancel />} />
+        <Route path='/bookings' element={<BookingHistory />} />
+        <Route path='/bookings/:id' element={<BookingDetail />} />
         <Route path='/admin/tours' element={<TourManagement />} />
         <Route path='/admin/tours/:id' element={<TourEditPage />} />
       </Routes>

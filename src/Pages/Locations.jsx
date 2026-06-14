@@ -55,11 +55,11 @@ const Locations = () => {
       }
 
       // Axios call
-      const response = await api.get("/api/tours", { params: queryParams });
-      
+      const response = await api.get("/tours", { params: queryParams });
+
       if (response && response.status === 200 && response.data) {
         const json = response.data;
-        if (json.status === 200 && json.data) {
+        if (json.code === 200 && json.data) {
           setTours(json.data.content || []);
           setTotalPages(json.data.totalPages || 0);
           setTotalElements(json.data.totalElements || 0);
@@ -166,16 +166,16 @@ const Locations = () => {
         pageTitle="TrekMate Tours"
         subheading="CHINH PHỤC THỬ THÁCH — AN TOÀN TUYỆT ĐỐI"
         mainHeading="Danh Sách Các Tuyến Đường Trekking"
-        description="Khám phá bộ sưu tập các cung đường trekking được thiết kế tỉ mỉ bằng Tailwind CSS, đầy đủ lộ trình, dự báo thời tiết và hướng dẫn viên bản địa giàu kinh nghiệm."
+        description="Khám phá bộ sưu tập các cung đường trekking được thiết kế tỉ mỉ, đầy đủ lộ trình, dự báo thời tiết và hướng dẫn viên bản địa giàu kinh nghiệm."
         showDescription={true}
       />
 
       <main className="max-w-7xl mx-auto px-6 py-12">
-        
+
         {/* Controls Card: Search, Filter, Sort */}
         <section className="bg-white rounded-2xl shadow-sm border border-[#012d1d]/10 p-6 md:p-8 mb-8">
           <div className="flex flex-col gap-6">
-            
+
             {/* Search Input */}
             <div className="relative w-full">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">🔍</span>
@@ -329,7 +329,7 @@ const Locations = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {tours.map((tour) => (
                 <article key={tour.id} className="group flex flex-col h-full bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-gray-100 hover:-translate-y-2 transition-all duration-300 relative">
-                  
+
                   {/* Tour Image Header */}
                   <div className="relative h-56 overflow-hidden bg-slate-100">
                     <img
@@ -459,12 +459,12 @@ const Locations = () => {
       {selectedTour && showModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300">
           <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto transform transition-transform duration-300 scale-100 flex flex-col">
-            
+
             {/* Modal Header */}
             <div className="flex justify-between items-center p-6 border-b border-gray-100">
               <h4 className="font-montserrat font-bold text-lg text-brand-dark">{selectedTour.title}</h4>
-              <button 
-                onClick={handleCloseModal} 
+              <button
+                onClick={handleCloseModal}
                 className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-800 transition-colors text-lg"
               >
                 ×
@@ -554,7 +554,7 @@ const Locations = () => {
                         ? `Hiện có ${selectedTour.upcomingDeparturesCount} lịch khởi hành đang mở đăng ký.`
                         : "Chưa có lịch khởi hành sắp tới."}
                     </div>
-                    <button 
+                    <button
                       className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-full shadow transition-colors"
                       onClick={handleCloseModal}
                     >

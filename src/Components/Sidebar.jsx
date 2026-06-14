@@ -28,6 +28,7 @@ const Sidebar = ({ open, setOpen }) => {
           <Link to='/about'><li>About us</li></Link>
           <Link to='/locations'><li>Locations</li></Link>
           <Link to='/adventures'><li>Adventures</li></Link>
+          <Link to='/bookings'><li>My Bookings</li></Link>
           <Link to='/contact'><li>Contact us</li></Link>
           <Link to='/faq'><li>FAQ</li></Link>
           <Link to='/admin/tours'><li>Tour Management</li></Link>
