@@ -22,7 +22,7 @@ api.interceptors.request.use(
 );
 
 // CRUD Tour APIs
-export const getTours = (params) => api.get('/tours', { params });
+export const getTours = (params) => api.get('/tours/', { params });
 export const getTourDetail = (idOrSlug) => api.get(`/tours/${idOrSlug}`);
 export const createTour = (tourData) => api.post('/tours', tourData);
 export const updateTour = (id, tourData) => api.put(`/tours/${id}`, tourData);

@@ -17,6 +17,7 @@ import Footer from './Components/Footer';
 import GuideDashboardLayout from './layouts/GuideDashboardLayout';
 import UserManagement from './Pages/guide/UserManagement';
 import GuidePlaceholder from './Pages/guide/GuidePlaceholder';
+import UserProfileDemo from './Pages/UserProfileDemo';
 
 function AppRoutes() {
   const location = useLocation();
@@ -77,6 +78,7 @@ function AppRoutes() {
         <Route path='/payment/cancel' element={<PaymentCancel />} />
         <Route path='/admin/tours' element={<TourManagement />} />
         <Route path='/admin/tours/:id' element={<TourEditPage />} />
+        <Route path='/profile' element={<UserProfileDemo />} />
       </Routes>
       {!isGuideArea && <Footer />}
     </>
