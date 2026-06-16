@@ -11,7 +11,7 @@ import {
   deleteItinerary,
   addTourImage,
   deleteTourImage
-} from '../Services/tourManagementApi';
+} from '../services/tourManagementApi';
 import WaypointModal from '../Components/WaypointModal';
 
 // Sanitization utilities
