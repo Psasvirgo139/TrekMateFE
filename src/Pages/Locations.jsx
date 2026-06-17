@@ -214,7 +214,7 @@ const Locations = () => {
         {/* Controls Card: Search, Filter, Sort (Glassmorphism layout) */}
         <section className="backdrop-blur-md bg-white/75 rounded-3xl shadow-xl shadow-[#012d1d]/5 border border-white/40 p-6 md:p-8 mb-8 transition-all duration-300">
           <div className="flex flex-col gap-6">
-            
+
             {/* Search Input */}
             <div className="relative w-full">
               <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-lg">🔍</span>
@@ -496,12 +496,12 @@ const Locations = () => {
       {selectedTour && showModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300">
           <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto transform transition-transform duration-300 scale-100 flex flex-col">
-            
+
             {/* Modal Header */}
             <div className="flex justify-between items-center p-6 border-b border-gray-100">
               <h4 className="font-montserrat font-bold text-lg text-brand-dark">{selectedTour.title}</h4>
-              <button 
-                onClick={handleCloseModal} 
+              <button
+                onClick={handleCloseModal}
                 className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-800 transition-colors text-lg"
               >
                 ×
@@ -591,7 +591,7 @@ const Locations = () => {
                         ? `Hiện có ${selectedTour.upcomingDeparturesCount} lịch khởi hành đang mở đăng ký.`
                         : "Chưa có lịch khởi hành sắp tới."}
                     </div>
-                    <button 
+                    <button
                       className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-full shadow transition-colors"
                       onClick={handleCloseModal}
                     >
