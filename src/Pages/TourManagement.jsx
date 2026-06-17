@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getTours, createTour, deleteTour } from '../Services/tourManagementApi';
+import { ArrowLeft, Search, Edit2, Trash2, Plus, MapPin } from 'lucide-react';
+import { getTours, createTour, deleteTour } from '../services/tourManagementApi';
 import CreateTourModal from '../Components/CreateTourModal';
 import ConfirmDeleteModal from '../Components/ConfirmDeleteModal';
 
@@ -90,18 +92,21 @@ const TourManagement = () => {
       const response = await getTours(params);
       
       if (response.data) {
-        // Check if response is wrapped in ApiResponse { code, message, data }
-        const pageData = (response.data.code !== undefined && response.data.data)
-          ? response.data.data
-          : response.data;
-
-        if (pageData.content) {
-          setTours(pageData.content);
-          setTotalElements(pageData.totalElements);
-          setTotalPages(pageData.totalPages);
-        } else if (Array.isArray(pageData)) {
-          setTours(pageData);
-          setTotalElements(pageData.length);
+        const json = response.data;
+        // Handle wrapped response: { code: 200, data: { content: [...] } }
+        if (json.code === 200 && json.data) {
+          const pageData = json.data;
+          setTours(pageData.content || []);
+          setTotalElements(pageData.totalElements || 0);
+          setTotalPages(pageData.totalPages || 0);
+        // Fallbacks for legacy/alternative formats
+        } else if (json.content !== undefined) {
+          setTours(json.content || []);
+          setTotalElements(json.totalElements || 0);
+          setTotalPages(json.totalPages || 0);
+        } else if (Array.isArray(json)) {
+          setTours(json);
+          setTotalElements(json.length);
           setTotalPages(1);
         } else {
           setTours([]);

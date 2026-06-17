@@ -1,12 +1,37 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Components/Header";
-import api from "../Services/api";
+import { Link } from "react-router-dom";
+import api from "../services/api";
 
 // Import local images for page header & tour cards
 import LocationsHeroBg from "../Images/hero-slider-3.webp";
 import dest1 from "../Images/destination-1.webp";
 import dest2 from "../Images/destination-2.webp";
 import dest3 from "../Images/destination-3.webp";
+
+const TourSkeleton = () => {
+  return (
+    <div className="animate-pulse bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm flex flex-col h-full">
+      <div className="h-56 bg-slate-200 relative"></div>
+      <div className="flex-grow p-6 flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <div className="h-4 w-24 bg-slate-200 rounded"></div>
+          <div className="h-4 w-12 bg-slate-200 rounded ml-auto"></div>
+        </div>
+        <div className="h-6 w-3/4 bg-slate-200 rounded mb-2"></div>
+        <div className="flex flex-wrap gap-2 my-2">
+          <div className="h-6 w-16 bg-slate-100 rounded-full"></div>
+          <div className="h-6 w-16 bg-slate-100 rounded-full"></div>
+          <div className="h-6 w-16 bg-slate-100 rounded-full"></div>
+        </div>
+        <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-100 w-full">
+          <div className="h-4 w-28 bg-slate-200 rounded"></div>
+          <div className="h-8 w-24 bg-slate-200 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Locations = () => {
   // Query parameters state
@@ -56,13 +81,27 @@ const Locations = () => {
 
       // Axios call
       const response = await api.get("/tours", { params: queryParams });
-
+      
       if (response && response.status === 200 && response.data) {
         const json = response.data;
+        // Handle standard API response layout from backend (code: 200 & data)
         if (json.code === 200 && json.data) {
           setTours(json.data.content || []);
           setTotalPages(json.data.totalPages || 0);
           setTotalElements(json.data.totalElements || 0);
+        // Fallbacks for legacy/alternative formats
+        } else if ((json.status === 200 || json.status === "200" || json.statusCode === 200) && json.data) {
+          setTours(json.data.content || []);
+          setTotalPages(json.data.totalPages || 0);
+          setTotalElements(json.data.totalElements || 0);
+        } else if (json.content !== undefined) {
+          setTours(json.content || []);
+          setTotalPages(json.totalPages || 0);
+          setTotalElements(json.totalElements || 0);
+        } else if (Array.isArray(json)) {
+          setTours(json);
+          setTotalPages(1);
+          setTotalElements(json.length);
         } else {
           throw new Error(json.message || "Invalid API response structure");
         }
@@ -171,18 +210,18 @@ const Locations = () => {
       />
 
       <main className="max-w-7xl mx-auto px-6 py-12">
-
-        {/* Controls Card: Search, Filter, Sort */}
-        <section className="bg-white rounded-2xl shadow-sm border border-[#012d1d]/10 p-6 md:p-8 mb-8">
+        
+        {/* Controls Card: Search, Filter, Sort (Glassmorphism layout) */}
+        <section className="backdrop-blur-md bg-white/75 rounded-3xl shadow-xl shadow-[#012d1d]/5 border border-white/40 p-6 md:p-8 mb-8 transition-all duration-300">
           <div className="flex flex-col gap-6">
 
             {/* Search Input */}
             <div className="relative w-full">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">🔍</span>
+              <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-lg">🔍</span>
               <input
                 type="text"
                 placeholder="Tìm kiếm tour theo tên, điểm xuất phát hoặc điểm kết thúc... (Nhấn Enter)"
-                className="w-full pl-11 pr-5 py-3.5 rounded-full border border-[#012d1d]/15 bg-slate-50 focus:bg-white text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-orange/40 focus:border-brand-orange transition-all placeholder:text-gray-400"
+                className="w-full pl-12 pr-5 py-4 rounded-full border border-gray-200/80 bg-white/50 focus:bg-white text-brand-dark focus:outline-none focus:ring-4 focus:ring-brand-orange/20 focus:border-brand-orange transition-all duration-300 placeholder:text-gray-400 shadow-inner"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={handleSearchKeyPress}
@@ -194,9 +233,9 @@ const Locations = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Difficulty Filter */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-[#855300]">Mức Độ Khó</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-[#855300] ml-1">Mức Độ Khó</label>
                 <select
-                  className="px-4 py-3 rounded-lg border border-[#012d1d]/15 bg-slate-50 focus:bg-white text-brand-dark cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-orange/40 focus:border-brand-orange transition-all"
+                  className="px-4 py-3.5 rounded-xl border border-gray-200/80 bg-white/50 focus:bg-white text-brand-dark cursor-pointer focus:outline-none focus:ring-4 focus:ring-brand-orange/20 focus:border-brand-orange transition-all duration-300"
                   value={difficulty}
                   onChange={(e) => {
                     setDifficulty(e.target.value);
@@ -213,9 +252,9 @@ const Locations = () => {
 
               {/* Duration Filter */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-[#855300]">Thời Gian Đi</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-[#855300] ml-1">Thời Gian Đi</label>
                 <select
-                  className="px-4 py-3 rounded-lg border border-[#012d1d]/15 bg-slate-50 focus:bg-white text-brand-dark cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-orange/40 focus:border-brand-orange transition-all"
+                  className="px-4 py-3.5 rounded-xl border border-gray-200/80 bg-white/50 focus:bg-white text-brand-dark cursor-pointer focus:outline-none focus:ring-4 focus:ring-brand-orange/20 focus:border-brand-orange transition-all duration-300"
                   value={durationRange}
                   onChange={(e) => {
                     setDurationRange(e.target.value);
@@ -231,9 +270,9 @@ const Locations = () => {
 
               {/* Sort Filter */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-[#855300]">Sắp Xếp Theo</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-[#855300] ml-1">Sắp Xếp Theo</label>
                 <select
-                  className="px-4 py-3 rounded-lg border border-[#012d1d]/15 bg-slate-50 focus:bg-white text-brand-dark cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-orange/40 focus:border-brand-orange transition-all"
+                  className="px-4 py-3.5 rounded-xl border border-gray-200/80 bg-white/50 focus:bg-white text-brand-dark cursor-pointer focus:outline-none focus:ring-4 focus:ring-brand-orange/20 focus:border-brand-orange transition-all duration-300"
                   value={sort}
                   onChange={(e) => {
                     setSort(e.target.value);
@@ -249,9 +288,9 @@ const Locations = () => {
 
             {/* Reset Filter Button */}
             {(search || difficulty || durationRange || sort !== "avgRating,desc") && (
-              <div className="flex justify-end">
+              <div className="flex justify-end mt-2">
                 <button
-                  className="px-4 py-2 border border-rose-600 text-rose-600 rounded-md text-sm font-semibold hover:bg-rose-50 transition-colors"
+                  className="px-5 py-2.5 border-2 border-rose-500/20 text-rose-600 rounded-full text-xs font-bold hover:bg-rose-50 hover:border-rose-500 hover:text-rose-700 transition-all duration-200 shadow-sm"
                   onClick={handleResetFilters}
                 >
                   🔄 Xóa bộ lọc
@@ -300,11 +339,12 @@ const Locations = () => {
           </div>
         )}
 
-        {/* Loading Spinner */}
+        {/* Loading Skeletons */}
         {loading && !error && (
-          <div className="flex flex-col items-center justify-center py-16 my-8">
-            <div className="w-12 h-12 border-4 border-brand-dark/20 border-t-brand-dark rounded-full animate-spin mb-4"></div>
-            <span className="text-brand-dark font-semibold text-lg">Đang tải danh sách Tour...</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[...Array(6)].map((_, idx) => (
+              <TourSkeleton key={idx} />
+            ))}
           </div>
         )}
 
@@ -315,7 +355,7 @@ const Locations = () => {
             <h3 className="text-gray-800 text-2xl font-bold mb-2">Không tìm thấy tour phù hợp</h3>
             <p className="text-gray-500 mb-6">Hãy thử thay đổi từ khóa tìm kiếm hoặc các cài đặt lọc hiện tại của bạn.</p>
             <button
-              className="px-6 py-2.5 bg-brand-orange text-brand-dark font-bold rounded-full shadow-lg hover:shadow-xl transition-all"
+              className="px-6 py-2.5 bg-[#fea619] text-[#012d1d] font-bold rounded-full shadow-lg hover:shadow-xl transition-all"
               onClick={handleResetFilters}
             >
               Xóa tất cả bộ lọc
@@ -328,20 +368,21 @@ const Locations = () => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {tours.map((tour) => (
-                <article key={tour.id} className="group flex flex-col h-full bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-gray-100 hover:-translate-y-2 transition-all duration-300 relative">
-
-                  {/* Tour Image Header */}
+                <article key={tour.id} className="group flex flex-col h-full bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-2 border border-gray-100/70 transition-all duration-300 relative">
+                  
+                  {/* Tour Image Header with Gradient Overlay */}
                   <div className="relative h-56 overflow-hidden bg-slate-100">
                     <img
                       src={getTourImage(tour.slug)}
                       alt={tour.title}
-                      className="w-full h-full object-cover group-hover:scale-108 transition-all duration-500"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700"
                       loading="lazy"
                     />
-                    <span className={`absolute top-4 left-4 px-3 py-1.5 rounded text-[10px] font-extrabold uppercase tracking-wider shadow ${getDifficultyColor(tour.difficulty)}`}>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-90"></div>
+                    <span className={`absolute top-4 left-4 px-3 py-1.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider shadow-md backdrop-blur-sm bg-opacity-95 ${getDifficultyColor(tour.difficulty)}`}>
                       {tour.difficulty}
                     </span>
-                    <span className="absolute bottom-4 right-4 bg-brand-orange text-brand-dark px-3.5 py-1.5 rounded-lg font-extrabold text-sm shadow">
+                    <span className="absolute bottom-4 right-4 bg-[#fea619] hover:bg-[#ffb638] text-[#012d1d] px-4 py-1.5 rounded-xl font-extrabold text-sm shadow-lg transform group-hover:scale-105 transition-all duration-300">
                       {tour.priceFrom ? formatPrice(tour.priceFrom) : "Liên hệ"}
                     </span>
                   </div>
@@ -349,35 +390,31 @@ const Locations = () => {
                   {/* Card Body */}
                   <div className="flex flex-col flex-grow p-6">
                     {/* Rating Row */}
-                    <div className="flex items-center gap-1 mb-2.5">
+                    <div className="flex items-center gap-1 mb-3">
                       <div className="flex gap-0.5">{renderStars(tour.avgRating)}</div>
-                      <span className="font-bold text-gray-800 text-xs ml-1">{tour.avgRating ? parseFloat(tour.avgRating).toFixed(1) : "0.0"}</span>
+                      <span className="font-extrabold text-gray-800 text-xs ml-1">{tour.avgRating ? parseFloat(tour.avgRating).toFixed(1) : "0.0"}</span>
                       <span className="text-gray-400 text-xs">({tour.totalReviews || 0} đánh giá)</span>
                     </div>
 
                     {/* Title */}
-                    <h3 className="font-montserrat font-bold text-gray-800 text-lg leading-snug h-[3.4rem] overflow-hidden line-clamp-2 mb-4">
+                    <h3 className="font-montserrat font-bold text-gray-800 text-lg leading-snug h-[3.4rem] overflow-hidden line-clamp-2 mb-4 transition-colors">
                       {tour.title}
                     </h3>
 
-                    {/* Quick Details Table */}
-                    <div className="grid grid-cols-2 gap-y-3 gap-x-2 text-gray-500 text-xs border-b pb-4 mb-4">
-                      <div className="flex items-center gap-1.5">
-                        <span>⏱️</span>
-                        <span>{tour.durationDays} Ngày {tour.durationNights} Đêm</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span>🏃</span>
-                        <span>{tour.distanceKm} km</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span>🏔️</span>
-                        <span>Cực đại: {tour.maxElevationM}m</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span>📍</span>
-                        <span>{tour.startLocation?.split(",")[0]}</span>
-                      </div>
+                    {/* Quick Details Pills (Premium Badges) */}
+                    <div className="flex flex-wrap gap-2 mb-5 border-b border-gray-100 pb-4">
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-50 border border-gray-100 text-gray-600 text-xs font-semibold">
+                        ⏱️ {tour.durationDays}N {tour.durationNights}Đ
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-50 border border-gray-100 text-gray-600 text-xs font-semibold">
+                        🏃 {tour.distanceKm} km
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-50 border border-gray-100 text-gray-600 text-xs font-semibold">
+                        🏔️ {tour.maxElevationM}m
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-50 border border-gray-100 text-gray-600 text-xs font-semibold">
+                        📍 {tour.startLocation?.split(",")[0]}
+                      </span>
                     </div>
 
                     {/* Highlights */}
@@ -387,7 +424,7 @@ const Locations = () => {
                         <ul className="flex flex-col gap-1.5">
                           {tour.highlights.slice(0, 2).map((hl, idx) => (
                             <li key={idx} className="text-xs text-gray-700 flex items-start gap-2">
-                              <span className="text-brand-orange">✓</span>
+                              <span className="text-[#fea619]">✓</span>
                               <span className="line-clamp-1">{hl}</span>
                             </li>
                           ))}
@@ -396,10 +433,10 @@ const Locations = () => {
                     )}
 
                     {/* Card Footer Actions */}
-                    <div className="flex items-center justify-content-between mt-auto pt-4 border-t w-full">
+                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100 w-full">
                       {/* Availability */}
                       <div className="flex items-center gap-2">
-                        <span className={`w-2 h-2 rounded-full relative flex`}>
+                        <span className="relative flex h-2 w-2">
                           {tour.upcomingDeparturesCount > 0 ? (
                             <>
                               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -409,7 +446,7 @@ const Locations = () => {
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-gray-400"></span>
                           )}
                         </span>
-                        <span className="text-xs font-semibold text-gray-500">
+                        <span className="text-xs font-bold text-gray-500">
                           {tour.upcomingDeparturesCount > 0
                             ? `${tour.upcomingDeparturesCount} chuyến sắp đi`
                             : "Chưa có lịch"}
@@ -419,7 +456,7 @@ const Locations = () => {
                       {/* Detail CTA Button */}
                       <button
                         onClick={() => handleOpenDetail(tour)}
-                        className="px-4 py-2 text-xs font-bold bg-brand-dark hover:bg-brand-orange text-white hover:text-brand-dark rounded-full transition-all duration-200 shadow hover:shadow-md"
+                        className="px-5 py-2 text-xs font-extrabold bg-[#012d1d] hover:bg-[#fea619] text-white hover:text-[#012d1d] rounded-full transition-all duration-300 shadow hover:shadow-lg active:scale-95"
                       >
                         Xem chi tiết
                       </button>
@@ -579,6 +616,139 @@ const Locations = () => {
         </div>
       )}
     </div>
+  );
+};
+
+    const loadTours = async () => {
+      try {
+        setStatus("loading");
+        setError("");
+
+        const response = await fetch("/api/tours?status=ACTIVE&page=0&size=12", {
+          signal: controller.signal,
+        });
+        const payload = await response.json();
+
+        if (!response.ok) {
+          throw new Error(payload?.message || "Khong tai duoc danh sach tour.");
+        }
+
+        const page = payload?.data;
+        setTours(Array.isArray(page?.content) ? page.content : []);
+        setStatus("success");
+      } catch (err) {
+        if (err.name === "AbortError") return;
+        setError(err.message || "Da xay ra loi khi tai tour.");
+        setStatus("error");
+      }
+    };
+
+    loadTours();
+    return () => controller.abort();
+  }, []);
+
+  const heroImage =
+    "https://images.unsplash.com/photo-1501554728187-ce583db33af7?auto=format&fit=crop&w=1600&q=80";
+
+  const panelCls =
+    "bg-white/80 rounded-3xl p-6 shadow-[0_20px_60px_rgba(23,35,42,.08)] mb-5";
+
+  return (
+    <>
+      <Header
+        bgImage={heroImage}
+        subheading="TrekMate Danang"
+        mainHeading="Where the next trail begins"
+        description="Kham pha cac hanh trinh trekking cua TrekMate."
+        showDescription={true}
+      />
+
+      <main
+        className="px-5 py-6 pb-12 min-h-screen"
+        style={{ background: "linear-gradient(180deg,#f7f4ee,#eef3ee)" }}
+      >
+        <section className="max-w-[1200px] mx-auto">
+
+          {/* loading */}
+          {status === "loading" && (
+            <div className={panelCls}>Dang tai danh sach tour...</div>
+          )}
+
+          {/* error */}
+          {status === "error" && (
+            <div className={panelCls}>
+              <h2 className="mt-0 text-[#10251b]">Khong the tai hanh trinh</h2>
+              <p className="text-[#4f5e57]">{error}</p>
+            </div>
+          )}
+
+          {/* empty */}
+          {status === "success" && tours.length === 0 && (
+            <div className={panelCls}>
+              <h2 className="mt-0 text-[#10251b]">Chua co hanh trinh nao</h2>
+              <p className="text-[#4f5e57]">Database hien chua co tour ACTIVE de hien thi.</p>
+            </div>
+          )}
+
+          {/* tour grid */}
+          <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))" }}>
+            {tours.map((tour) => (
+              <article
+                key={tour.id}
+                className="flex flex-col bg-white/80 rounded-3xl p-6 shadow-[0_20px_60px_rgba(23,35,42,.08)]"
+              >
+                {/* card header */}
+                <div className="flex justify-between gap-3 flex-wrap mb-3.5">
+                  <span className="inline-flex px-3 py-1.5 rounded-full bg-[#e7efe8] text-[#1d4b35] text-[.78rem] font-bold">
+                    {tour.difficulty || "N/A"}
+                  </span>
+                  <span className="inline-flex px-3 py-1.5 rounded-full bg-[#10251b] text-white text-[.78rem] font-bold">
+                    {tour.status}
+                  </span>
+                </div>
+
+                <h2 className="mt-0 text-[#10251b]">{tour.title}</h2>
+                <p className="text-[#4f5e57] leading-relaxed min-h-[72px]">
+                  {tour.highlights?.length
+                    ? tour.highlights[0]
+                    : tour.startLocation || "Tour trekking trong database"}
+                </p>
+
+                {/* meta grid */}
+                <div className="grid grid-cols-2 gap-3 mt-1">
+                  {[
+                    {
+                      label: "Thoi luong",
+                      value: `${tour.durationDays ?? "N/A"} ngay${
+                        tour.durationNights ? ` ${tour.durationNights} dem` : ""
+                      }`,
+                    },
+                    { label: "Khoang gia", value: formatPrice(tour.priceFrom) },
+                    { label: "Danh gia", value: `${tour.avgRating ?? 0}/5` },
+                    { label: "Sap khoi hanh", value: tour.upcomingDeparturesCount ?? 0 },
+                  ].map(({ label, value }) => (
+                    <div key={label}>
+                      <span className="block text-[.78rem] text-[#6a776f] mb-1">{label}</span>
+                      <strong className="text-[#10251b]">{value}</strong>
+                    </div>
+                  ))}
+                </div>
+
+                {/* CTA */}
+                <div className="flex flex-wrap gap-3 mt-5">
+                  <Link
+                    to={`/tours/${tour.slug || tour.id}`}
+                    className="inline-flex mt-auto px-4 py-3 rounded-full no-underline bg-[#10251b] text-white font-bold"
+                  >
+                    Xem chi tiet
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      </main>
+    </>
   );
 };
 

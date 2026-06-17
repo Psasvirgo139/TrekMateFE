@@ -10,7 +10,7 @@ import {
   deleteItinerary,
   addTourImage,
   deleteTourImage
-} from '../Services/tourManagementApi';
+} from '../services/tourManagementApi';
 import WaypointModal from '../Components/WaypointModal';
 
 const ArrowLeft = ({ size = 16, className = "" }) => (
