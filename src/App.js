@@ -18,6 +18,7 @@ import Footer from './Components/Footer';
 import GuideDashboardLayout from './layouts/GuideDashboardLayout';
 import UserManagement from './Pages/guide/UserManagement';
 import GuidePlaceholder from './Pages/guide/GuidePlaceholder';
+import UserProfileDemo from './Pages/UserProfileDemo';
 
 import BookingHistory from './Pages/BookingHistory';
 import BookingDetail from './Pages/BookingDetail';
@@ -84,6 +85,7 @@ function AppRoutes() {
         <Route path='/bookings/:id' element={<BookingDetail />} />
         <Route path='/admin/tours' element={<TourManagement />} />
         <Route path='/admin/tours/:id' element={<TourEditPage />} />
+        <Route path='/profile' element={<UserProfileDemo />} />
       </Routes>
       {!isGuideArea && <Footer />}
     </>
