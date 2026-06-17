@@ -30,6 +30,9 @@ const Home = () => {
             <Link to="/payment" className="home-nav-link">
               Payment
             </Link>
+            <Link to="/admin/tours" className="home-nav-link">
+              Tour Management
+            </Link>
           </nav>
 
           <Link to="/payment" className="home-button primary-button">
@@ -43,7 +46,7 @@ const Home = () => {
           <div className="hero-overlay" />
           <div className="hero-copy">
             <span className="hero-eyebrow">Central Vietnam’s Premier Trekking Partner</span>
-            <h1>Welcome to TrekMate Danang</h1>
+            <h1>Welcome to TrekMate</h1>
             <p>
               Precision logistics for rugged exploration. We manage every detail of your
               high-altitude itinerary so you can focus on the ascent.
