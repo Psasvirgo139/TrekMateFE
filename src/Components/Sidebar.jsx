@@ -5,8 +5,8 @@ import footerImg from "../Images/footer.webp";
 
 const Sidebar = ({ open, setOpen }) => {
   const variants = {
-    hidden: { x: "-100%" },   
-  visible: { x: "0%" }, 
+    hidden: { x: "-100%" },
+    visible: { x: "0%" },
   };
 
   return (
@@ -18,8 +18,9 @@ const Sidebar = ({ open, setOpen }) => {
       transition={{ duration: 0.6, ease: "easeInOut" }}
     >
       <div className="sidebar-content">
-
-        <p className="back-btn" onClick={() => setOpen(false)}>‹ Back</p>
+        <button type="button" className="sidebar-close-btn" onClick={() => setOpen(false)}>
+          ×
+        </button>
 
         <h2 className="sidebar-title">TrekMate</h2>
 

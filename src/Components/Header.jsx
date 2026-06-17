@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -8,17 +8,40 @@ const Header = ({
   subheading,
   mainHeading,
   description,
-  showDescription = true
+  showDescription = true,
+  hideMenuButton = false
 }) => {
+  const [openSidebar, setOpenSidebar] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  
+  useEffect(() => {
+      const handleScroll = () => {
+        setScrolled(window.scrollY > 18);
+      };
+
+      handleScroll();
+      window.addEventListener("scroll", handleScroll, { passive: true });
+
+      return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
   return (
     <>
-      <section className="relative">
-        {/* HORIZONTAL NAVIGATION BAR (Matching Home.jsx style) */}
-        <header className="home-header">
-          <div className="home-header-inner">
-            <Link to="/" className="home-brand">
-              TrekMate Danang
-            </Link>
+    <section>
+      {/* NAVBAR BUTTON */}
+       <header className={`site-header ${scrolled ? "scrolled" : ""}`}>
+  <div className="header-inner">
+    <Link to='/'><h1 className="logo">IndiVoyage</h1></Link>
+
+    {!hideMenuButton && (
+      <div className="menu-btn" onClick={() => setOpenSidebar((previous) => !previous)}>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    )}
+  </div>
+</header>
 
             <nav className="home-nav">
               <Link to="/" className="home-nav-link">
@@ -41,22 +64,29 @@ const Header = ({
               </Link>
             </nav>
 
-            <Link to="/payment" className="home-button primary-button">
-              Book Now
-            </Link>
-          </div>
-        </header>
+      {/* CENTER HEADING ON IMAGE */}
+      {/* WHITE CONTENT BOX */}
+      {showDescription && <motion.div
+        className="hero-content-box"
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
+      >
 
-        {/* HERO SECTION */}
-        <section 
-          className="hero-section flex items-center justify-center relative px-6 py-24 md:py-32" 
-          style={{ 
-            backgroundImage: `url(${bgImage})`,
-            minHeight: "45vh",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            padding: "100px 0"
-          }}
+        {showDescription &&<motion.h3
+          className="hero-small-title"
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+        >
+          {subheading}
+        </motion.h3>}
+
+        {showDescription && <motion.h2
+          className="hero-bold-title"
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35, duration: 0.6 }}
         >
           {/* DARK OVERLAY */}
           <div className="hero-overlay absolute inset-0 bg-gradient-to-b from-[#012d1d]/60 to-[#012d1d]/85"></div>
@@ -81,14 +111,10 @@ const Header = ({
                 </h1>
               )}
 
-              {description && (
-                <p className="text-white/85 font-sans text-sm md:text-base lg:text-lg max-w-3xl leading-relaxed mt-2">
-                  {description}
-                </p>
-              )}
-            </motion.div>
-          )}
-        </section>
+      {openSidebar && (
+        <div className="sidebar-backdrop" onClick={() => setOpenSidebar(false)} />
+      )}
+    <Sidebar open={openSidebar} setOpen={setOpenSidebar} />
       </section>
     </>
   );
