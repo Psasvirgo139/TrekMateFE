@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "../Components/Header";
-import { fetchBookingDetail, cancelBooking } from "../Services/bookingApi";
+import { fetchBookingDetail, cancelBooking } from "../services/bookingApi";
 import BookingDetailBg from "../Images/hero-slider-3.webp";
 
 const STATUS_CONFIG = {
@@ -40,7 +40,10 @@ const BookingDetail = () => {
     }
   };
 
-  useEffect(() => { loadBookingDetail(); }, [id]);
+  useEffect(() => {
+    loadBookingDetail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const handleCancelSubmit = async (e) => {
     e.preventDefault();

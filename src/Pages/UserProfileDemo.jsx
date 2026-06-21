@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import UserProfile from '../Components/UserProfile';
 import { ToggleLeft, ToggleRight, Shield, User, HelpCircle, RefreshCw } from 'lucide-react';
-import { fetchCustomerProfile, fetchGuideProfile } from '../Services/userProfileApi';
-import { fetchUsers } from '../Services/adminUserApi';
+import { fetchCustomerProfile, fetchGuideProfile } from '../services/userProfileApi';
+import { fetchUsers } from '../services/adminUserApi';
 import EditProfileModal from '../Components/UserProfile/Shared/EditProfileModal';
 
 const UserProfileDemo = () => {
