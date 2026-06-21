@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getTours, createTour, deleteTour } from '../services/tourManagementApi';
+import { getTours, createTour, deleteTour } from '../../services/tourManagementApi';
 import { ArrowLeft, Search, Edit2, Trash2, Plus, MapPin } from 'lucide-react';
-import CreateTourModal from '../Components/CreateTourModal';
-import ConfirmDeleteModal from '../Components/ConfirmDeleteModal';
+import CreateTourModal from '../../Components/Tour/CreateTourModal';
+import ConfirmDeleteModal from '../../Components/Tour/ConfirmDeleteModal';
 
 const TourManagement = () => {
   const navigate = useNavigate();

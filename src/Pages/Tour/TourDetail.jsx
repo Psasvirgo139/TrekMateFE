@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import Header from "../Components/Header";
+import Header from "../../Components/Header";
 
 const formatDateTime = (value) => {
   if (!value) return "N/A";
