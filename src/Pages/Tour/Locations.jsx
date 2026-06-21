@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Header from "../../Components/Header";
 import api from "../../services/api";
+import { Link } from "react-router-dom";
 
 // Import local images for page header & tour cards
 import LocationsHeroBg from "../../Images/hero-slider-3.webp";
@@ -48,9 +49,7 @@ const Locations = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Modal detail view state
-  const [selectedTour, setSelectedTour] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+
 
   // Fetch tours from backend using Axios
   const fetchTours = async () => {
@@ -185,16 +184,7 @@ const Locations = () => {
     }
   };
 
-  // Handle Tour click for detail modal
-  const handleOpenDetail = (tour) => {
-    setSelectedTour(tour);
-    setShowModal(true);
-  };
 
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setSelectedTour(null);
-  };
 
   return (
     <div className="min-h-screen bg-brand-light font-sans">
@@ -453,12 +443,12 @@ const Locations = () => {
                       </div>
 
                       {/* Detail CTA Button */}
-                      <button
-                        onClick={() => handleOpenDetail(tour)}
-                        className="px-5 py-2 text-xs font-extrabold bg-[#012d1d] hover:bg-[#fea619] text-white hover:text-[#012d1d] rounded-full transition-all duration-300 shadow hover:shadow-lg active:scale-95"
+                      <Link
+                        to={`/tours/${tour.slug || tour.id}`}
+                        className="px-5 py-2 text-xs font-extrabold bg-[#012d1d] hover:bg-[#fea619] text-white hover:text-[#012d1d] rounded-full transition-all duration-300 shadow hover:shadow-lg active:scale-95 inline-block text-center"
                       >
                         Xem chi tiết
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </article>
@@ -491,129 +481,6 @@ const Locations = () => {
         )}
       </main>
 
-      {/* Immersive Tour Detail Modal popup (Tailwind CSS custom modal) */}
-      {selectedTour && showModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto transform transition-transform duration-300 scale-100 flex flex-col">
-
-            {/* Modal Header */}
-            <div className="flex justify-between items-center p-6 border-b border-gray-100">
-              <h4 className="font-montserrat font-bold text-lg text-brand-dark">{selectedTour.title}</h4>
-              <button
-                onClick={handleCloseModal}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-800 transition-colors text-lg"
-              >
-                ×
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-6 overflow-y-auto">
-              {/* Banner Image */}
-              <div className="rounded-xl overflow-hidden mb-6 shadow-sm">
-                <img
-                  src={getTourImage(selectedTour.slug)}
-                  alt={selectedTour.title}
-                  className="w-full object-cover"
-                  style={{ height: '300px' }}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-                {/* Tour Key Statistics (Left side) */}
-                <div className="md:col-span-7">
-                  <h5 className="font-bold text-gray-800 mb-4 border-b pb-2 text-sm uppercase tracking-wider">Thông Tin Hành Trình</h5>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-gray-400 text-xs">Thời Gian</div>
-                      <div className="font-bold text-gray-800 text-sm">{selectedTour.durationDays} Ngày {selectedTour.durationNights} Đêm</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-xs">Độ Khó</div>
-                      <div className="mt-1">
-                        <span className={`px-3 py-1 rounded text-[10px] font-extrabold uppercase tracking-wider ${getDifficultyColor(selectedTour.difficulty)}`}>
-                          {selectedTour.difficulty}
-                        </span>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-xs">Quãng Đường</div>
-                      <div className="font-bold text-gray-800 text-sm">{selectedTour.distanceKm} Kilometres</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-xs">Độ Cao Cực Đại</div>
-                      <div className="font-bold text-gray-800 text-sm">{selectedTour.maxElevationM} Mét</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-xs">Điểm Xuất Phát</div>
-                      <div className="font-bold text-gray-800 text-sm">{selectedTour.startLocation}</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-xs">Điểm Kết Thúc</div>
-                      <div className="font-bold text-gray-800 text-sm">{selectedTour.endLocation}</div>
-                    </div>
-                  </div>
-
-                  {/* Rating summary */}
-                  <div className="mt-6 p-4 bg-gray-50 rounded-xl flex items-center gap-4">
-                    <div className="text-4xl font-bold text-gray-800">{selectedTour.avgRating ? parseFloat(selectedTour.avgRating).toFixed(1) : "0.0"}</div>
-                    <div>
-                      <div className="flex gap-0.5">{renderStars(selectedTour.avgRating)}</div>
-                      <div className="text-xs text-gray-400 mt-1">{selectedTour.totalReviews || 0} lượt đánh giá từ khách hàng</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Highlights & Quick booking (Right side) */}
-                <div className="md:col-span-5 flex flex-col">
-                  <h5 className="font-bold text-gray-800 mb-4 border-b pb-2 text-sm uppercase tracking-wider">Điểm Nổi Bật</h5>
-                  {selectedTour.highlights && selectedTour.highlights.length > 0 ? (
-                    <ul className="flex flex-col gap-2.5 list-disc pl-4 mb-6 text-gray-700 text-xs">
-                      {selectedTour.highlights.map((hl, index) => (
-                        <li key={index} className="leading-relaxed">
-                          {hl}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-gray-400 text-xs mb-6">Đang cập nhật các điểm nổi bật...</p>
-                  )}
-
-                  {/* Price and Action Card */}
-                  <div className="mt-auto bg-emerald-50/50 border border-emerald-100 p-4 rounded-xl">
-                    <div className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">Giá Tour Khởi Điểm</div>
-                    <div className="text-2xl font-bold text-emerald-800 mb-2">
-                      {selectedTour.priceFrom ? formatPrice(selectedTour.priceFrom) : "Liên Hệ Trực Tiếp"}
-                    </div>
-                    <div className="text-[11px] text-gray-500 mb-4">
-                      {selectedTour.upcomingDeparturesCount > 0
-                        ? `Hiện có ${selectedTour.upcomingDeparturesCount} lịch khởi hành đang mở đăng ký.`
-                        : "Chưa có lịch khởi hành sắp tới."}
-                    </div>
-                    <button
-                      className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-full shadow transition-colors"
-                      onClick={handleCloseModal}
-                    >
-                      Yêu Cầu Đặt Chuyến
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="flex justify-end p-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
-              <button
-                className="px-5 py-2 bg-white hover:bg-gray-100 text-gray-600 border border-gray-200 rounded-full font-bold text-xs transition-colors"
-                onClick={handleCloseModal}
-              >
-                Đóng lại
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
     </div>
   );
 };
