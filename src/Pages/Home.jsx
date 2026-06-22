@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import PublicNav from "../Components/PublicNav";
 import "./Home.css";
 
 const heroImage =
@@ -8,38 +9,7 @@ const heroImage =
 const Home = () => {
   return (
     <div className="home-page">
-      <header className="home-header">
-        <div className="home-header-inner">
-          <Link to="/" className="home-brand">
-            TrekMate Danang
-          </Link>
-
-          <nav className="home-nav">
-            <Link to="/" className="home-nav-link active">
-              Home
-            </Link>
-            <Link to="/locations" className="home-nav-link">
-              Tours
-            </Link>
-            <Link to="/about" className="home-nav-link">
-              About Us
-            </Link>
-            <Link to="/contact" className="home-nav-link">
-              Contact
-            </Link>
-            <Link to="/payment" className="home-nav-link">
-              Payment
-            </Link>
-            <Link to="/admin/tours" className="home-nav-link">
-              Tour Management
-            </Link>
-          </nav>
-
-          <Link to="/payment" className="home-button primary-button">
-            Book Now
-          </Link>
-        </div>
-      </header>
+      <PublicNav activePath="/" />
 
       <main className="home-main">
         <section className="hero-section" style={{ backgroundImage: `url(${heroImage})` }}>

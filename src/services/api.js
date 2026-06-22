@@ -1,45 +1,34 @@
 import axios from 'axios';
+import { getAuthHeaders, getStoredToken, handleUnauthorized } from '../utils/authToken';
 
-// Create a common Axios instance config
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api', // Base API path of TrekMateBE
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8080/api',
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
-  }
+  },
 });
 
-// Request Interceptor: Automatically inject Authorization token from localStorage
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = getStoredToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response Interceptor: Centralized error handling and token validation check
 api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
-    // Global error handler
-    console.error('API Interceptor Error:', error.response || error.message);
-    if (error.response) {
-      // Handle unauthorized or expired token (e.g. status 401)
-      if (error.response.status === 401) {
-        // Option: Clear token and redirect to login if necessary
-        // localStorage.removeItem('token');
-      }
+    if (error.response?.status === 401) {
+      handleUnauthorized();
     }
     return Promise.reject(error);
   }
 );
 
+export { getAuthHeaders };
 export default api;

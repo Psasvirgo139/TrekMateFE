@@ -49,6 +49,21 @@
   color: #855300;
 }
 
+.home-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.home-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
 .home-button {
   border: none;
   padding: 0.95rem 1.6rem;

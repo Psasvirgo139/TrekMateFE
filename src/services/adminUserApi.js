@@ -1,13 +1,21 @@
+import { getAuthHeaders, handleUnauthorized } from '../utils/authToken';
+
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE}${path}`, {
     headers: {
       'Content-Type': 'application/json',
+      ...getAuthHeaders(),
       ...(options.headers || {}),
     },
     ...options,
   });
+
+  if (response.status === 401) {
+    handleUnauthorized();
+    throw new Error('Session expired. Please sign in again.');
+  }
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));

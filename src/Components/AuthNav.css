@@ -1,0 +1,150 @@
+.auth-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.auth-nav-user {
+  margin-left: auto;
+}
+
+.auth-nav-name {
+  font-size: 0.9rem;
+  color: #012d1d;
+  font-weight: 600;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.auth-nav-link {
+  color: #012d1d;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.auth-nav-link:hover {
+  text-decoration: underline;
+}
+
+.auth-nav-btn {
+  border: 1px solid #012d1d;
+  background: transparent;
+  color: #012d1d;
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.auth-nav-btn.primary {
+  background: #f97316;
+  border-color: #f97316;
+  color: #fff;
+}
+
+.auth-nav-btn:hover {
+  opacity: 0.92;
+}
+
+.auth-nav-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(1, 45, 29, 0.18);
+  border-radius: 999px;
+  background: #fff;
+  color: #012d1d;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-nav-logout:hover {
+  background: rgba(1, 45, 29, 0.05);
+  border-color: rgba(1, 45, 29, 0.35);
+}
+
+.auth-nav-btn:hover {
+  opacity: 0.92;
+}
+
+.auth-nav-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(1, 45, 29, 0.18);
+  border-radius: 999px;
+  background: #fff;
+  color: #012d1d;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-nav-logout:hover {
+  background: rgba(1, 45, 29, 0.05);
+  border-color: rgba(1, 45, 29, 0.35);
+}
+
+.auth-nav-btn:hover {
+  opacity: 0.92;
+}
+
+.auth-nav-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(1, 45, 29, 0.18);
+  border-radius: 999px;
+  background: #fff;
+  color: #012d1d;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-nav-logout:hover {
+  background: rgba(1, 45, 29, 0.05);
+  border-color: rgba(1, 45, 29, 0.35);
+}
+
+.auth-nav-btn:hover {
+  opacity: 0.92;
+}
+
+.auth-nav-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(1, 45, 29, 0.18);
+  border-radius: 999px;
+  background: #fff;
+  color: #012d1d;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-nav-logout:hover {
+  background: rgba(1, 45, 29, 0.05);
+  border-color: rgba(1, 45, 29, 0.35);
+}
+
+.auth-loading {
+  min-height: 40vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #012d1d;
+}
