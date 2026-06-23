@@ -101,6 +101,39 @@
   color: #1b4332;
 }
 
+.gd-topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.gd-topbar-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1b4332;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gd-topbar-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  background: #fff;
+  color: #1b4332;
+  cursor: pointer;
+}
+
+.gd-topbar-logout:hover {
+  background: #f3f4f6;
+}
+
 .gd-dev-note {
   margin: 0;
   font-size: 0.75rem;

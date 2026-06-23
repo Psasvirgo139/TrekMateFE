@@ -1,6 +1,9 @@
 import './App.css';
 import './MediaQueries.css';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './Components/ProtectedRoute';
 import Home from './Pages/Home';
 import About from './Pages/About';
 import Locations from './Pages/Tour/Locations';
@@ -11,6 +14,7 @@ import FAQ from './Pages/FAQ';
 import Payment from './Pages/Payment';
 import PaymentSuccess from './Pages/PaymentSuccess';
 import PaymentCancel from './Pages/PaymentCancel';
+import AuthPage from './Pages/auth/AuthPage';
 import TourManagement from './Pages/Tour/TourManagement';
 import TourEditPage from './Pages/Tour/TourEditPage';
 import ScrollToTop from './Components/ScrollToTop';
@@ -23,15 +27,26 @@ import UserProfileDemo from './Pages/UserProfileDemo';
 import BookingHistory from './Pages/BookingHistory';
 import BookingDetail from './Pages/BookingDetail';
 
+const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
+
 function AppRoutes() {
   const location = useLocation();
   const isGuideArea = location.pathname.startsWith('/guide');
+  const isAuthPage = location.pathname.startsWith('/auth');
 
   return (
     <>
       <ScrollToTop />
       <Routes>
-        <Route path="/guide" element={<GuideDashboardLayout />}>
+        <Route path="/auth" element={<AuthPage />} />
+        <Route
+          path="/guide"
+          element={
+            <ProtectedRoute roles={['ADMIN']}>
+              <GuideDashboardLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<Navigate to="users" replace />} />
           <Route path="users" element={<UserManagement />} />
           <Route
@@ -78,27 +93,50 @@ function AppRoutes() {
         <Route path='/tours/:idOrSlug' element={<TourDetail />} />
         <Route path='/contact' element={<Contact/>} />
         <Route path='/faq' element={<FAQ/>} />
-        <Route path='/payment' element={<Payment />} />
+        <Route
+          path='/payment'
+          element={
+            <ProtectedRoute>
+              <Payment />
+            </ProtectedRoute>
+          }
+        />
         <Route path='/payment/success' element={<PaymentSuccess />} />
         <Route path='/payment/cancel' element={<PaymentCancel />} />
+        <Route
+          path='/admin/tours'
+          element={
+            <ProtectedRoute roles={['GUIDE', 'ADMIN']}>
+              <TourManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/admin/tours/:id'
+          element={
+            <ProtectedRoute roles={['GUIDE', 'ADMIN']}>
+              <TourEditPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path='/bookings' element={<BookingHistory />} />
         <Route path='/bookings/:id' element={<BookingDetail />} />
-        <Route path='/admin/tours' element={<TourManagement />} />
-        <Route path='/admin/tours/:id' element={<TourEditPage />} />
         <Route path='/profile' element={<UserProfileDemo />} />
       </Routes>
-      {!isGuideArea && <Footer />}
+      {!isGuideArea && !isAuthPage && <Footer />}
     </>
   );
 }
 
 function App() {
   return (
-    <div>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <BrowserRouter>
-        <AppRoutes />
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
       </BrowserRouter>
-    </div>
+    </GoogleOAuthProvider>
   );
 }
 

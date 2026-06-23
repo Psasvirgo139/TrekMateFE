@@ -35,11 +35,7 @@ const Sidebar = ({ open, setOpen }) => {
           <Link to='/admin/tours'><li>Tour Management</li></Link>
         </ul>
 
-        <img
-          src={footerImg}
-          alt="TrekMate"
-          className="sidebar-footer-img"
-        />
+        <img src={footerImg} alt="TrekMate" className="sidebar-footer-img" />
       </div>
     </motion.div>
   );
