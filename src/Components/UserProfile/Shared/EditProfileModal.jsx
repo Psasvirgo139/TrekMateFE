@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, RefreshCw, Save, User } from 'lucide-react';
-import { updateCustomerProfile, updateGuideProfile } from '../../../Services/userProfileApi';
+import { updateCustomerProfile, updateGuideProfile } from '../../../services/userProfileApi';
 
 const EditProfileModal = ({ isOpen, onClose, role, profileData, userId, onSaveSuccess, addLog }) => {
   const [editFormData, setEditFormData] = useState({});

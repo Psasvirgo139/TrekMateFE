@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import Header from "../Components/Header";
+import Header from "../../Components/Header";
+import api from "../../services/api";
 import { Link } from "react-router-dom";
-import api from "../services/api";
 
 // Import local images for page header & tour cards
-import LocationsHeroBg from "../Images/hero-slider-3.webp";
-import dest1 from "../Images/destination-1.webp";
-import dest2 from "../Images/destination-2.webp";
-import dest3 from "../Images/destination-3.webp";
+import LocationsHeroBg from "../../Images/hero-slider-3.webp";
+import dest1 from "../../Images/destination-1.webp";
+import dest2 from "../../Images/destination-2.webp";
+import dest3 from "../../Images/destination-3.webp";
 
 const TourSkeleton = () => {
   return (
@@ -49,9 +49,7 @@ const Locations = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Modal detail view state
-  const [selectedTour, setSelectedTour] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+
 
   // Fetch tours from backend using Axios
   const fetchTours = async () => {
@@ -186,16 +184,7 @@ const Locations = () => {
     }
   };
 
-  // Handle Tour click for detail modal
-  const handleOpenDetail = (tour) => {
-    setSelectedTour(tour);
-    setShowModal(true);
-  };
 
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setSelectedTour(null);
-  };
 
   return (
     <div className="min-h-screen bg-brand-light font-sans">
@@ -454,12 +443,12 @@ const Locations = () => {
                       </div>
 
                       {/* Detail CTA Button */}
-                      <button
-                        onClick={() => handleOpenDetail(tour)}
-                        className="px-5 py-2 text-xs font-extrabold bg-[#012d1d] hover:bg-[#fea619] text-white hover:text-[#012d1d] rounded-full transition-all duration-300 shadow hover:shadow-lg active:scale-95"
+                      <Link
+                        to={`/tours/${tour.slug || tour.id}`}
+                        className="px-5 py-2 text-xs font-extrabold bg-[#012d1d] hover:bg-[#fea619] text-white hover:text-[#012d1d] rounded-full transition-all duration-300 shadow hover:shadow-lg active:scale-95 inline-block text-center"
                       >
                         Xem chi tiết
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </article>
@@ -492,263 +481,7 @@ const Locations = () => {
         )}
       </main>
 
-      {/* Immersive Tour Detail Modal popup (Tailwind CSS custom modal) */}
-      {selectedTour && showModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto transform transition-transform duration-300 scale-100 flex flex-col">
-
-            {/* Modal Header */}
-            <div className="flex justify-between items-center p-6 border-b border-gray-100">
-              <h4 className="font-montserrat font-bold text-lg text-brand-dark">{selectedTour.title}</h4>
-              <button
-                onClick={handleCloseModal}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-800 transition-colors text-lg"
-              >
-                ×
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-6 overflow-y-auto">
-              {/* Banner Image */}
-              <div className="rounded-xl overflow-hidden mb-6 shadow-sm">
-                <img
-                  src={getTourImage(selectedTour.slug)}
-                  alt={selectedTour.title}
-                  className="w-full object-cover"
-                  style={{ height: '300px' }}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-                {/* Tour Key Statistics (Left side) */}
-                <div className="md:col-span-7">
-                  <h5 className="font-bold text-gray-800 mb-4 border-b pb-2 text-sm uppercase tracking-wider">Thông Tin Hành Trình</h5>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-gray-400 text-xs">Thời Gian</div>
-                      <div className="font-bold text-gray-800 text-sm">{selectedTour.durationDays} Ngày {selectedTour.durationNights} Đêm</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-xs">Độ Khó</div>
-                      <div className="mt-1">
-                        <span className={`px-3 py-1 rounded text-[10px] font-extrabold uppercase tracking-wider ${getDifficultyColor(selectedTour.difficulty)}`}>
-                          {selectedTour.difficulty}
-                        </span>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-xs">Quãng Đường</div>
-                      <div className="font-bold text-gray-800 text-sm">{selectedTour.distanceKm} Kilometres</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-xs">Độ Cao Cực Đại</div>
-                      <div className="font-bold text-gray-800 text-sm">{selectedTour.maxElevationM} Mét</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-xs">Điểm Xuất Phát</div>
-                      <div className="font-bold text-gray-800 text-sm">{selectedTour.startLocation}</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-xs">Điểm Kết Thúc</div>
-                      <div className="font-bold text-gray-800 text-sm">{selectedTour.endLocation}</div>
-                    </div>
-                  </div>
-
-                  {/* Rating summary */}
-                  <div className="mt-6 p-4 bg-gray-50 rounded-xl flex items-center gap-4">
-                    <div className="text-4xl font-bold text-gray-800">{selectedTour.avgRating ? parseFloat(selectedTour.avgRating).toFixed(1) : "0.0"}</div>
-                    <div>
-                      <div className="flex gap-0.5">{renderStars(selectedTour.avgRating)}</div>
-                      <div className="text-xs text-gray-400 mt-1">{selectedTour.totalReviews || 0} lượt đánh giá từ khách hàng</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Highlights & Quick booking (Right side) */}
-                <div className="md:col-span-5 flex flex-col">
-                  <h5 className="font-bold text-gray-800 mb-4 border-b pb-2 text-sm uppercase tracking-wider">Điểm Nổi Bật</h5>
-                  {selectedTour.highlights && selectedTour.highlights.length > 0 ? (
-                    <ul className="flex flex-col gap-2.5 list-disc pl-4 mb-6 text-gray-700 text-xs">
-                      {selectedTour.highlights.map((hl, index) => (
-                        <li key={index} className="leading-relaxed">
-                          {hl}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-gray-400 text-xs mb-6">Đang cập nhật các điểm nổi bật...</p>
-                  )}
-
-                  {/* Price and Action Card */}
-                  <div className="mt-auto bg-emerald-50/50 border border-emerald-100 p-4 rounded-xl">
-                    <div className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">Giá Tour Khởi Điểm</div>
-                    <div className="text-2xl font-bold text-emerald-800 mb-2">
-                      {selectedTour.priceFrom ? formatPrice(selectedTour.priceFrom) : "Liên Hệ Trực Tiếp"}
-                    </div>
-                    <div className="text-[11px] text-gray-500 mb-4">
-                      {selectedTour.upcomingDeparturesCount > 0
-                        ? `Hiện có ${selectedTour.upcomingDeparturesCount} lịch khởi hành đang mở đăng ký.`
-                        : "Chưa có lịch khởi hành sắp tới."}
-                    </div>
-                    <button
-                      className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-full shadow transition-colors"
-                      onClick={handleCloseModal}
-                    >
-                      Yêu Cầu Đặt Chuyến
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="flex justify-end p-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
-              <button
-                className="px-5 py-2 bg-white hover:bg-gray-100 text-gray-600 border border-gray-200 rounded-full font-bold text-xs transition-colors"
-                onClick={handleCloseModal}
-              >
-                Đóng lại
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
     </div>
-  );
-};
-
-    const loadTours = async () => {
-      try {
-        setStatus("loading");
-        setError("");
-
-        const response = await fetch("/api/tours?status=ACTIVE&page=0&size=12", {
-          signal: controller.signal,
-        });
-        const payload = await response.json();
-
-        if (!response.ok) {
-          throw new Error(payload?.message || "Khong tai duoc danh sach tour.");
-        }
-
-        const page = payload?.data;
-        setTours(Array.isArray(page?.content) ? page.content : []);
-        setStatus("success");
-      } catch (err) {
-        if (err.name === "AbortError") return;
-        setError(err.message || "Da xay ra loi khi tai tour.");
-        setStatus("error");
-      }
-    };
-
-    loadTours();
-    return () => controller.abort();
-  }, []);
-
-  const heroImage =
-    "https://images.unsplash.com/photo-1501554728187-ce583db33af7?auto=format&fit=crop&w=1600&q=80";
-
-  const panelCls =
-    "bg-white/80 rounded-3xl p-6 shadow-[0_20px_60px_rgba(23,35,42,.08)] mb-5";
-
-  return (
-    <>
-      <Header
-        bgImage={heroImage}
-        subheading="TrekMate Danang"
-        mainHeading="Where the next trail begins"
-        description="Kham pha cac hanh trinh trekking cua TrekMate."
-        showDescription={true}
-      />
-
-      <main
-        className="px-5 py-6 pb-12 min-h-screen"
-        style={{ background: "linear-gradient(180deg,#f7f4ee,#eef3ee)" }}
-      >
-        <section className="max-w-[1200px] mx-auto">
-
-          {/* loading */}
-          {status === "loading" && (
-            <div className={panelCls}>Dang tai danh sach tour...</div>
-          )}
-
-          {/* error */}
-          {status === "error" && (
-            <div className={panelCls}>
-              <h2 className="mt-0 text-[#10251b]">Khong the tai hanh trinh</h2>
-              <p className="text-[#4f5e57]">{error}</p>
-            </div>
-          )}
-
-          {/* empty */}
-          {status === "success" && tours.length === 0 && (
-            <div className={panelCls}>
-              <h2 className="mt-0 text-[#10251b]">Chua co hanh trinh nao</h2>
-              <p className="text-[#4f5e57]">Database hien chua co tour ACTIVE de hien thi.</p>
-            </div>
-          )}
-
-          {/* tour grid */}
-          <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))" }}>
-            {tours.map((tour) => (
-              <article
-                key={tour.id}
-                className="flex flex-col bg-white/80 rounded-3xl p-6 shadow-[0_20px_60px_rgba(23,35,42,.08)]"
-              >
-                {/* card header */}
-                <div className="flex justify-between gap-3 flex-wrap mb-3.5">
-                  <span className="inline-flex px-3 py-1.5 rounded-full bg-[#e7efe8] text-[#1d4b35] text-[.78rem] font-bold">
-                    {tour.difficulty || "N/A"}
-                  </span>
-                  <span className="inline-flex px-3 py-1.5 rounded-full bg-[#10251b] text-white text-[.78rem] font-bold">
-                    {tour.status}
-                  </span>
-                </div>
-
-                <h2 className="mt-0 text-[#10251b]">{tour.title}</h2>
-                <p className="text-[#4f5e57] leading-relaxed min-h-[72px]">
-                  {tour.highlights?.length
-                    ? tour.highlights[0]
-                    : tour.startLocation || "Tour trekking trong database"}
-                </p>
-
-                {/* meta grid */}
-                <div className="grid grid-cols-2 gap-3 mt-1">
-                  {[
-                    {
-                      label: "Thoi luong",
-                      value: `${tour.durationDays ?? "N/A"} ngay${
-                        tour.durationNights ? ` ${tour.durationNights} dem` : ""
-                      }`,
-                    },
-                    { label: "Khoang gia", value: formatPrice(tour.priceFrom) },
-                    { label: "Danh gia", value: `${tour.avgRating ?? 0}/5` },
-                    { label: "Sap khoi hanh", value: tour.upcomingDeparturesCount ?? 0 },
-                  ].map(({ label, value }) => (
-                    <div key={label}>
-                      <span className="block text-[.78rem] text-[#6a776f] mb-1">{label}</span>
-                      <strong className="text-[#10251b]">{value}</strong>
-                    </div>
-                  ))}
-                </div>
-
-                {/* CTA */}
-                <div className="flex flex-wrap gap-3 mt-5">
-                  <Link
-                    to={`/tours/${tour.slug || tour.id}`}
-                    className="inline-flex mt-auto px-4 py-3 rounded-full no-underline bg-[#10251b] text-white font-bold"
-                  >
-                    Xem chi tiet
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-      </main>
-    </>
   );
 };
 

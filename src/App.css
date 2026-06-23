@@ -156,6 +156,50 @@ body {
   transform: translateY(-2px) scale(1.02);
 }
 
+/* Header navigation link styles */
+.site-header .home-nav {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+}
+
+.site-header .home-nav-link {
+  color: rgba(255, 255, 255, 0.85);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.site-header .home-nav-link:hover,
+.site-header .home-nav-link.active {
+  color: #fea619;
+}
+
+/* Scrolled state for navigation links */
+.site-header.scrolled .home-nav-link {
+  color: #414844;
+}
+
+.site-header.scrolled .home-nav-link:hover,
+.site-header.scrolled .home-nav-link.active {
+  color: #855300;
+}
+
+/* Responsive display rules */
+@media (max-width: 991px) {
+  .site-header .home-nav {
+    display: none;
+  }
+}
+
+@media (min-width: 992px) {
+  .site-header .menu-btn {
+    display: none;
+  }
+}
+
 .hero-section {
   position: relative;
   background-size: cover;
