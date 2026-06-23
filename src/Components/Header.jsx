@@ -1,107 +1,121 @@
-import React, { useState, useEffect,  useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Sidebar from "./Sidebar";
 
-
 const Header = ({
-   bgImage,
+  bgImage,
   pageTitle,
   subheading,
   mainHeading,
   description,
-  showDescription = true
+  showDescription = true,
+  hideMenuButton = false
 }) => {
   const [openSidebar, setOpenSidebar] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 18);
+    };
 
-  const heroRef = useRef(null);
-    const [scrolled, setScrolled] = useState(false);
-  
-    useEffect(() => {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          setScrolled(!entry.isIntersecting);
-        },
-        {
-          threshold: 0.2,
-        }
-      );
-  
-      if (heroRef.current) observer.observe(heroRef.current);
-  
-      return () => observer.disconnect();
-    }, []);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <>
-    <section ref={heroRef}>
-      {/* NAVBAR BUTTON */}
-       <header className={`site-header ${scrolled ? "scrolled" : ""}`}>
-  <div className="header-inner">
-    <Link to='/'><h1 className="logo">TrekMate</h1></Link>
-
-    <div className="menu-btn" onClick={() => setOpenSidebar(true)}>
-      <div></div>
-      <div></div>
-      <div></div>
-    </div>
-  </div>
-</header>
-
-      {/* HERO SECTION */}
       <section className="hero-section" style={{ backgroundImage: `url(${bgImage})` }}>
-      {/* DARK OVERLAY */}
-      <div className="hero-overlay"></div>
+        {/* NAVBAR BUTTON */}
+        <header className={`site-header ${scrolled ? "scrolled" : ""}`}>
+          <div className="header-inner">
+            <Link to='/'><h1 className="logo">TrekMate Danang</h1></Link>
 
-      {/* CENTER HEADING ON IMAGE */}
-      {pageTitle && <motion.h1
-        className="hero-title"
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-      >
-        {pageTitle}
-      </motion.h1>}
+            <nav className="home-nav">
+              <Link to="/" className="home-nav-link">
+                Home
+              </Link>
+              <Link to="/locations" className="home-nav-link active">
+                Tours
+              </Link>
+              <Link to="/about" className="home-nav-link">
+                About Us
+              </Link>
+              <Link to="/contact" className="home-nav-link">
+                Contact
+              </Link>
+              <Link to="/payment" className="home-nav-link">
+                Payment
+              </Link>
+              <Link to="/admin/tours" className="home-nav-link">
+                Tour Management
+              </Link>
+            </nav>
 
-      {/* WHITE CONTENT BOX */}
-      {showDescription && <motion.div
-        className="hero-content-box"
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1 }}
-      >
+            {!hideMenuButton && (
+              <div className="menu-btn" onClick={() => setOpenSidebar((previous) => !previous)}>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+            )}
+          </div>
+        </header>
 
-        {showDescription &&<motion.h3
-          className="hero-small-title"
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-        >
-          {subheading}
-        </motion.h3>}
+        {/* DARK OVERLAY */}
+        <div className="hero-overlay absolute inset-0 bg-gradient-to-b from-[#012d1d]/60 to-[#012d1d]/85"></div>
 
-        {showDescription && <motion.h2
-          className="hero-bold-title"
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35, duration: 0.6 }}
-        >
-          {mainHeading}
-        </motion.h2>}
+        {/* HERO WRAPPER FOR VERTICAL LAYOUT */}
+        <div className="relative z-10 flex flex-col items-center justify-center w-full gap-6 px-4">
+          {/* CENTER HEADING ON IMAGE */}
+          {pageTitle && (
+            <motion.h1
+              className="hero-title"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+            >
+              {pageTitle}
+            </motion.h1>
+          )}
 
-        {showDescription && <motion.p
-          className="hero-description"
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-        >
-          {description}
-        </motion.p>}
-      </motion.div>}
-    </section>
+          {/* HERO COPY (No white box, modern typography) */}
+          {showDescription && (
+            <motion.div
+              className="text-center max-w-4xl mx-auto text-white flex flex-col items-center gap-4 px-4"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              {subheading && (
+                <span className="text-[#fea619] tracking-widest text-[11px] md:text-xs font-extrabold uppercase bg-[#012d1d]/50 px-4 py-1.5 rounded-full border border-white/10">
+                  {subheading}
+                </span>
+              )}
+              
+              {mainHeading && (
+                <h1 className="font-montserrat font-extrabold text-3xl md:text-5xl lg:text-6xl tracking-tight leading-tight mt-2 text-white">
+                  {mainHeading}
+                </h1>
+              )}
 
-      <Sidebar open={openSidebar} setOpen={setOpenSidebar} />
+              {description && (
+                <p className="text-gray-200 text-sm md:text-base max-w-2xl leading-relaxed mt-2">
+                  {description}
+                </p>
+              )}
+            </motion.div>
+          )}
+        </div>
       </section>
+
+      {openSidebar && (
+        <div className="sidebar-backdrop" onClick={() => setOpenSidebar(false)} />
+      )}
+      <Sidebar open={openSidebar} setOpen={setOpenSidebar} />
     </>
   );
 };

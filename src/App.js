@@ -6,21 +6,26 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './Components/ProtectedRoute';
 import Home from './Pages/Home';
 import About from './Pages/About';
-import Locations from './Pages/Locations';
+import Locations from './Pages/Tour/Locations';
 import Adventures from './Pages/Adventures';
+import TourDetail from './Pages/Tour/TourDetail';
 import Contact from './Pages/Contact';
 import FAQ from './Pages/FAQ';
 import Payment from './Pages/Payment';
 import PaymentSuccess from './Pages/PaymentSuccess';
 import PaymentCancel from './Pages/PaymentCancel';
-import TourManagement from './Pages/TourManagement';
-import TourEditPage from './Pages/TourEditPage';
 import AuthPage from './Pages/auth/AuthPage';
+import TourManagement from './Pages/Tour/TourManagement';
+import TourEditPage from './Pages/Tour/TourEditPage';
 import ScrollToTop from './Components/ScrollToTop';
 import Footer from './Components/Footer';
 import GuideDashboardLayout from './layouts/GuideDashboardLayout';
 import UserManagement from './Pages/guide/UserManagement';
 import GuidePlaceholder from './Pages/guide/GuidePlaceholder';
+import UserProfileDemo from './Pages/UserProfileDemo';
+
+import BookingHistory from './Pages/BookingHistory';
+import BookingDetail from './Pages/BookingDetail';
 
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
 
@@ -85,6 +90,7 @@ function AppRoutes() {
         <Route path='/about' element={<About />} />
         <Route path='/locations' element={<Locations />} />
         <Route path='/adventures' element={<Adventures />} />
+        <Route path='/tours/:idOrSlug' element={<TourDetail />} />
         <Route path='/contact' element={<Contact/>} />
         <Route path='/faq' element={<FAQ/>} />
         <Route
@@ -113,6 +119,9 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route path='/bookings' element={<BookingHistory />} />
+        <Route path='/bookings/:id' element={<BookingDetail />} />
+        <Route path='/profile' element={<UserProfileDemo />} />
       </Routes>
       {!isGuideArea && !isAuthPage && <Footer />}
     </>

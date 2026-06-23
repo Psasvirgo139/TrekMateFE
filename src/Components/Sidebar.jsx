@@ -18,34 +18,21 @@ const Sidebar = ({ open, setOpen }) => {
       transition={{ duration: 0.6, ease: "easeInOut" }}
     >
       <div className="sidebar-content">
-        <p className="back-btn" onClick={() => setOpen(false)}>
-          ‹ Back
-        </p>
+        <button type="button" className="sidebar-close-btn" onClick={() => setOpen(false)}>
+          ×
+        </button>
 
         <h2 className="sidebar-title">TrekMate</h2>
 
         <ul className="sidebar-links">
-          <Link to="/">
-            <li>Home</li>
-          </Link>
-          <Link to="/about">
-            <li>About us</li>
-          </Link>
-          <Link to="/locations">
-            <li>Locations</li>
-          </Link>
-          <Link to="/adventures">
-            <li>Adventures</li>
-          </Link>
-          <Link to="/contact">
-            <li>Contact us</li>
-          </Link>
-          <Link to="/faq">
-            <li>FAQ</li>
-          </Link>
-          <Link to="/admin/tours">
-            <li>Tour Management</li>
-          </Link>
+          <Link to='/'><li>Home</li></Link>
+          <Link to='/about'><li>About us</li></Link>
+          <Link to='/locations'><li>Locations</li></Link>
+          <Link to='/adventures'><li>Adventures</li></Link>
+          <Link to='/bookings'><li>My Bookings</li></Link>
+          <Link to='/contact'><li>Contact us</li></Link>
+          <Link to='/faq'><li>FAQ</li></Link>
+          <Link to='/admin/tours'><li>Tour Management</li></Link>
         </ul>
 
         <img src={footerImg} alt="TrekMate" className="sidebar-footer-img" />

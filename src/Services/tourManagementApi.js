@@ -22,30 +22,30 @@ api.interceptors.request.use(
 );
 
 // CRUD Tour APIs
-export const getTours = (params) => api.get('/tours', { params });
-export const getTourDetail = (idOrSlug) => api.get(`/tours/${idOrSlug}`);
-export const createTour = (tourData) => api.post('/tours', tourData);
-export const updateTour = (id, tourData) => api.put(`/tours/${id}`, tourData);
-export const deleteTour = (id) => api.delete(`/tours/${id}`);
+export const getTours = (params) => api.get('/admin/tours', { params });
+export const getTourDetail = (idOrSlug) => api.get(`/admin/tours/${idOrSlug}`);
+export const createTour = (tourData) => api.post('/admin/tours', tourData);
+export const updateTour = (id, tourData) => api.put(`/admin/tours/${id}`, tourData);
+export const deleteTour = (id) => api.delete(`/admin/tours/${id}`);
 
 // Waypoints APIs
 export const addWaypoint = (tourId, waypointData) => 
-  api.post(`/tours/${tourId}/waypoints`, waypointData);
+  api.post(`/admin/tours/${tourId}/waypoints`, waypointData);
 export const updateWaypoint = (tourId, waypointId, waypointData) => 
-  api.put(`/tours/${tourId}/waypoints/${waypointId}`, waypointData);
+  api.put(`/admin/tours/${tourId}/waypoints/${waypointId}`, waypointData);
 export const deleteWaypoint = (tourId, waypointId) => 
-  api.delete(`/tours/${tourId}/waypoints/${waypointId}`);
+  api.delete(`/admin/tours/${tourId}/waypoints/${waypointId}`);
 
 // Daily Itinerary APIs
 export const saveItinerary = (tourId, itineraryData) => 
-  api.post(`/tours/${tourId}/itineraries`, itineraryData);
+  api.post(`/admin/tours/${tourId}/itineraries`, itineraryData);
 export const deleteItinerary = (tourId, itineraryId) => 
-  api.delete(`/tours/${tourId}/itineraries/${itineraryId}`);
+  api.delete(`/admin/tours/${tourId}/itineraries/${itineraryId}`);
 
 // Images APIs
 export const addTourImage = (tourId, imageData) => 
-  api.post(`/tours/${tourId}/images`, imageData);
+  api.post(`/admin/tours/${tourId}/images`, imageData);
 export const deleteTourImage = (tourId, imageId) => 
-  api.delete(`/tours/${tourId}/images/${imageId}`);
+  api.delete(`/admin/tours/${tourId}/images/${imageId}`);
 
 export default api;

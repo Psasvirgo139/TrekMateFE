@@ -27,6 +27,13 @@ module.exports = {
           hover: '#e29412',
           light: '#fffebf',
         },
+
+        trek: {
+          primary: '#1B4332',
+          secondary: '#F59E0B',
+          tertiary: '#2D6A4F',
+          neutral: '#1F2937',
+        },
       },
 
       fontFamily: {

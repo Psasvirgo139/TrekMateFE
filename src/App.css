@@ -105,7 +105,7 @@ body {
   align-items: center;
 
   background: transparent;
-  transition: background 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
+  transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease, backdrop-filter 0.25s ease;
 }
 
 .header-inner {
@@ -117,6 +117,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: transform 0.25s ease, letter-spacing 0.25s ease;
 }
 
 .header-inner a{
@@ -124,16 +125,79 @@ body {
 }
 
 .site-header.scrolled {
-  background: white;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 10px 30px rgba(16, 37, 27, 0.12);
+  backdrop-filter: blur(14px);
+  transform: translateY(0);
 }
 
 .site-header.scrolled .logo {
-  color: #76290D;
+  color: #10251b;
 }
 
 .site-header.scrolled .menu-btn div {
-  background: #76290D;
+  background: #10251b;
+}
+
+.site-header.scrolled .header-inner {
+  transform: translateY(-1px);
+}
+
+.site-header.scrolled .logo,
+.site-header.scrolled .menu-btn div {
+  transition: color 0.25s ease, background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.site-header.scrolled .menu-btn {
+  transform: translateY(-1px);
+}
+
+.site-header.scrolled .menu-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* Header navigation link styles */
+.site-header .home-nav {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+}
+
+.site-header .home-nav-link {
+  color: rgba(255, 255, 255, 0.85);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.site-header .home-nav-link:hover,
+.site-header .home-nav-link.active {
+  color: #fea619;
+}
+
+/* Scrolled state for navigation links */
+.site-header.scrolled .home-nav-link {
+  color: #414844;
+}
+
+.site-header.scrolled .home-nav-link:hover,
+.site-header.scrolled .home-nav-link.active {
+  color: #855300;
+}
+
+/* Responsive display rules */
+@media (max-width: 991px) {
+  .site-header .home-nav {
+    display: none;
+  }
+}
+
+@media (min-width: 992px) {
+  .site-header .menu-btn {
+    display: none;
+  }
 }
 
 .hero-section {
@@ -142,7 +206,11 @@ body {
   background-position: center;
   padding: 160px 0 120px;
   text-align: center;
-  overflow: visible;
+  overflow: hidden;
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hero-overlay {
@@ -165,43 +233,57 @@ body {
 .hero-content-box {
   position: relative;
   z-index: 3;
-  max-width: 1300px;
-  margin: 0 auto;
-  background: #fff;
-  padding: 40px 50px;
-  top: 20px; 
-  border-radius: 12px; 
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-  width:90%;
-  margin: auto;
+  max-width: 860px;
+  left: auto;
+  top: auto;
+  transform: none;
+  background: rgba(255, 255, 255, 0.88);
+  padding: 44px 56px;
+  border-radius: 28px;
+  box-shadow:
+    0 22px 60px rgba(0, 0, 0, 0.16),
+    0 1px 0 rgba(255, 255, 255, 0.45) inset;
+  width: min(82%, 860px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 .hero-small-title {
   text-align: center;
-  font-size: 24px;
+  font-size: 22px;
   font-family: "Grenze Gotisch", serif;
-  color: #787459;
-  font-weight: 300;
+  color: #8a6f4f;
+  font-weight: 400;
   line-height: 1;
+  margin-bottom: 12px;
 }
 
 .hero-bold-title {
   text-align: center;
-  font-size: 42px;
+  font-size: clamp(2.4rem, 4.2vw, 4.6rem);
   font-weight: 700;
   margin-bottom: 16px;
   font-family: "Pirata One", cursive;
   color: #76290D;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   line-height: 1;
 }
 
 .hero-description {
   text-align: center;
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 17px;
+  line-height: 1.8;
   font-family: 'Montserrat', sans-serif;
-  color: #787459;
+  color: #6f6657;
+  max-width: 70ch;
+  margin: 0 auto;
+}
+
+@media (max-width: 960px) {
+  .hero-content-box {
+    padding: 32px 24px;
+    width: min(90%, 860px);
+  }
 }
 
 .sidebar {
@@ -217,6 +299,14 @@ body {
   box-shadow: 4px 0 12px rgba(0,0,0,0.15);
 }
 
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(16, 37, 27, 0.18);
+  backdrop-filter: blur(2px);
+}
+
 .sidebar-content {
   display: flex;
   flex-direction: column;
@@ -228,6 +318,18 @@ body {
   cursor: pointer;
   margin-bottom: 15px;
   font-weight: 500;
+}
+
+.sidebar-close-btn {
+  align-self: flex-start;
+  border: 0;
+  background: transparent;
+  font-size: 34px;
+  line-height: 1;
+  cursor: pointer;
+  color: #10251b;
+  padding: 0;
+  margin-bottom: 8px;
 }
 
 .sidebar-title {
