@@ -1,23 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google';
-import { Compass, Trees } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import './AuthPage.css';
+
+// Import subcomponents
+import LoginForm from './components/LoginForm';
+import SignupForm from './components/SignupForm';
+import OtpVerificationForm from './components/OtpVerificationForm';
+import ForgotPasswordRequestForm from './components/ForgotPasswordRequestForm';
+import ForgotPasswordResetForm from './components/ForgotPasswordResetForm';
 
 const HERO_IMAGE =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuAvUUzjhxn8orAI_ijOd4idjPXhRQk11CgEtlhqTDP8dTzjLQCFA0TOVxbsgHSZowz0wJX8bqs8bkqS2O-rajIZOsGXmBBgiWs8Mk3Y_cx4wAxO1xf-b9dG1PR0ZdJ6m-ja2lcrYq7ZvReev_dYJKdA9FMxT38ZHwT9SKLF4dMESGfBTXnWPzIWBxH57zvGSUx4WovbnOf5frv95va0NECUYmgTDjQP2TvucjT_9NA3M9k7M7hidjEAD10NYM56JtmZWifulkNhGFk';
-
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
-
-function FieldLabel({ required, children }) {
-  return (
-    <span className="auth-label-text">
-      {children}
-      {required && <span className="auth-required">*</span>}
-    </span>
-  );
-}
 
 function resolveReturnUrl() {
   const returnUrl = sessionStorage.getItem('returnUrl') || '/';
@@ -26,31 +19,6 @@ function resolveReturnUrl() {
     return '/';
   }
   return returnUrl;
-}
-
-function GoogleAuthButton({ rememberMe, onError, onSuccess, disabled }) {
-  if (!GOOGLE_CLIENT_ID) {
-    return (
-      <button type="button" className="auth-google-disabled" disabled title="Google Client ID not configured">
-        Sign in with Google
-      </button>
-    );
-  }
-
-  return (
-    <div className={`auth-google-wrap${disabled ? ' disabled' : ''}`}>
-      <GoogleLogin
-        onSuccess={onSuccess}
-        onError={onError}
-        theme="outline"
-        size="large"
-        width="100%"
-        text="signin_with" 
-        shape="pill"
-        locale="en" /* Ép hiển thị tiếng Anh 100% */
-      />
-    </div>
-  );
 }
 
 export default function AuthPage() {
@@ -245,306 +213,141 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="auth-page">
-      <section className="auth-hero" style={{ backgroundImage: `url(${HERO_IMAGE})` }}>
-        <div className="auth-hero-overlay" />
-        <div className="auth-hero-content">
-          <Link to="/" className="auth-hero-brand">
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] bg-slate-50 font-sans">
+      {/* Left side Hero Panel */}
+      <section
+        className="relative bg-cover bg-center text-white flex items-end p-6 md:p-12 min-h-[260px] lg:min-h-screen"
+        style={{ backgroundImage: `url(${HERO_IMAGE})` }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-[#012d1d]/35 to-[#012d1d]/88" />
+        <div className="relative z-10 max-w-lg">
+          <Link to="/" className="inline-block mb-6 text-white font-montserrat font-bold text-lg hover:text-orange-400 transition-colors">
             TrekMate Danang
           </Link>
-          <h1>Explore Central Vietnam with confidence</h1>
-          <p>
+          <h1 className="font-montserrat text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4">
+            Explore Central Vietnam with confidence
+          </h1>
+          <p className="m-0 leading-relaxed text-slate-100/90 text-sm md:text-base">
             Join TrekMate to book guided treks, manage tours, and connect with experienced local
             guides across Da Nang and beyond.
           </p>
         </div>
       </section>
 
-      <section className="auth-panel">
-        <div className="auth-panel-inner">
-          {/* Nếu đang ở tab quên mật khẩu, ẩn thanh chọn tab đi */}
-          {tab !== 'forgot' && (
-            <div className="auth-tabs">
-              <button type="button" className={tab === 'login' ? 'active' : ''} onClick={() => switchTab('login')}>
+      {/* Right side Form Panel */}
+      <section className="flex items-center justify-center p-6 md:p-8">
+        <div className="w-full max-w-[460px]">
+          {/* Tabs header */}
+          {tab !== 'forgot' ? (
+            <div className="grid grid-cols-2 gap-2 mb-6 bg-brand-dark/5 rounded-full p-1.5">
+              <button
+                type="button"
+                className={`border-none rounded-full py-2.5 px-4 font-bold text-sm transition-all ${
+                  tab === 'login' ? 'bg-brand-dark text-white shadow-sm' : 'bg-transparent text-slate-600 hover:text-slate-800'
+                }`}
+                onClick={() => switchTab('login')}
+              >
                 Login
               </button>
-              <button type="button" className={tab === 'signup' ? 'active' : ''} onClick={() => switchTab('signup')}>
+              <button
+                type="button"
+                className={`border-none rounded-full py-2.5 px-4 font-bold text-sm transition-all ${
+                  tab === 'signup' ? 'bg-brand-dark text-white shadow-sm' : 'bg-transparent text-slate-600 hover:text-slate-800'
+                }`}
+                onClick={() => switchTab('signup')}
+              >
                 Sign Up
               </button>
             </div>
-          )}
-
-          {/* Nếu đang ở form quên mật khẩu, hiển thị một tiêu đề giả dạng tab để giữ bố cục */}
-          {tab === 'forgot' && (
-            <div className="auth-tabs" style={{ gridTemplateColumns: '1fr' }}>
-              <button type="button" className="active" style={{ cursor: 'default' }}>
+          ) : (
+            <div className="grid grid-cols-1 mb-6 bg-brand-dark/5 rounded-full p-1.5">
+              <button
+                type="button"
+                className="border-none rounded-full py-2.5 px-4 font-bold text-sm bg-brand-dark text-white shadow-sm cursor-default"
+              >
                 Forgot Password
               </button>
             </div>
           )}
-          {error && <div className="auth-error">{error}</div>}
-          {info && <div className="auth-info">{info}</div>}
 
+          {/* Feedback alerts */}
+          {error && (
+            <div className="bg-red-50 text-red-700 border border-red-200 rounded-2xl p-3 mb-4 text-sm font-semibold">
+              {error}
+            </div>
+          )}
+          {info && (
+            <div className="bg-blue-50 text-blue-700 border border-blue-200 rounded-2xl p-3.5 mb-4 text-sm leading-relaxed">
+              {info}
+            </div>
+          )}
+
+          {/* Tab Renderings */}
           {tab === 'login' && (
-            <form className="auth-form" onSubmit={handleLoginSubmit}>
-              <h2>Welcome back</h2>
-              <p className="auth-subtitle">Sign in to continue your adventure.</p>
-
-              <label>
-                <FieldLabel required>Email</FieldLabel>
-                <input
-                  type="email"
-                  required
-                  autoComplete="email"
-                  value={loginForm.email}
-                  onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                />
-              </label>
-
-              <label>
-                <FieldLabel required>Password</FieldLabel>
-                <input
-                  type="password"
-                  required
-                  autoComplete="current-password"
-                  value={loginForm.password}
-                  onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                />
-              </label>
-
-              <div className="auth-row">
-                <label className="auth-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={loginForm.rememberMe}
-                    onChange={(e) => setLoginForm({ ...loginForm, rememberMe: e.target.checked })}
-                  />
-                  Remember me
-                </label>
-                <button type="button" className="auth-link-btn" onClick={() => switchTab('forgot')}>
-                  Forgot password?
-                </button>
-              </div>
-
-              {/* KHỐI NÚT ĐƯỢC ĐẶT NGANG HÀNG NHAU */}
-              <div className="auth-action-row">
-                <button type="submit" className="auth-submit" disabled={submitting}>
-                  {submitting ? 'Signing in...' : 'Sign In'}
-                </button>
-
-                <GoogleAuthButton
-                  rememberMe={loginForm.rememberMe}
-                  disabled={submitting}
-                  onSuccess={handleGoogleSuccess}
-                  onError={() => setError('Google sign-in failed.')}
-                />
-              </div>
-            </form>
+            <LoginForm
+              form={loginForm}
+              onChange={setLoginForm}
+              onSubmit={handleLoginSubmit}
+              onForgotPasswordClick={() => switchTab('forgot')}
+              onGoogleSuccess={handleGoogleSuccess}
+              onGoogleError={() => setError('Google sign-in failed.')}
+              submitting={submitting}
+            />
           )}
 
           {tab === 'signup' && signupStep === 'form' && (
-            <form className="auth-form" onSubmit={handleSignupSubmit}>
-              <h2>Create your account</h2>
-              <p className="auth-subtitle">Choose how you want to use TrekMate.</p>
-
-              <p className="auth-section-title">Choose Your Identity</p>
-              <div className="auth-role-cards">
-                <button
-                  type="button"
-                  className={`auth-role-card${signupForm.role === 'CUSTOMER' ? ' selected' : ''}`}
-                  onClick={() => setSignupForm({ ...signupForm, role: 'CUSTOMER' })}
-                >
-                  <span className="auth-role-icon">
-                    <Compass size={22} strokeWidth={2.2} />
-                  </span>
-                  <strong>Experience Seeker</strong>
-                  <span>Explore the wild with vetted guides.</span>
-                </button>
-                <button
-                  type="button"
-                  className={`auth-role-card${signupForm.role === 'GUIDE' ? ' selected' : ''}`}
-                  onClick={() => setSignupForm({ ...signupForm, role: 'GUIDE' })}
-                >
-                  <span className="auth-role-icon">
-                    <Trees size={22} strokeWidth={2.2} />
-                  </span>
-                  <strong>Guide</strong>
-                  <span>Lead expeditions and manage logistics.</span>
-                </button>
-              </div>
-
-              <label>
-                <FieldLabel required>Full name</FieldLabel>
-                <input
-                  type="text"
-                  required
-                  value={signupForm.displayName}
-                  onChange={(e) => setSignupForm({ ...signupForm, displayName: e.target.value })}
-                />
-              </label>
-
-              <label>
-                <FieldLabel required>Email</FieldLabel>
-                <input
-                  type="email"
-                  required
-                  autoComplete="email"
-                  value={signupForm.email}
-                  onChange={(e) => setSignupForm({ ...signupForm, email: e.target.value })}
-                />
-              </label>
-
-              <label>
-                <FieldLabel>Phone</FieldLabel>
-                <input
-                  type="tel"
-                  value={signupForm.phone}
-                  onChange={(e) => setSignupForm({ ...signupForm, phone: e.target.value })}
-                />
-              </label>
-
-              <label>
-                <FieldLabel required>Password</FieldLabel>
-                <input
-                  type="password"
-                  required
-                  minLength={8}
-                  autoComplete="new-password"
-                  value={signupForm.password}
-                  onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
-                />
-              </label>
-              <p className="auth-hint">At least 8 characters.</p>
-
-              {/* KHỐI NÚT ĐƯỢC ĐẶT NGANG HÀNG NHAU */}
-              <div className="auth-action-row">
-                <button type="submit" className="auth-submit" disabled={submitting}>
-                  {submitting ? 'Sending...' : 'Continue'}
-                </button>
-
-                <GoogleAuthButton
-                  rememberMe
-                  disabled={submitting}
-                  onSuccess={handleGoogleSuccess}
-                  onError={() => setError('Google sign-in failed.')}
-                />
-              </div>
-            </form>
+            <SignupForm
+              form={signupForm}
+              onChange={setSignupForm}
+              onSubmit={handleSignupSubmit}
+              onGoogleSuccess={handleGoogleSuccess}
+              onGoogleError={() => setError('Google sign-in failed.')}
+              submitting={submitting}
+            />
           )}
 
           {tab === 'signup' && signupStep === 'otp' && (
-            <form className="auth-form" onSubmit={handleVerifyOtp}>
-              <h2>Verify your email</h2>
-              <p className="auth-subtitle">
-                Enter the 6-digit code sent to <strong>{pendingEmail}</strong>.
-              </p>
-
-              <label>
-                <FieldLabel required>Verification code</FieldLabel>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]{6}"
-                  maxLength={6}
-                  required
-                  autoComplete="one-time-code"
-                  value={otpValue}
-                  onChange={(e) => setOtpValue(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  className="auth-otp-input"
-                />
-              </label>
-
-              <button type="submit" className="auth-submit" disabled={submitting || otpValue.length !== 6}>
-                {submitting ? 'Verifying...' : 'Verify & Create Account'}
-              </button>
-
-              <button type="button" className="auth-secondary-btn" onClick={handleResendOtp} disabled={submitting}>
-                Resend code
-              </button>
-
-              <button
-                type="button"
-                className="auth-text-btn"
-                onClick={() => {
-                  setSignupStep('form');
-                  setOtpValue('');
-                  setError('');
-                  setInfo('');
-                }}
-              >
-                Back to registration
-              </button>
-            </form>
+            <OtpVerificationForm
+              email={pendingEmail}
+              otpValue={otpValue}
+              onChangeOtp={setOtpValue}
+              onSubmit={handleVerifyOtp}
+              onResendOtp={handleResendOtp}
+              onBackToSignup={() => {
+                setSignupStep('form');
+                setOtpValue('');
+                setError('');
+                setInfo('');
+              }}
+              submitting={submitting}
+            />
           )}
 
           {tab === 'forgot' && forgotStep === 'request' && (
-            <form className="auth-form" onSubmit={handleForgotRequest}>
-              <h2>Reset password</h2>
-              <p className="auth-subtitle">We will email you a 6-digit reset code.</p>
-
-              <label>
-                <FieldLabel required>Email</FieldLabel>
-                <input
-                  type="email"
-                  required
-                  value={forgotForm.email}
-                  onChange={(e) => setForgotForm({ ...forgotForm, email: e.target.value })}
-                />
-              </label>
-
-              <button type="submit" className="auth-submit" disabled={submitting}>
-                {submitting ? 'Sending...' : 'Send reset code'}
-              </button>
-
-              <button type="button" className="auth-text-btn" onClick={() => switchTab('login')}>
-                Back to login
-              </button>
-            </form>
+            <ForgotPasswordRequestForm
+              email={forgotForm.email}
+              onChangeEmail={(email) => setForgotForm({ ...forgotForm, email })}
+              onSubmit={handleForgotRequest}
+              onBackToLogin={() => switchTab('login')}
+              submitting={submitting}
+            />
           )}
 
           {tab === 'forgot' && forgotStep === 'reset' && (
-            <form className="auth-form" onSubmit={handleForgotReset}>
-              <h2>Enter reset code</h2>
-              <p className="auth-subtitle">
-                Check your inbox for <strong>{pendingEmail}</strong>.
-              </p>
-
-              <label>
-                <FieldLabel required>Verification code</FieldLabel>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={6}
-                  required
-                  value={forgotForm.otp}
-                  onChange={(e) => setForgotForm({ ...forgotForm, otp: e.target.value.replace(/\D/g, '').slice(0, 6) })}
-                  className="auth-otp-input"
-                />
-              </label>
-
-              <label>
-                <FieldLabel required>New password</FieldLabel>
-                <input
-                  type="password"
-                  required
-                  minLength={8}
-                  value={forgotForm.newPassword}
-                  onChange={(e) => setForgotForm({ ...forgotForm, newPassword: e.target.value })}
-                />
-              </label>
-
-              <button type="submit" className="auth-submit" disabled={submitting || forgotForm.otp.length !== 6}>
-                {submitting ? 'Updating...' : 'Update password'}
-              </button>
-
-              <button type="button" className="auth-text-btn" onClick={() => setForgotStep('request')}>
-                Resend code
-              </button>
-            </form>
+            <ForgotPasswordResetForm
+              email={pendingEmail}
+              form={forgotForm}
+              onChange={setForgotForm}
+              onSubmit={handleForgotReset}
+              onResendOtp={handleForgotRequest}
+              submitting={submitting}
+            />
           )}
 
-          <p className="auth-footer-note">
-            <Link to="/">Back to home</Link>
+          <p className="mt-6 text-center text-sm">
+            <Link to="/" className="text-brand-dark hover:text-orange-500 font-semibold underline transition-colors">
+              Back to home
+            </Link>
           </p>
         </div>
       </section>

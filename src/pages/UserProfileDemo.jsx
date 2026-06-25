@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import UserProfile from '../components/UserProfile';
+import UserProfile from '../components/user-profile/UserProfile';
 import { ToggleLeft, ToggleRight, Shield, User, HelpCircle, RefreshCw } from 'lucide-react';
 import { fetchCustomerProfile, fetchGuideProfile } from '../services/userProfileApi';
 import { fetchUsers } from '../services/adminUserApi';

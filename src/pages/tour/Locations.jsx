@@ -1,37 +1,12 @@
 import React, { useState, useEffect } from "react";
-import Header from "../../components/Header";
+import Header from "../../components/layout/Header";
 import api from "../../services/api";
-import { Link } from "react-router-dom";
+import TourCard from "../../components/tour/TourCard";
+import TourSkeleton from "../../components/tour/TourSkeleton";
+import Pagination from "../../../src/components/common/Pagination";
 
-// Import local images for page header & tour cards
+// Import local images for page header
 import LocationsHeroBg from "../../images/hero-slider-3.webp";
-import dest1 from "../../images/destination-1.webp";
-import dest2 from "../../images/destination-2.webp";
-import dest3 from "../../images/destination-3.webp";
-
-const TourSkeleton = () => {
-  return (
-    <div className="animate-pulse bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm flex flex-col h-full">
-      <div className="h-56 bg-slate-200 relative"></div>
-      <div className="flex-grow p-6 flex flex-col gap-4">
-        <div className="flex items-center gap-2">
-          <div className="h-4 w-24 bg-slate-200 rounded"></div>
-          <div className="h-4 w-12 bg-slate-200 rounded ml-auto"></div>
-        </div>
-        <div className="h-6 w-3/4 bg-slate-200 rounded mb-2"></div>
-        <div className="flex flex-wrap gap-2 my-2">
-          <div className="h-6 w-16 bg-slate-100 rounded-full"></div>
-          <div className="h-6 w-16 bg-slate-100 rounded-full"></div>
-          <div className="h-6 w-16 bg-slate-100 rounded-full"></div>
-        </div>
-        <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-100 w-full">
-          <div className="h-4 w-28 bg-slate-200 rounded"></div>
-          <div className="h-8 w-24 bg-slate-200 rounded-full"></div>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const Locations = () => {
   // Query parameters state
@@ -48,8 +23,6 @@ const Locations = () => {
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-
 
   // Fetch tours from backend using Axios
   const fetchTours = async () => {
@@ -140,38 +113,6 @@ const Locations = () => {
     setPage(0);
   };
 
-  // Helper to map tour slug to imported local webp image
-  const getTourImage = (slug) => {
-    if (slug === "fansipan-summit") return dest3;
-    if (slug === "ta-nang-phan-dung") return dest2;
-    if (slug === "ma-pi-leng-trek") return dest1;
-    return dest1; // fallback
-  };
-
-  // Helper to format currency
-  const formatPrice = (price) => {
-    if (!price) return "Contact Us";
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
-
-  // Helper to render rating stars
-  const renderStars = (rating) => {
-    const stars = [];
-    const rounded = Math.round(parseFloat(rating || 0));
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <span key={i} className={i <= rounded ? "text-brand-orange text-lg" : "text-gray-300 text-lg"}>
-          {i <= rounded ? "★" : "☆"}
-        </span>
-      );
-    }
-    return stars;
-  };
-
   // Difficulty badge background styling mapping
   const getDifficultyColor = (diff) => {
     if (!diff) return "bg-gray-500";
@@ -183,8 +124,6 @@ const Locations = () => {
       default: return "bg-gray-500 text-white";
     }
   };
-
-
 
   return (
     <div className="min-h-screen bg-brand-light font-sans">
@@ -357,130 +296,22 @@ const Locations = () => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {tours.map((tour) => (
-                <article key={tour.id} className="group flex flex-col h-full bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-2 border border-gray-100/70 transition-all duration-300 relative">
-                  
-                  {/* Tour Image Header with Gradient Overlay */}
-                  <div className="relative h-56 overflow-hidden bg-slate-100">
-                    <img
-                      src={getTourImage(tour.slug)}
-                      alt={tour.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-90"></div>
-                    <span className={`absolute top-4 left-4 px-3 py-1.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider shadow-md backdrop-blur-sm bg-opacity-95 ${getDifficultyColor(tour.difficulty)}`}>
-                      {tour.difficulty}
-                    </span>
-                    <span className="absolute bottom-4 right-4 bg-[#fea619] hover:bg-[#ffb638] text-[#012d1d] px-4 py-1.5 rounded-xl font-extrabold text-sm shadow-lg transform group-hover:scale-105 transition-all duration-300">
-                      {tour.priceFrom ? formatPrice(tour.priceFrom) : "Liên hệ"}
-                    </span>
-                  </div>
-
-                  {/* Card Body */}
-                  <div className="flex flex-col flex-grow p-6">
-                    {/* Rating Row */}
-                    <div className="flex items-center gap-1 mb-3">
-                      <div className="flex gap-0.5">{renderStars(tour.avgRating)}</div>
-                      <span className="font-extrabold text-gray-800 text-xs ml-1">{tour.avgRating ? parseFloat(tour.avgRating).toFixed(1) : "0.0"}</span>
-                      <span className="text-gray-400 text-xs">({tour.totalReviews || 0} đánh giá)</span>
-                    </div>
-
-                    {/* Title */}
-                    <h3 className="font-montserrat font-bold text-gray-800 text-lg leading-snug h-[3.4rem] overflow-hidden line-clamp-2 mb-4 transition-colors">
-                      {tour.title}
-                    </h3>
-
-                    {/* Quick Details Pills (Premium Badges) */}
-                    <div className="flex flex-wrap gap-2 mb-5 border-b border-gray-100 pb-4">
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-50 border border-gray-100 text-gray-600 text-xs font-semibold">
-                        ⏱️ {tour.durationDays}N {tour.durationNights}Đ
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-50 border border-gray-100 text-gray-600 text-xs font-semibold">
-                        🏃 {tour.distanceKm} km
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-50 border border-gray-100 text-gray-600 text-xs font-semibold">
-                        🏔️ {tour.maxElevationM}m
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-50 border border-gray-100 text-gray-600 text-xs font-semibold">
-                        📍 {tour.startLocation?.split(",")[0]}
-                      </span>
-                    </div>
-
-                    {/* Highlights */}
-                    {tour.highlights && tour.highlights.length > 0 && (
-                      <div className="mb-5">
-                        <div className="text-[10px] uppercase text-gray-400 font-extrabold tracking-wider mb-2">Điểm Nổi Bật</div>
-                        <ul className="flex flex-col gap-1.5">
-                          {tour.highlights.slice(0, 2).map((hl, idx) => (
-                            <li key={idx} className="text-xs text-gray-700 flex items-start gap-2">
-                              <span className="text-[#fea619]">✓</span>
-                              <span className="line-clamp-1">{hl}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {/* Card Footer Actions */}
-                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100 w-full">
-                      {/* Availability */}
-                      <div className="flex items-center gap-2">
-                        <span className="relative flex h-2 w-2">
-                          {tour.upcomingDeparturesCount > 0 ? (
-                            <>
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                            </>
-                          ) : (
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-gray-400"></span>
-                          )}
-                        </span>
-                        <span className="text-xs font-bold text-gray-500">
-                          {tour.upcomingDeparturesCount > 0
-                            ? `${tour.upcomingDeparturesCount} chuyến sắp đi`
-                            : "Chưa có lịch"}
-                        </span>
-                      </div>
-
-                      {/* Detail CTA Button */}
-                      <Link
-                        to={`/tours/${tour.slug || tour.id}`}
-                        className="px-5 py-2 text-xs font-extrabold bg-[#012d1d] hover:bg-[#fea619] text-white hover:text-[#012d1d] rounded-full transition-all duration-300 shadow hover:shadow-lg active:scale-95 inline-block text-center"
-                      >
-                        Xem chi tiết
-                      </Link>
-                    </div>
-                  </div>
-                </article>
+                <TourCard key={tour.id} tour={tour} />
               ))}
             </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-4 mt-12">
-                <button
-                  onClick={() => setPage((prev) => Math.max(0, prev - 1))}
-                  disabled={page === 0}
-                  className="w-11 h-11 border border-brand-dark/15 text-brand-dark rounded-full flex items-center justify-center hover:bg-brand-dark hover:text-white transition-colors disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-brand-dark cursor-pointer disabled:cursor-not-allowed"
-                >
-                  ‹
-                </button>
-                <span className="text-gray-600 font-bold text-sm">
-                  Trang {page + 1} / {totalPages} (Tổng số: {totalElements} tour)
-                </span>
-                <button
-                  onClick={() => setPage((prev) => Math.min(totalPages - 1, prev + 1))}
-                  disabled={page === totalPages - 1}
-                  className="w-11 h-11 border border-brand-dark/15 text-brand-dark rounded-full flex items-center justify-center hover:bg-brand-dark hover:text-white transition-colors disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-brand-dark cursor-pointer disabled:cursor-not-allowed"
-                >
-                  ›
-                </button>
-              </div>
-            )}
+            {/* Reusable Pagination */}
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              locale="vi"
+              totalElements={totalElements}
+              variant="round"
+            />
           </>
         )}
       </main>
-
     </div>
   );
 };
