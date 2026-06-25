@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import PublicNav from "../Components/PublicNav";
+import PublicNav from "../components/PublicNav";
 import "./Home.css";
 
 const heroImage =

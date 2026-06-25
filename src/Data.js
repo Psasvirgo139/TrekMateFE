@@ -1,10 +1,9 @@
-import Hero1 from './Images/hero-slider-1.webp';
-import Hero2 from './Images/hero-slider-2.webp';
-import Hero3 from './Images/hero-slider-3.webp';
-
-import destination1 from './Images/destination-1.webp';
-import destination2 from './Images/destination-2.webp';
-import destination3 from './Images/destination-3.webp';
+import Hero1 from './images/hero-slider-1.webp';
+import Hero2 from './images/hero-slider-2.webp';
+import Hero3 from './images/hero-slider-3.webp';
+import destination1 from './images/destination-1.webp';
+import destination2 from './images/destination-2.webp';
+import destination3 from './images/destination-3.webp';
 
 
 export const slides = [

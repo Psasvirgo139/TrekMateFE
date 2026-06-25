@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import Header from "../Components/Header";
+import Header from "../components/Header";
 import { fetchBookingDetail, cancelBooking } from "../services/bookingApi";
-import BookingDetailBg from "../Images/hero-slider-3.webp";
+import BookingDetailBg from "../images/hero-slider-3.webp";
 
 const STATUS_CONFIG = {
   PENDING:   { text: "Chờ thanh toán", bg: "bg-amber-50",   text_color: "text-amber-700",   border: "border-amber-200",  step: 1 },

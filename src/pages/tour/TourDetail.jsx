@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import Header from "../../Components/Header";
+import Header from "../../components/Header";
 import api from "../../services/api";
 
 const TourDetail = () => {

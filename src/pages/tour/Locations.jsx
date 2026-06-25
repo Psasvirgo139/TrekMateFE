@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import Header from "../../Components/Header";
+import Header from "../../components/Header";
 import api from "../../services/api";
 import { Link } from "react-router-dom";
 
 // Import local images for page header & tour cards
-import LocationsHeroBg from "../../Images/hero-slider-3.webp";
-import dest1 from "../../Images/destination-1.webp";
-import dest2 from "../../Images/destination-2.webp";
-import dest3 from "../../Images/destination-3.webp";
+import LocationsHeroBg from "../../images/hero-slider-3.webp";
+import dest1 from "../../images/destination-1.webp";
+import dest2 from "../../images/destination-2.webp";
+import dest3 from "../../images/destination-3.webp";
 
 const TourSkeleton = () => {
   return (
