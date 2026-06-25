@@ -37,12 +37,12 @@
 
 <h2>🛠️ Tech Stack</h2>
 <ul>
-  <li>⚛️ React 19+</li>
+  <li>⚛️ React 19 + vite</li>
 </ul>
 
 <h2>🚀 Getting Started</h2>
 <pre><code>npm install       # Install dependencies
-npm start       # Start development server
+npm run dev       # Start development server
 npm run build     # Build for production
 </code></pre>
 

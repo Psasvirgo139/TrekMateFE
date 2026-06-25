@@ -1,14 +1,14 @@
 import React from 'react';
 import { Languages, Compass, AlertCircle } from 'lucide-react';
-import ProfileHeader from './UserProfile/Shared/ProfileHeader';
-import StatsCard from './UserProfile/Shared/StatsCard';
-import TagList from './UserProfile/Shared/TagList';
-import PersonalInfoGrid from './UserProfile/Customer/PersonalInfoGrid';
-import EmergencyContactSection from './UserProfile/Customer/EmergencyContactSection';
-import MedicalNotesBox from './UserProfile/Customer/MedicalNotesBox';
-import TripHistoryList from './UserProfile/Customer/TripHistoryList';
-import BioCard from './UserProfile/Guide/BioCard';
-import CertificateList from './UserProfile/Guide/CertificateList';
+import ProfileHeader from './user-profile/shared/ProfileHeader';
+import StatsCard from './user-profile/shared/StatsCard';
+import TagList from './user-profile/shared/TagList';
+import PersonalInfoGrid from './user-profile/customer/PersonalInfoGrid';
+import EmergencyContactSection from './user-profile/customer/EmergencyContactSection';
+import MedicalNotesBox from './user-profile/customer/MedicalNotesBox';
+import TripHistoryList from './user-profile/customer/TripHistoryList';
+import BioCard from './user-profile/guide/BioCard';
+import CertificateList from './user-profile/guide/CertificateList';
 
 const UserProfile = ({ role = 'customer', data, isOwnProfile = true, onAction, trips = [] }) => {
   const isGuide = role === 'guide';

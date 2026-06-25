@@ -8,7 +8,7 @@ import './AuthPage.css';
 const HERO_IMAGE =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuAvUUzjhxn8orAI_ijOd4idjPXhRQk11CgEtlhqTDP8dTzjLQCFA0TOVxbsgHSZowz0wJX8bqs8bkqS2O-rajIZOsGXmBBgiWs8Mk3Y_cx4wAxO1xf-b9dG1PR0ZdJ6m-ja2lcrYq7ZvReev_dYJKdA9FMxT38ZHwT9SKLF4dMESGfBTXnWPzIWBxH57zvGSUx4WovbnOf5frv95va0NECUYmgTDjQP2TvucjT_9NA3M9k7M7hidjEAD10NYM56JtmZWifulkNhGFk';
 
-const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
 function FieldLabel({ required, children }) {
   return (

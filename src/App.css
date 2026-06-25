@@ -670,7 +670,7 @@ footer a{
 .footer-bottom-img {
   width: 100%;                
   height: 500px;
-  background: url('./Images/footer.webp') center/cover no-repeat;
+  background: url('./images/footer.webp') center/cover no-repeat;
 }
 
 .margin-class{

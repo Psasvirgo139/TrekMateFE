@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import UserProfile from '../Components/UserProfile';
+import UserProfile from '../components/UserProfile';
 import { ToggleLeft, ToggleRight, Shield, User, HelpCircle, RefreshCw } from 'lucide-react';
 import { fetchCustomerProfile, fetchGuideProfile } from '../services/userProfileApi';
 import { fetchUsers } from '../services/adminUserApi';
-import EditProfileModal from '../Components/UserProfile/Shared/EditProfileModal';
+import EditProfileModal from '../components/user-profile/shared/EditProfileModal';
 
 const UserProfileDemo = () => {
   const [role, setRole] = useState('customer'); // 'customer' or 'guide'

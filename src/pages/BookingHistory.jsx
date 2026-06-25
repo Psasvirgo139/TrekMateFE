@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import Header from "../Components/Header";
+import Header from "../components/Header";
 import { fetchMyBookings } from "../services/bookingApi";
-import BookingHistoryBg from "../Images/hero-slider-3.webp";
+import BookingHistoryBg from "../images/hero-slider-3.webp";
 
 const MOCK_ACCOUNTS = [
   { name: "Nguyễn Thị Hoa", email: "hoa@example.com", avatar: "👩‍🌾" },
