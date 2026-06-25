@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import Header from "../components/Header";
+import Header from "../components/layout/Header";
 import { fetchMyBookings } from "../services/bookingApi";
 import BookingHistoryBg from "../images/hero-slider-3.webp";
+import Pagination from "../components/common/Pagination";
 
 const MOCK_ACCOUNTS = [
   { name: "Nguyễn Thị Hoa", email: "hoa@example.com", avatar: "👩‍🌾" },
@@ -236,26 +237,13 @@ const BookingHistory = () => {
         )}
 
         {/* Pagination */}
-        {!loading && !error && totalPages > 1 && (
-          <div className="flex items-center justify-center gap-3 mt-8">
-            <button
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              disabled={page === 0}
-              className="px-4 py-2 text-sm font-semibold border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-            >
-              ‹ Trước
-            </button>
-            <span className="px-4 py-2 text-xs font-bold bg-[#012d1d] text-white rounded-lg">
-              {page + 1} / {totalPages}
-            </span>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-              disabled={page === totalPages - 1}
-              className="px-4 py-2 text-sm font-semibold border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-            >
-              Sau ›
-            </button>
-          </div>
+        {!loading && !error && (
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            locale="vi"
+          />
         )}
       </main>
     </div>

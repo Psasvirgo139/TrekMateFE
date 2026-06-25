@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import footerImg from "../images/footer.webp";
+import footerImg from "../../images/footer.webp";
 
 const Sidebar = ({ open, setOpen }) => {
   const variants = {

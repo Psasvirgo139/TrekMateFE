@@ -1,55 +1,27 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
-
-async function request(path, options = {}) {
-  const response = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options.headers || {}),
-    },
-    ...options,
-  });
-
-  if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(body.message || `Request failed (${response.status})`);
-  }
-
-  if (response.status === 204) return null;
-  return response.json();
-}
+import api from './api';
 
 export function fetchCustomerProfile(userId) {
-  return request(`/profiles/customer/${userId}`);
+  return api.get(`/profiles/customer/${userId}`).then((r) => r.data);
 }
 
 export function updateCustomerProfile(userId, payload) {
-  return request(`/profiles/customer/${userId}`, {
-    method: 'PUT',
-    body: JSON.stringify(payload),
-  });
+  return api.put(`/profiles/customer/${userId}`, payload).then((r) => r.data);
 }
 
 export function fetchGuideProfile(userId) {
-  return request(`/profiles/guide/${userId}`);
+  return api.get(`/profiles/guide/${userId}`).then((r) => r.data);
 }
 
 export function updateGuideProfile(userId, payload) {
-  return request(`/profiles/guide/${userId}`, {
-    method: 'PUT',
-    body: JSON.stringify(payload),
-  });
+  return api.put(`/profiles/guide/${userId}`, payload).then((r) => r.data);
 }
 
 export function addGuideCertification(userId, certDto) {
-  return request(`/profiles/guide/${userId}/certifications`, {
-    method: 'POST',
-    body: JSON.stringify(certDto),
-  });
+  return api.post(`/profiles/guide/${userId}/certifications`, certDto).then((r) => r.data);
 }
 
 export function removeGuideCertification(userId, certName) {
-  const params = new URLSearchParams({ name: certName });
-  return request(`/profiles/guide/${userId}/certifications?${params}`, {
-    method: 'DELETE',
-  });
+  return api.delete(`/profiles/guide/${userId}/certifications`, {
+    params: { name: certName },
+  }).then((r) => r.data);
 }

@@ -4,6 +4,7 @@ import { getTours, createTour, deleteTour } from '../../services/tourManagementA
 import { ArrowLeft, Search, Edit2, Trash2, Plus, MapPin } from 'lucide-react';
 import CreateTourModal from '../../components/tour/CreateTourModal';
 import ConfirmDeleteModal from '../../components/tour/ConfirmDeleteModal';
+import Pagination from '../../components/common/Pagination';
 
 const TourManagement = () => {
   const navigate = useNavigate();
@@ -392,31 +393,18 @@ const TourManagement = () => {
       </div>
 
       {/* Pagination */}
-      {!loading && totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4 text-sm text-gray-500">
-          <div>
-            Showing <strong className="text-gray-800">{tours.length}</strong> of <strong className="text-gray-800">{totalElements}</strong> results
-          </div>
-          <div className="flex items-center gap-2">
-            <button 
-              disabled={page === 0}
-              onClick={() => setPage(prev => Math.max(0, prev - 1))}
-              className="px-4 py-2 text-xs font-semibold border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none"
-            >
-              Previous
-            </button>
-            <span className="px-4 py-2 text-xs font-bold bg-[#012d1d] text-white rounded-lg">
-              {page + 1}
-            </span>
-            <button 
-              disabled={page === totalPages - 1}
-              onClick={() => setPage(prev => Math.min(totalPages - 1, prev + 1))}
-              className="px-4 py-2 text-xs font-semibold border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none"
-            >
-              Next
-            </button>
-          </div>
-        </div>
+      {!loading && (
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          locale="en"
+          showSummary={true}
+          totalElements={totalElements}
+          pageSize={size}
+          itemsCount={tours.length}
+          variant="text"
+        />
       )}
 
       {/* Create New Tour Modal */}

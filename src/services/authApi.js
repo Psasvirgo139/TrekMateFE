@@ -1,82 +1,33 @@
-import {
-  clearToken,
-  getAuthHeaders,
-  getStoredToken,
-  handleUnauthorized,
-  storeToken,
-} from '../utils/authToken';
+import api from './api';
+import { clearToken, getStoredToken, storeToken } from '../utils/authToken';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080';
-
+// Re-export token utilities for backward compatibility with AuthContext
 export { clearToken, getStoredToken, storeToken };
 
-async function request(path, options = {}) {
-  const response = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-      ...(options.headers || {}),
-    },
-    ...options,
-  });
-
-  if (response.status === 401) {
-    handleUnauthorized();
-    throw new Error('Session expired. Please sign in again.');
-  }
-
-  if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(body.message || `Request failed (${response.status})`);
-  }
-
-  return response.json();
-}
-
 export function login({ email, password, rememberMe = false }) {
-  return request('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify({ email, password, rememberMe }),
-  });
+  return api.post('/auth/login', { email, password, rememberMe }).then((r) => r.data);
 }
 
 export function googleLogin({ idToken, rememberMe = false }) {
-  return request('/auth/google', {
-    method: 'POST',
-    body: JSON.stringify({ idToken, rememberMe }),
-  });
+  return api.post('/auth/google', { idToken, rememberMe }).then((r) => r.data);
 }
 
 export function requestRegistrationOtp({ email, password, displayName, phone, role }) {
-  return request('/auth/register/request-otp', {
-    method: 'POST',
-    body: JSON.stringify({ email, password, displayName, phone, role }),
-  });
+  return api.post('/auth/register/request-otp', { email, password, displayName, phone, role }).then((r) => r.data);
 }
 
 export function verifyRegistration({ email, otp }) {
-  return request('/auth/register/verify', {
-    method: 'POST',
-    body: JSON.stringify({ email, otp }),
-  });
+  return api.post('/auth/register/verify', { email, otp }).then((r) => r.data);
 }
 
 export function forgotPassword({ email }) {
-  return request('/auth/forgot-password', {
-    method: 'POST',
-    body: JSON.stringify({ email }),
-  });
+  return api.post('/auth/forgot-password', { email }).then((r) => r.data);
 }
 
 export function resetPassword({ email, otp, newPassword }) {
-  return request('/auth/reset-password', {
-    method: 'POST',
-    body: JSON.stringify({ email, otp, newPassword }),
-  });
+  return api.post('/auth/reset-password', { email, otp, newPassword }).then((r) => r.data);
 }
 
 export function getMe() {
-  return request('/auth/me');
+  return api.get('/auth/me').then((r) => r.data);
 }
-
-

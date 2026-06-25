@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import Header from "../components/Header";
+import Header from "../components/layout/Header";
 import { fetchBookingDetail, cancelBooking } from "../services/bookingApi";
 import BookingDetailBg from "../images/hero-slider-3.webp";
+
+// Import subcomponents
+import ParticipantsTable from "../components/booking/ParticipantsTable";
+import RentalsList from "../components/booking/RentalsList";
+import PaymentsList from "../components/booking/PaymentsList";
+import CancelBookingModal from "../components/booking/CancelBookingModal";
 
 const STATUS_CONFIG = {
   PENDING:   { text: "Chờ thanh toán", bg: "bg-amber-50",   text_color: "text-amber-700",   border: "border-amber-200",  step: 1 },
@@ -92,7 +98,6 @@ const BookingDetail = () => {
     return true;
   };
 
-  // ─── Loading / Error States ──────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f7f9f6] flex flex-col items-center justify-center gap-3">
@@ -120,7 +125,6 @@ const BookingDetail = () => {
 
   const statusInfo = STATUS_CONFIG[booking.status] || { text: booking.status, bg: "bg-gray-50", text_color: "text-gray-600", border: "border-gray-200", step: 1 };
 
-  // ─── Timeline step node ──────────────────────────────────────────────────────
   const StepNode = ({ num, label, date, active }) => (
     <div className="flex flex-col items-center z-10 w-28">
       <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 ${
@@ -137,7 +141,6 @@ const BookingDetail = () => {
     </div>
   );
 
-  // ─── Card wrapper ─────────────────────────────────────────────────────────────
   const Card = ({ title, children }) => (
     <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
       {title && (
@@ -158,7 +161,6 @@ const BookingDetail = () => {
       />
 
       <main className="max-w-5xl mx-auto px-4 py-8 pb-20">
-
         {/* Back Link */}
         <Link
           to="/bookings"
@@ -167,7 +169,7 @@ const BookingDetail = () => {
           ‹ Quay lại danh sách đặt tour
         </Link>
 
-        {/* ─── Status Timeline ─────────────────────────────────────────────── */}
+        {/* Status Timeline */}
         <Card>
           <div className="flex items-center justify-between mb-5 pb-4 border-b border-gray-100">
             <h3 className="font-bold text-[#012d1d] text-base">Trạng thái hành trình</h3>
@@ -197,12 +199,10 @@ const BookingDetail = () => {
           )}
         </Card>
 
-        {/* ─── Two-column grid ─────────────────────────────────────────────── */}
+        {/* Two-column grid */}
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 items-start">
-
-          {/* ── Left column ─────────────────────────────────────────────────── */}
+          {/* Left column */}
           <div className="flex flex-col gap-6">
-
             {/* Journey Info */}
             <Card title="Hành trình & Địa điểm tập trung">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -225,102 +225,28 @@ const BookingDetail = () => {
               </div>
             </Card>
 
-            {/* Travelers */}
-            <Card title={`Thành viên tham gia (${booking.numParticipants} người)`}>
-              {booking.participantsInfo && booking.participantsInfo.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="border-b-2 border-gray-100">
-                        {["Họ và tên", "Ngày sinh", "Quốc tịch", "Thể lực"].map((h) => (
-                          <th key={h} className="pb-2 pr-4 text-[10px] uppercase tracking-wider font-bold text-gray-400">{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {booking.participantsInfo.map((p, idx) => (
-                        <tr key={idx} className="border-b border-gray-50 last:border-0">
-                          <td className="py-3 pr-4 font-semibold text-gray-800">{p.fullName || p.name}</td>
-                          <td className="py-3 pr-4 text-gray-600">{formatDate(p.dateOfBirth || p.dob)}</td>
-                          <td className="py-3 pr-4 text-gray-600">{p.nationality || "Việt Nam"}</td>
-                          <td className="py-3">
-                            <span className="bg-emerald-50 text-[#012d1d] text-xs font-bold px-3 py-1 rounded-full">
-                              {p.fitnessLevel || "Bình thường"}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <p className="text-sm text-gray-400 italic">Người đặt tour là người tham gia duy nhất.</p>
-              )}
-            </Card>
+            {/* Travelers list component */}
+            <ParticipantsTable
+              participantsInfo={booking.participantsInfo}
+              numParticipants={booking.numParticipants}
+              formatDate={formatDate}
+            />
 
-            {/* Rentals */}
-            <Card title="Thiết bị leo núi đã thuê">
-              {booking.rentals && booking.rentals.length > 0 ? (
-                <div className="flex flex-col divide-y divide-gray-50">
-                  {booking.rentals.map((rental) => (
-                    <div key={rental.id} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
-                      <div className="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center shrink-0 overflow-hidden border border-gray-200">
-                        {rental.imageUrl
-                          ? <img src={rental.imageUrl} alt={rental.equipmentName} className="w-full h-full object-cover" />
-                          : <span className="text-2xl">🎒</span>
-                        }
-                      </div>
-                      <div className="flex-grow min-w-0">
-                        <h5 className="font-bold text-[#012d1d] text-sm">{rental.equipmentName}</h5>
-                        <p className="text-xs text-gray-500 mt-0.5">{rental.brand} {rental.model}</p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          {formatPrice(rental.pricePerDay)}/ngày × {rental.rentalDays} ngày
-                        </p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <span className="block text-xs text-gray-400">Số lượng: <strong className="text-gray-700">{rental.quantity}</strong></span>
-                        <span className="block font-bold text-[#012d1d] text-sm mt-1">{formatPrice(rental.subtotal)}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-gray-400 italic">Không thuê thiết bị leo núi nào cho chuyến đi này.</p>
-              )}
-            </Card>
+            {/* Rental list component */}
+            <RentalsList
+              rentals={booking.rentals}
+              formatPrice={formatPrice}
+            />
 
-            {/* Payments */}
-            <Card title="Lịch sử giao dịch thanh toán">
-              {booking.payments && booking.payments.length > 0 ? (
-                <div className="flex flex-col gap-3">
-                  {booking.payments.map((payment) => {
-                    const paid = payment.status === "success" || payment.status === "PAID";
-                    return (
-                      <div key={payment.id} className="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-xl p-4">
-                        <div className="flex flex-col gap-1">
-                          <span className="self-start bg-[#012d1d] text-white text-[10px] font-extrabold px-2 py-0.5 rounded">
-                            {payment.method}
-                          </span>
-                          <span className="text-xs font-mono text-gray-500">Mã GD: {payment.gatewayTxnId || payment.id}</span>
-                          <span className="text-[11px] text-gray-400">{formatDate(payment.paidAt || payment.createdAt, true)}</span>
-                        </div>
-                        <div className="text-right">
-                          <span className="block font-extrabold text-[#012d1d] text-sm">{formatPrice(payment.amount)}</span>
-                          <span className={`text-xs font-bold mt-0.5 block ${paid ? "text-emerald-600" : "text-amber-600"}`}>
-                            {paid ? "Thành công" : "Đang xử lý"}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="text-sm text-gray-400 italic">Chưa ghi nhận giao dịch thanh toán nào cho đơn hàng này.</p>
-              )}
-            </Card>
+            {/* Payments list component */}
+            <PaymentsList
+              payments={booking.payments}
+              formatPrice={formatPrice}
+              formatDate={formatDate}
+            />
           </div>
 
-          {/* ── Right sticky sidebar ──────────────────────────────────────────── */}
+          {/* Right sticky sidebar */}
           <div className="lg:sticky lg:top-24">
             <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
               <h3 className="font-extrabold text-[#012d1d] text-base mb-4">Tổng kết chi phí</h3>
@@ -376,69 +302,16 @@ const BookingDetail = () => {
         </div>
       </main>
 
-      {/* ─── Cancel Modal ────────────────────────────────────────────────────── */}
-      {showCancelModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden animate-[slideUp_0.3s_ease-out]">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-              <h4 className="font-extrabold text-[#012d1d] text-base">Xác nhận hủy đặt tour</h4>
-              <button
-                onClick={() => setShowCancelModal(false)}
-                className="text-gray-400 hover:text-gray-700 text-2xl leading-none transition-colors"
-              >
-                ×
-              </button>
-            </div>
-
-            <form onSubmit={handleCancelSubmit}>
-              <div className="px-6 py-5">
-                <p className="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg px-4 py-3 mb-4 leading-relaxed">
-                  ⚠️ <strong>Lưu ý:</strong> Việc hủy tour có thể chịu phí dịch vụ hoặc không được hoàn tiền theo điều khoản hợp đồng tùy thuộc vào thời gian hủy của bạn.
-                </p>
-
-                {cancelError && (
-                  <div className="bg-red-50 text-red-700 text-sm font-semibold rounded-lg px-4 py-2.5 mb-4">
-                    {cancelError}
-                  </div>
-                )}
-
-                <div className="flex flex-col gap-2">
-                  <label htmlFor="reason" className="text-sm font-bold text-[#012d1d]">
-                    Lý do hủy tour <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    id="reason"
-                    rows={4}
-                    placeholder="Vui lòng cho chúng tôi biết lý do bạn muốn hủy chuyến đi này..."
-                    value={cancelReason}
-                    onChange={(e) => setCancelReason(e.target.value)}
-                    required
-                    className="border border-gray-200 focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/10 rounded-lg px-3 py-2.5 text-sm font-[inherit] resize-y outline-none transition-all"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
-                <button
-                  type="button"
-                  onClick={() => setShowCancelModal(false)}
-                  disabled={cancelling}
-                  className="text-sm font-bold px-5 py-2.5 rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50 transition-all"
-                >
-                  Không, giữ lại
-                </button>
-                <button
-                  type="submit"
-                  disabled={cancelling || !cancelReason.trim()}
-                  className="text-sm font-bold px-5 py-2.5 rounded-full bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                >
-                  {cancelling ? "Đang xử lý hủy..." : "Xác nhận hủy chuyến"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Cancel Booking Modal component */}
+      <CancelBookingModal
+        show={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        onSubmit={handleCancelSubmit}
+        cancelReason={cancelReason}
+        onChangeReason={setCancelReason}
+        cancelling={cancelling}
+        cancelError={cancelError}
+      />
     </div>
   );
 };

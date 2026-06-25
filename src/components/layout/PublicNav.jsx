@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import AuthNav from './AuthNav';
-import '../pages/Home.css';
+import '../../pages/Home.css';
 
 export default function PublicNav({ activePath }) {
   const location = useLocation();

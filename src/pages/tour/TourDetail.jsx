@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import Header from "../../components/Header";
+import Header from "../../components/layout/Header";
 import api from "../../services/api";
+import RatingStars from "../../components/common/RatingStars";
 
 const TourDetail = () => {
   const { idOrSlug } = useParams();
@@ -75,19 +76,7 @@ const TourDetail = () => {
     }).format(price);
   };
 
-  // Helper to render rating stars
-  const renderStars = (rating) => {
-    const stars = [];
-    const rounded = Math.round(parseFloat(rating || 0));
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <span key={i} className={i <= rounded ? "text-[#fea619] text-base" : "text-gray-300 text-base"}>
-          {i <= rounded ? "★" : "☆"}
-        </span>
-      );
-    }
-    return stars;
-  };
+
 
   return (
     <div className="min-h-screen bg-[#fcfbf9] font-sans">
@@ -361,7 +350,7 @@ const TourDetail = () => {
 
                 {/* Rating */}
                 <div className="flex items-center gap-1.5 mb-6 bg-gray-50 p-3 rounded-2xl border border-gray-100">
-                  <div className="flex">{renderStars(tour.avgRating)}</div>
+                  <RatingStars rating={tour.avgRating} className="text-base" />
                   <span className="font-extrabold text-gray-800 text-sm ml-1">
                     {tour.avgRating ? parseFloat(tour.avgRating).toFixed(1) : "0.0"}
                   </span>
