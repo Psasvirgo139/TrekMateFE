@@ -140,16 +140,16 @@ export default function TourBooking() {
         if (value.trim()) {
           delete copy[key];
         } else {
-          copy[key] = "Họ và tên là bắt buộc";
+          copy[key] = "Full name is required";
         }
       }
 
       if (field === "dob") {
         const todayStr = new Date().toISOString().split("T")[0];
         if (!value) {
-          copy[key] = "Ngày sinh là bắt buộc";
+          copy[key] = "Birthdate is required";
         } else if (value > todayStr) {
-          copy[key] = "Ngày sinh không được ở tương lai";
+          copy[key] = "Birthdate cannot be in the future";
         } else {
           delete copy[key];
         }
@@ -158,9 +158,9 @@ export default function TourBooking() {
       if (field === "phone") {
         const cleaned = value.replace(/\D/g, "");
         if (!cleaned) {
-          copy[key] = "Số điện thoại là bắt buộc";
+          copy[key] = "Phone number is required";
         } else if (cleaned.length !== 10) {
-          copy[key] = "Số điện thoại phải có đúng 10 chữ số";
+          copy[key] = "Phone number must be exactly 10 digits";
         } else {
           delete copy[key];
         }
@@ -169,9 +169,9 @@ export default function TourBooking() {
       if (field === "emergency_contact") {
         const cleaned = value.replace(/\D/g, "");
         if (!cleaned) {
-          copy[key] = "Liên hệ khẩn cấp là bắt buộc";
+          copy[key] = "Emergency contact is required";
         } else if (cleaned.length !== 10) {
-          copy[key] = "Liên hệ khẩn cấp phải là số điện thoại 10 chữ số";
+          copy[key] = "Emergency contact must be a 10-digit phone number";
         } else {
           delete copy[key];
         }
@@ -219,28 +219,28 @@ export default function TourBooking() {
     switch (code) {
       case 4022:
       case "TOUR_FULLY_BOOKED":
-        return "Rất tiếc, đợt khởi hành này đã hết chỗ trống. Vui lòng chọn ngày khởi hành khác.";
+        return "Sorry, this departure is fully booked. Please select another date.";
       case 4024:
       case "EQUIPMENT_OUT_OF_STOCK":
-        return "Một số trang thiết bị thuê kèm đã hết hàng trong kho. Vui lòng giảm số lượng thuê hoặc bỏ chọn.";
+        return "Some rental equipment items are out of stock. Please reduce quantity or deselect them.";
       case 4025:
       case "DEPARTURE_PAST_CUTOFF":
-        return "Đợt khởi hành này đã quá hạn đăng ký hoặc đã xuất phát.";
+        return "This departure has passed registration cutoff date or already started.";
       case 4001:
       case "UNAUTHORIZED":
-        return "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+        return "Session expired. Please log in again.";
       case 4044:
       case "BOOKING_NOT_FOUND":
-        return "Đơn đặt tour không tồn tại.";
+        return "Booking not found.";
       default:
-        return backendMsg || "Đã xảy ra lỗi trong quá trình tạo booking. Vui lòng kiểm tra lại.";
+        return backendMsg || "An error occurred while creating booking. Please try again.";
     }
   };
 
   const handleSubmitBooking = async (e) => {
     e.preventDefault();
     if (!selectedDeparture) {
-      alert("Vui lòng chọn ngày khởi hành!");
+      alert("Please select a departure date!");
       return;
     }
 
@@ -252,28 +252,28 @@ export default function TourBooking() {
     for (let i = 0; i < participantsInfo.length; i++) {
       const p = participantsInfo[i];
       if (!p.name.trim()) {
-        newErrors[`name-${i}`] = "Họ và tên là bắt buộc";
+        newErrors[`name-${i}`] = "Full name is required";
         hasError = true;
       }
       if (!p.dob) {
-        newErrors[`dob-${i}`] = "Ngày sinh là bắt buộc";
+        newErrors[`dob-${i}`] = "Birthdate is required";
         hasError = true;
       } else if (p.dob > todayStr) {
-        newErrors[`dob-${i}`] = "Ngày sinh không được ở tương lai";
+        newErrors[`dob-${i}`] = "Birthdate cannot be in the future";
         hasError = true;
       }
       if (!p.phone.trim()) {
-        newErrors[`phone-${i}`] = "Số điện thoại là bắt buộc";
+        newErrors[`phone-${i}`] = "Phone number is required";
         hasError = true;
       } else if (p.phone.trim().length !== 10 || !/^[0-9]+$/.test(p.phone.trim())) {
-        newErrors[`phone-${i}`] = "Số điện thoại phải có đúng 10 chữ số";
+        newErrors[`phone-${i}`] = "Phone number must be exactly 10 digits";
         hasError = true;
       }
       if (!p.emergency_contact.trim()) {
-        newErrors[`emergency_contact-${i}`] = "Liên hệ khẩn cấp là bắt buộc";
+        newErrors[`emergency_contact-${i}`] = "Emergency contact is required";
         hasError = true;
       } else if (p.emergency_contact.trim().length !== 10 || !/^[0-9]+$/.test(p.emergency_contact.trim())) {
-        newErrors[`emergency_contact-${i}`] = "Liên hệ khẩn cấp phải có đúng 10 chữ số";
+        newErrors[`emergency_contact-${i}`] = "Emergency contact must be a 10-digit phone number";
         hasError = true;
       }
     }
@@ -312,7 +312,7 @@ export default function TourBooking() {
       // 1. Create Booking (PENDING)
       const bookingRes = await api.post("/v1/bookings", bookingPayload);
       if (!bookingRes || bookingRes.status > 299 || !bookingRes.data) {
-        throw new Error("Không nhận được phản hồi từ máy chủ khi tạo đơn đặt tour.");
+        throw new Error("No response from server while creating booking.");
       }
 
       const bookingData = bookingRes.data.data;
@@ -326,7 +326,7 @@ export default function TourBooking() {
       });
 
       if (!paymentRes || paymentRes.status !== 200 || !paymentRes.data?.data) {
-        throw new Error("Tạo cổng thanh toán PayOS thất bại. Bạn có thể thanh toán lại từ lịch sử đặt tour.");
+        throw new Error("PayOS payment creation failed. You can retry payment from booking history.");
       }
 
       const paymentData = paymentRes.data.data;
@@ -335,7 +335,7 @@ export default function TourBooking() {
         // Redirect to PayOS checkout page
         window.location.href = paymentData.checkoutUrl;
       } else {
-        throw new Error("Không lấy được đường dẫn thanh toán từ cổng PayOS.");
+        throw new Error("Failed to retrieve payment link from PayOS gateway.");
       }
 
     } catch (err) {
@@ -359,9 +359,9 @@ export default function TourBooking() {
     <div className="min-h-screen bg-[#fcfbf9] font-sans pb-16">
       <Header
         bgImage={coverImage}
-        subheading="Đặt Chuyến Đi Cùng TrekMate"
-        mainHeading={tour?.title || "Đặt Chuyến Đi"}
-        description="Điền thông tin và thanh toán an toàn qua cổng PayOS VietQR."
+        subheading="Book Your Trek with TrekMate"
+        mainHeading={tour?.title || "Book Your Trek"}
+        description="Enter details and pay securely via PayOS VietQR."
         showDescription={Boolean(tour)}
       />
 
@@ -372,7 +372,7 @@ export default function TourBooking() {
             to={`/tours/${idOrSlug}`}
             className="inline-flex items-center gap-2 font-bold text-[#012d1d] hover:text-[#fea619] transition-colors"
           >
-            <span>←</span> Quay lại chi tiết tour
+            <span>←</span> Back to tour details
           </Link>
         </div>
 
@@ -380,7 +380,7 @@ export default function TourBooking() {
         {status === "loading" && (
           <div className="text-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#012d1d] mx-auto mb-4"></div>
-            <p className="text-gray-500 font-medium">Đang tải thông tin đặt tour...</p>
+            <p className="text-gray-500 font-medium">Loading booking details...</p>
           </div>
         )}
 
@@ -388,13 +388,13 @@ export default function TourBooking() {
         {status === "error" && (
           <div className="text-center py-20 bg-white rounded-3xl border border-rose-100 shadow-sm max-w-2xl mx-auto">
             <span className="text-5xl block mb-4">⚠️</span>
-            <h3 className="text-rose-600 text-2xl font-bold mb-2">Không thể tải trang đặt tour</h3>
+            <h3 className="text-rose-600 text-2xl font-bold mb-2">Unable to load booking page</h3>
             <p className="text-gray-500 mb-6">{errorMsg}</p>
             <Link
               to="/locations"
               className="px-6 py-2.5 bg-[#012d1d] text-white hover:bg-[#fea619] hover:text-[#012d1d] font-bold rounded-full transition-colors shadow"
             >
-              Về danh sách tour
+              Back to tours list
             </Link>
           </div>
         )}
@@ -409,7 +409,7 @@ export default function TourBooking() {
               <section className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
                   <span className="w-1.5 h-6 bg-[#fea619] rounded-full"></span>
-                  <h2 className="font-montserrat font-bold text-xl text-gray-800 m-0">Bước 1: Chọn ngày khởi hành</h2>
+                  <h2 className="font-montserrat font-bold text-xl text-gray-800 m-0">Step 1: Choose your departure date</h2>
                 </div>
 
                 {departures.length > 0 ? (
@@ -430,7 +430,7 @@ export default function TourBooking() {
                           <div className="flex justify-between items-start mb-3">
                             <span className="font-bold text-gray-800 text-sm flex items-center gap-1.5">
                               <Calendar className="w-4 h-4 text-[#fea619]" />
-                              {new Date(dep.departureDate).toLocaleDateString("vi-VN", {
+                              {new Date(dep.departureDate).toLocaleDateString("en-US", {
                                 day: "2-digit",
                                 month: "2-digit",
                                 year: "numeric"
@@ -439,17 +439,17 @@ export default function TourBooking() {
                             <span className={`text-[10px] px-2 py-0.5 rounded font-extrabold uppercase ${
                               isSelected ? "bg-[#012d1d] text-white" : "bg-gray-100 text-gray-600"
                             }`}>
-                              Còn {dep.availableSlots} chỗ
+                              {dep.availableSlots} slots left
                             </span>
                           </div>
 
                           <div className="text-xs text-gray-500 mb-4 font-semibold">
-                            Kết thúc: {new Date(dep.returnDate).toLocaleDateString("vi-VN")}
+                            Ends: {new Date(dep.returnDate).toLocaleDateString("en-US")}
                           </div>
 
                           <div className="flex justify-between items-end">
                             <div>
-                              <div className="text-[10px] text-gray-400 font-bold uppercase">Giá 1 khách</div>
+                              <div className="text-[10px] text-gray-400 font-bold uppercase">Price per person</div>
                               <div className="font-extrabold text-[#012d1d] text-lg">
                                 {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(dep.pricePerPerson)}
                               </div>
@@ -468,7 +468,7 @@ export default function TourBooking() {
                   <div className="p-6 bg-amber-50/50 border border-amber-200/50 rounded-2xl text-amber-800 text-sm font-semibold flex items-start gap-2.5">
                     <Info className="w-5 h-5 shrink-0 mt-0.5" />
                     <div>
-                      Không có ngày khởi hành khả dụng sắp tới cho tour này. Vui lòng quay lại sau hoặc liên hệ bộ phận hỗ trợ của TrekMate để được tư vấn thêm.
+                      No upcoming departure dates available for this tour. Please check back later or contact TrekMate support.
                     </div>
                   </div>
                 )}
@@ -479,12 +479,12 @@ export default function TourBooking() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                   <div className="flex items-center gap-3">
                     <span className="w-1.5 h-6 bg-[#fea619] rounded-full"></span>
-                    <h2 className="font-montserrat font-bold text-xl text-gray-800 m-0">Bước 2: Thông tin hành khách</h2>
+                    <h2 className="font-montserrat font-bold text-xl text-gray-800 m-0">Step 2: Traveler details</h2>
                   </div>
 
                   {/* Counter */}
                   <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-2xl border border-gray-200 self-start sm:self-auto">
-                    <span className="text-xs font-bold text-gray-500 mr-2">Số lượng khách:</span>
+                    <span className="text-xs font-bold text-gray-500 mr-2">Number of travelers:</span>
                     <button
                       type="button"
                       disabled={numParticipants <= 1}
@@ -511,17 +511,17 @@ export default function TourBooking() {
                     <div key={index} className="bg-gray-50/75 p-5 sm:p-6 rounded-2xl border border-gray-100">
                       <h4 className="font-bold text-[#012d1d] text-sm mb-4 flex items-center gap-2">
                         <User className="w-4.5 h-4.5 text-[#fea619]" />
-                        Hành khách #{index + 1} {index === 0 && <span className="text-xs bg-[#fea619]/10 text-[#fea619] border border-[#fea619]/20 px-2 py-0.5 rounded font-extrabold">(Liên hệ chính)</span>}
+                        Traveler #{index + 1} {index === 0 && <span className="text-xs bg-[#fea619]/10 text-[#fea619] border border-[#fea619]/20 px-2 py-0.5 rounded font-extrabold">(Primary Contact)</span>}
                       </h4>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1.5">
-                          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Họ và tên *</label>
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Full name *</label>
                           <input
                             type="text"
                             required
                             id={`name-${index}`}
-                            placeholder="Ví dụ: Nguyễn Văn A"
+                            placeholder="Example: John Doe"
                             value={participant.name}
                             onChange={(e) => handleParticipantFieldChange(index, "name", e.target.value)}
                             className={`p-3 bg-white border rounded-xl text-gray-800 text-sm focus:outline-none transition-all ${
@@ -539,7 +539,7 @@ export default function TourBooking() {
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Ngày sinh *</label>
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Date of birth *</label>
                           <input
                             type="date"
                             required
@@ -562,13 +562,13 @@ export default function TourBooking() {
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Số điện thoại *</label>
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Phone number *</label>
                           <input
                             type="tel"
                             required
                             id={`phone-${index}`}
                             maxLength={10}
-                            placeholder="Nhập 10 chữ số (ví dụ: 0912345678)"
+                            placeholder="Enter 10 digits (e.g. 0912345678)"
                             value={participant.phone}
                             onChange={(e) => {
                               const value = e.target.value.replace(/\D/g, "");
@@ -589,13 +589,13 @@ export default function TourBooking() {
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Liên hệ khẩn cấp *</label>
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Emergency contact *</label>
                           <input
                             type="tel"
                             required
                             id={`emergency_contact-${index}`}
                             maxLength={10}
-                            placeholder="Nhập 10 chữ số (ví dụ: 0987654321)"
+                            placeholder="Enter 10 digits (e.g. 0987654321)"
                             value={participant.emergency_contact}
                             onChange={(e) => {
                               const value = e.target.value.replace(/\D/g, "");
@@ -629,15 +629,15 @@ export default function TourBooking() {
                       className="mt-1 w-4.5 h-4.5 accent-[#012d1d]"
                     />
                     <div>
-                      <span className="text-sm font-bold text-gray-700 group-hover:text-[#012d1d] transition-colors">Tôi đồng ý ghép đoàn cùng các khách hàng khác</span>
-                      <p className="text-xs text-gray-400 mt-0.5">Giúp bạn tiết kiệm chi phí và giao lưu cùng những người bạn đồng hành trekking mới.</p>
+                      <span className="text-sm font-bold text-gray-700 group-hover:text-[#012d1d] transition-colors">I agree to join a group tour with other travelers</span>
+                      <p className="text-xs text-gray-400 mt-0.5">Helps you save costs and connect with fellow trekkers.</p>
                     </div>
                   </label>
 
                   <div className="flex flex-col gap-1.5 pt-2">
-                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Yêu cầu đặc biệt (Ăn chay, dị ứng thực phẩm, y tế...)</label>
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Special requests (Dietary, allergies, medical notes...)</label>
                     <textarea
-                      placeholder="Ghi chú các yêu cầu đặc biệt của đoàn tại đây để TrekMate chuẩn bị chu đáo..."
+                      placeholder="Enter special requests for your group here..."
                       value={specialRequests}
                       onChange={(e) => setSpecialRequests(e.target.value)}
                       rows={3}
@@ -651,10 +651,10 @@ export default function TourBooking() {
               <section className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-3 mb-4">
                   <span className="w-1.5 h-6 bg-[#fea619] rounded-full"></span>
-                  <h2 className="font-montserrat font-bold text-xl text-gray-800 m-0">Bước 3: Thuê trang thiết bị đi kèm (Tùy chọn)</h2>
+                  <h2 className="font-montserrat font-bold text-xl text-gray-800 m-0">Step 3: Rent optional trekking equipment</h2>
                 </div>
                 <p className="text-xs text-gray-400 mb-6">
-                  * Tiền thuê tính theo số ngày đi tour ({tourDurationDays} ngày). Số lượng tối đa có thể chọn bị giới hạn bởi số lượng còn lại trong kho.
+                  * Rental price is calculated based on tour duration ({tourDurationDays} days). Max quantity is limited by remaining stock.
                 </p>
 
                 <div className="flex flex-col divide-y divide-gray-100">
@@ -678,10 +678,10 @@ export default function TourBooking() {
                             <h4 className="font-bold text-[#012d1d] text-sm leading-snug">{eq.name}</h4>
                             <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{eq.description}</p>
                             <span className="inline-block text-[11px] text-[#fea619] font-bold mt-1 bg-amber-50 px-2 py-0.5 rounded border border-amber-100/50">
-                              {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(eq.pricePerDay)}/ngày
+                              {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(eq.pricePerDay)}/day
                             </span>
                             <span className="inline-block text-[11px] text-gray-500 font-bold mt-1 bg-gray-100 px-2 py-0.5 rounded border border-gray-200/50 ml-2">
-                              Còn lại: {eq.availableStock} sản phẩm
+                              Stock left: {eq.availableStock}
                             </span>
                           </div>
                         </div>
@@ -689,7 +689,7 @@ export default function TourBooking() {
                         {/* Qty Selector */}
                         {isSelected && (
                           <div className="flex items-center gap-2 bg-gray-50 px-2 py-1 rounded-xl border border-gray-200 self-end sm:self-auto shrink-0">
-                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-1">SL:</span>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-1">Qty:</span>
                             <button
                               type="button"
                               disabled={currentQty <= 1}
@@ -713,7 +713,7 @@ export default function TourBooking() {
                         {/* Price calculate */}
                         {isSelected && (
                           <div className="text-right shrink-0 self-end sm:self-auto">
-                            <span className="text-[10px] text-gray-400 block font-semibold">Tạm tính:</span>
+                            <span className="text-[10px] text-gray-400 block font-semibold">Subtotal:</span>
                             <span className="font-bold text-[#012d1d] text-sm">
                               {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(eq.pricePerDay * currentQty * tourDurationDays)}
                             </span>
@@ -732,7 +732,7 @@ export default function TourBooking() {
               {/* Summary checkout detail */}
               <div className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-xl shadow-gray-200/50">
                 <h3 className="font-montserrat font-extrabold text-[#012d1d] text-base mb-4 uppercase tracking-wider pb-3 border-b border-gray-100">
-                  Tóm tắt đơn hàng
+                  Booking Summary
                 </h3>
 
                 {/* Tour Info */}
@@ -741,9 +741,9 @@ export default function TourBooking() {
                   <p className="text-xs text-gray-500 font-semibold flex items-center gap-1 mt-1">
                     <Calendar className="w-3.5 h-3.5 text-[#fea619]" />
                     {selectedDeparture ? (
-                      `${new Date(selectedDeparture.departureDate).toLocaleDateString("vi-VN")} (Khởi hành)`
+                      `${new Date(selectedDeparture.departureDate).toLocaleDateString("en-US")} (Departure)`
                     ) : (
-                      "Chưa chọn ngày khởi hành"
+                      "No departure date selected"
                     )}
                   </p>
                 </div>
@@ -751,33 +751,33 @@ export default function TourBooking() {
                 {/* Price Breakdown */}
                 <div className="space-y-3 pb-6 border-b border-gray-100 text-xs md:text-sm">
                   <div className="flex justify-between items-center py-0.5">
-                    <span className="text-gray-400">Giá tour x {numParticipants} khách</span>
+                    <span className="text-gray-400">Tour price x {numParticipants} travelers</span>
                     <span className="font-bold text-gray-800">{new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(tourSubtotal)}</span>
                   </div>
 
                   {rentalSubtotal > 0 && (
                     <div className="flex justify-between items-center py-0.5">
-                      <span className="text-gray-400">Thuê thiết bị leo núi</span>
+                      <span className="text-gray-400">Mountain equipment rental</span>
                       <span className="font-bold text-gray-800">{new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(rentalSubtotal)}</span>
                     </div>
                   )}
 
                   <div className="flex justify-between items-center py-0.5">
-                    <span className="text-gray-400">Thời gian hành trình</span>
-                    <span className="font-bold text-gray-800">{tour.durationDays} Ngày {tour.durationNights} Đêm</span>
+                    <span className="text-gray-400">Tour duration</span>
+                    <span className="font-bold text-gray-800">{tour.durationDays} Days {tour.durationNights} Nights</span>
                   </div>
                 </div>
 
                 {/* Total price */}
                 <div className="my-6 bg-emerald-50/50 border border-emerald-100 p-4 rounded-2xl flex flex-col justify-center">
                   <span className="text-[10px] text-emerald-800 font-extrabold uppercase tracking-wider mb-1">
-                    Tổng chi phí thanh toán
+                    Total payment
                   </span>
                   <span className="text-2xl font-extrabold text-emerald-800">
                     {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(totalPrice)}
                   </span>
                   <span className="text-[10px] text-gray-400 font-semibold mt-1">
-                    Giá đã bao gồm dịch vụ HDV, hỗ trợ viên, ăn uống & các điểm trại.
+                    Includes guides, supporters, meals & campsite fees.
                   </span>
                 </div>
 
@@ -798,30 +798,30 @@ export default function TourBooking() {
                   {bookingStatus === "submitting" ? (
                     <>
                       <span className="w-4 h-4 border-2 border-[#012d1d]/30 border-t-[#012d1d] rounded-full animate-spin mr-2"></span>
-                      Đang xử lý đặt chỗ...
+                      Processing booking...
                     </>
                   ) : (
-                    "Xác nhận & Thanh toán ngay"
+                    "Confirm & Pay Now"
                   )}
                 </button>
 
                 {/* Payment guarantees */}
                 <div className="mt-4 flex items-center justify-center gap-1.5 text-[10px] text-gray-400 font-semibold">
                   <Shield className="w-3.5 h-3.5 text-emerald-600" />
-                  Thanh toán bảo mật 100% qua cổng VietQR PayOS
+                  100% secure payment via PayOS VietQR
                 </div>
               </div>
 
               {/* Assistance support card */}
               <div className="bg-gray-50 rounded-3xl p-5 border border-gray-200/50 flex flex-col items-center text-center">
                 <span className="text-2xl mb-2">📞</span>
-                <h4 className="font-bold text-gray-800 text-sm mb-1">Cần hỗ trợ đặt tour khẩn cấp?</h4>
-                <p className="text-xs text-gray-500 mb-3">Hotline của chúng tôi hỗ trợ 24/7 đối với tất cả tuyến đường.</p>
+                <h4 className="font-bold text-gray-800 text-sm mb-1">Need urgent booking assistance?</h4>
+                <p className="text-xs text-gray-500 mb-3">Our hotline is available 24/7 for all trekking routes.</p>
                 <a
                   href="tel:0901234567"
                   className="px-4 py-2 bg-white border border-gray-300 text-gray-700 hover:bg-[#012d1d] hover:text-white hover:border-[#012d1d] rounded-full text-xs font-bold transition-all no-underline inline-block"
                 >
-                  Gọi 090 123 4567
+                  Call 090 123 4567
                 </a>
               </div>
 

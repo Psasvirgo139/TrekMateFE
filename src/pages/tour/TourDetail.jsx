@@ -25,12 +25,12 @@ const TourDetail = () => {
           setTour(response.data);
           setStatus("success");
         } else {
-          throw new Error("Không tìm thấy dữ liệu chi tiết cho tour này.");
+          throw new Error("Tour details not found.");
         }
       } catch (err) {
         if (err.name === "CanceledError" || err.name === "AbortError" || err.message === "canceled") return;
         console.error("Lỗi khi tải chi tiết tour:", err);
-        setError(err.response?.data?.message || err.message || "Đã xảy ra lỗi khi tải tour.");
+        setError(err.response?.data?.message || err.message || "An error occurred while loading tour details.");
         setStatus("error");
       }
     };
@@ -68,7 +68,7 @@ const TourDetail = () => {
 
   // Helper to format currency
   const formatPrice = (price) => {
-    if (!price) return "Liên hệ";
+    if (!price) return "Contact us";
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
@@ -83,8 +83,8 @@ const TourDetail = () => {
       <Header
         bgImage={heroImage}
         subheading="TrekMate Danang"
-        mainHeading={tour?.title || "Chi Tiết Tour"}
-        description={tour?.shortDescription || "Khám phá chi tiết tour trekking cùng TrekMate."}
+        mainHeading={tour?.title || "Tour Details"}
+        description={tour?.shortDescription || "Discover trekking tour details with TrekMate."}
         showDescription={Boolean(tour)}
       />
 
@@ -95,7 +95,7 @@ const TourDetail = () => {
             to="/locations"
             className="inline-flex items-center gap-2 font-bold text-[#012d1d] hover:text-[#fea619] transition-colors"
           >
-            <span>←</span> Quay lại danh sách tour
+            <span>←</span> Back to tours list
           </Link>
           {tour?.status && (
             <span
@@ -105,7 +105,7 @@ const TourDetail = () => {
                   : "bg-amber-100 text-amber-800"
               }`}
             >
-              Trạng thái: {tour.status}
+              Status: {tour.status}
             </span>
           )}
         </div>
@@ -114,7 +114,7 @@ const TourDetail = () => {
         {status === "loading" && (
           <div className="text-center py-20 bg-white/80 backdrop-blur-md rounded-3xl border border-gray-100 shadow-sm">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#012d1d] mx-auto mb-4"></div>
-            <p className="text-gray-500 font-medium">Đang tải chi tiết tour...</p>
+            <p className="text-gray-500 font-medium">Loading tour details...</p>
           </div>
         )}
 
@@ -122,14 +122,14 @@ const TourDetail = () => {
         {status === "error" && (
           <div className="text-center py-20 bg-white/80 backdrop-blur-md rounded-3xl border border-rose-100 shadow-sm max-w-2xl mx-auto">
             <span className="text-5xl block mb-4">⚠️</span>
-            <h3 className="text-rose-600 text-2xl font-bold mb-2">Không thể tải thông tin tour</h3>
+            <h3 className="text-rose-600 text-2xl font-bold mb-2">Unable to load tour details</h3>
             <p className="text-gray-500 mb-6">{error}</p>
             <div className="flex gap-4 justify-center">
               <Link
                 to="/locations"
                 className="px-6 py-2.5 bg-[#012d1d] text-white hover:bg-[#fea619] hover:text-[#012d1d] font-bold rounded-full transition-colors shadow"
               >
-                Về danh sách tour
+                Back to tours list
               </Link>
             </div>
           </div>
@@ -144,10 +144,10 @@ const TourDetail = () => {
               <section className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm transition-all duration-300">
                 <div className="flex items-center gap-3 mb-4">
                   <span className="w-1.5 h-6 bg-[#fea619] rounded-full"></span>
-                  <h2 className="font-montserrat font-bold text-xl md:text-2xl text-gray-800 m-0">Mô Tả Tour Chi Tiết</h2>
+                  <h2 className="font-montserrat font-bold text-xl md:text-2xl text-gray-800 m-0">Detailed Tour Description</h2>
                 </div>
                 <p className="text-gray-600 leading-relaxed text-sm md:text-base whitespace-pre-line">
-                  {tour.description || "Chưa có mô tả chi tiết cho tour này."}
+                  {tour.description || "No detailed description available for this tour."}
                 </p>
               </section>
 
@@ -155,7 +155,7 @@ const TourDetail = () => {
               <section className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm transition-all duration-300">
                 <div className="flex items-center gap-3 mb-8">
                   <span className="w-1.5 h-6 bg-[#fea619] rounded-full"></span>
-                  <h2 className="font-montserrat font-bold text-xl md:text-2xl text-gray-800 m-0">Lịch Trình Chi Tiết Theo Ngày</h2>
+                  <h2 className="font-montserrat font-bold text-xl md:text-2xl text-gray-800 m-0">Detailed Daily Itinerary</h2>
                 </div>
 
                 {tour.dailyItinerary && tour.dailyItinerary.length > 0 ? (
@@ -172,7 +172,7 @@ const TourDetail = () => {
                           <div className="bg-gray-50/75 hover:bg-gray-50 border border-gray-100 rounded-2xl p-5 transition-all duration-300">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-3">
                               <h3 className="font-montserrat font-bold text-base md:text-lg text-gray-800 m-0">
-                                Ngày {day.dayNumber}: {day.dayTitle}
+                                Day {day.dayNumber}: {day.dayTitle}
                               </h3>
                               {day.dayDifficulty && (
                                 <span className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded bg-white shadow-sm border border-gray-100 self-start md:self-auto ${getDifficultyColor(day.dayDifficulty)}`}>
@@ -182,7 +182,7 @@ const TourDetail = () => {
                             </div>
 
                             <p className="text-gray-600 text-xs md:text-sm leading-relaxed mb-4">
-                              {day.dayDescription || "Chưa có mô tả cho ngày này."}
+                              {day.dayDescription || "No description available for this day."}
                             </p>
 
                             {/* Day Quick Stats */}
@@ -194,7 +194,7 @@ const TourDetail = () => {
                               )}
                               {(day.walkingHoursMin || day.walkingHoursMax) && (
                                 <span className="bg-white px-3 py-1.5 rounded-full border border-gray-100 shadow-sm">
-                                  ⏱️ {day.walkingHoursMin ?? 0} - {day.walkingHoursMax ?? 0} giờ đi bộ
+                                  ⏱️ {day.walkingHoursMin ?? 0} - {day.walkingHoursMax ?? 0} hours hiking
                                 </span>
                               )}
                               {(day.suggestedStartTime || day.suggestedEndTime) && (
@@ -207,7 +207,7 @@ const TourDetail = () => {
                             {/* Waypoints Link list in Day */}
                             {Array.isArray(day.waypointLinks) && day.waypointLinks.length > 0 && (
                               <div className="mt-4 pt-3 border-t border-gray-200/50">
-                                <div className="text-[10px] uppercase text-gray-400 font-bold tracking-wider mb-2">Điểm ghé thăm</div>
+                                <div className="text-[10px] uppercase text-gray-400 font-bold tracking-wider mb-2">Waypoints</div>
                                 <div className="flex flex-wrap gap-2">
                                   {day.waypointLinks
                                     .sort((a, b) => a.visitOrder - b.visitOrder)
@@ -230,7 +230,7 @@ const TourDetail = () => {
                       ))}
                   </div>
                 ) : (
-                  <p className="text-gray-400 text-sm">Thông tin lịch trình đang được cập nhật...</p>
+                  <p className="text-gray-400 text-sm">Itinerary details are being updated...</p>
                 )}
               </section>
 
@@ -241,7 +241,7 @@ const TourDetail = () => {
                   <div>
                     <div className="flex items-center gap-3 mb-4">
                       <span className="w-1.5 h-6 bg-emerald-600 rounded-full"></span>
-                      <h3 className="font-montserrat font-bold text-lg text-gray-800 m-0">Giá Bao Gồm</h3>
+                      <h3 className="font-montserrat font-bold text-lg text-gray-800 m-0">Price Includes</h3>
                     </div>
                     {tour.includes && tour.includes.length > 0 ? (
                       <ul className="space-y-3 p-0 list-none">
@@ -253,7 +253,7 @@ const TourDetail = () => {
                         ))}
                       </ul>
                     ) : (
-                      <p className="text-gray-400 text-xs">Đang cập nhật...</p>
+                      <p className="text-gray-400 text-xs">Updating...</p>
                     )}
                   </div>
 
@@ -261,7 +261,7 @@ const TourDetail = () => {
                   <div>
                     <div className="flex items-center gap-3 mb-4">
                       <span className="w-1.5 h-6 bg-rose-600 rounded-full"></span>
-                      <h3 className="font-montserrat font-bold text-lg text-gray-800 m-0">Giá Không Bao Gồm</h3>
+                      <h3 className="font-montserrat font-bold text-lg text-gray-800 m-0">Price Excludes</h3>
                     </div>
                     {tour.excludes && tour.excludes.length > 0 ? (
                       <ul className="space-y-3 p-0 list-none">
@@ -273,7 +273,7 @@ const TourDetail = () => {
                         ))}
                       </ul>
                     ) : (
-                      <p className="text-gray-400 text-xs">Đang cập nhật...</p>
+                      <p className="text-gray-400 text-xs">Updating...</p>
                     )}
                   </div>
                 </div>
@@ -284,7 +284,7 @@ const TourDetail = () => {
                 <section className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm transition-all duration-300">
                   <div className="flex items-center gap-3 mb-6">
                     <span className="w-1.5 h-6 bg-[#fea619] rounded-full"></span>
-                    <h2 className="font-montserrat font-bold text-xl md:text-2xl text-gray-800 m-0">Các Điểm Mốc Hành Trình (Waypoints)</h2>
+                    <h2 className="font-montserrat font-bold text-xl md:text-2xl text-gray-800 m-0">Trek Milestones (Waypoints)</h2>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {tour.waypoints
@@ -292,7 +292,7 @@ const TourDetail = () => {
                       .map((wp) => (
                         <div key={wp.id} className="bg-gray-50 border border-gray-100 rounded-2xl p-4 transition-all hover:shadow-sm">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-bold text-gray-400">Thứ tự: {wp.sequenceOrder}</span>
+                            <span className="text-xs font-bold text-gray-400">Order: {wp.sequenceOrder}</span>
                             {wp.waypointType && (
                               <span className="text-[9px] font-extrabold uppercase bg-[#012d1d]/10 text-[#012d1d] px-2 py-0.5 rounded">
                                 {wp.waypointType}
@@ -301,10 +301,10 @@ const TourDetail = () => {
                           </div>
                           <h4 className="font-montserrat font-bold text-sm text-gray-800 mb-1">{wp.name}</h4>
                           {wp.dayNumber && (
-                            <p className="text-[11px] text-gray-500 font-semibold mb-1">Ghé thăm ngày: {wp.dayNumber}</p>
+                            <p className="text-[11px] text-gray-500 font-semibold mb-1">Visit day: {wp.dayNumber}</p>
                           )}
                           <div className="text-[10px] text-gray-400 font-mono">
-                            Tọa độ: {wp.lat}, {wp.lng}
+                            Coordinates: {wp.lat}, {wp.lng}
                           </div>
                         </div>
                       ))}
@@ -317,7 +317,7 @@ const TourDetail = () => {
                 <section className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm transition-all duration-300">
                   <div className="flex items-center gap-3 mb-6">
                     <span className="w-1.5 h-6 bg-[#fea619] rounded-full"></span>
-                    <h2 className="font-montserrat font-bold text-xl md:text-2xl text-gray-800 m-0">Hình Ảnh Hành Trình</h2>
+                    <h2 className="font-montserrat font-bold text-xl md:text-2xl text-gray-800 m-0">Trek Gallery</h2>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {tour.images.map((img) => (
@@ -329,8 +329,8 @@ const TourDetail = () => {
                         />
                         {(img.caption || img.isCover) && (
                           <figcaption className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-3 text-white text-xs font-semibold">
-                            {img.isCover && <span className="text-[#fea619] font-bold block text-[10px] uppercase mb-0.5">Ảnh bìa</span>}
-                            <span className="line-clamp-1">{img.caption || "Hình ảnh tour"}</span>
+                            {img.isCover && <span className="text-[#fea619] font-bold block text-[10px] uppercase mb-0.5">Cover Image</span>}
+                            <span className="line-clamp-1">{img.caption || "Tour image"}</span>
                           </figcaption>
                         )}
                       </figure>
@@ -345,7 +345,7 @@ const TourDetail = () => {
               {/* Information & Booking widget */}
               <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 md:p-8 border border-white/50 shadow-xl shadow-[#012d1d]/5">
                 <h3 className="font-montserrat font-extrabold text-[#012d1d] text-lg mb-4 uppercase tracking-wider">
-                  Thông Tin Đặt Chuyến
+                  Booking Details
                 </h3>
 
                 {/* Rating */}
@@ -355,41 +355,41 @@ const TourDetail = () => {
                     {tour.avgRating ? parseFloat(tour.avgRating).toFixed(1) : "0.0"}
                   </span>
                   <span className="text-gray-400 text-xs">
-                    ({tour.totalBookings || 0} lượt đặt)
+                    ({tour.totalBookings || 0} bookings)
                   </span>
                 </div>
 
                 {/* Stat details list */}
                 <div className="space-y-4 mb-6 pb-6 border-b border-gray-100 text-sm">
                   <div className="flex justify-between items-center py-1">
-                    <span className="text-gray-400">⏱️ Thời gian</span>
+                    <span className="text-gray-400">⏱️ Duration</span>
                     <span className="font-extrabold text-gray-800">
-                      {tour.durationDays} Ngày {tour.durationNights} Đêm
+                      {tour.durationDays} Days {tour.durationNights} Nights
                     </span>
                   </div>
                   <div className="flex justify-between items-center py-1">
-                    <span className="text-gray-400">🏔️ Độ khó</span>
+                    <span className="text-gray-400">🏔️ Difficulty</span>
                     <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${getDifficultyColor(tour.difficulty)}`}>
                       {tour.difficulty}
                     </span>
                   </div>
                   <div className="flex justify-between items-center py-1">
-                    <span className="text-gray-400">🏃 Quãng đường</span>
+                    <span className="text-gray-400">🏃 Distance</span>
                     <span className="font-extrabold text-gray-800">{tour.distanceKm ?? "N/A"} km</span>
                   </div>
                   <div className="flex justify-between items-center py-1">
-                    <span className="text-gray-400">🏔️ Độ cao cực đại</span>
+                    <span className="text-gray-400">🏔️ Max Elevation</span>
                     <span className="font-extrabold text-gray-800">{tour.maxElevationM ?? "N/A"} m</span>
                   </div>
                   {tour.startLocation && (
                     <div className="flex flex-col gap-1 py-1">
-                      <span className="text-gray-400 text-xs">📍 Điểm xuất phát</span>
+                      <span className="text-gray-400 text-xs">📍 Starting Point</span>
                       <span className="font-bold text-gray-800 line-clamp-1">{tour.startLocation}</span>
                     </div>
                   )}
                   {tour.endLocation && (
                     <div className="flex flex-col gap-1 py-1">
-                      <span className="text-gray-400 text-xs">🏁 Điểm kết thúc</span>
+                      <span className="text-gray-400 text-xs">🏁 Ending Point</span>
                       <span className="font-bold text-gray-800 line-clamp-1">{tour.endLocation}</span>
                     </div>
                   )}
@@ -398,13 +398,13 @@ const TourDetail = () => {
                 {/* Price */}
                 <div className="mb-6 bg-emerald-50/50 border border-emerald-100/70 p-4 rounded-2xl">
                   <div className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">
-                    Giá trọn gói từ
+                    All-inclusive from
                   </div>
                   <div className="text-3xl font-extrabold text-emerald-800">
                     {formatPrice(getTourPrice(tour))}
                   </div>
                   <div className="text-[11px] text-gray-500 font-semibold mt-1">
-                    Giá đã bao gồm VAT và toàn bộ chi phí hướng dẫn, ăn uống trên đường.
+                    Includes VAT, guide fees, and all meals during the trek.
                   </div>
                 </div>
 
@@ -413,20 +413,20 @@ const TourDetail = () => {
                   to={`/tours/${tour.slug}/book`}
                   className="w-full py-4 bg-[#fea619] hover:bg-[#ffb638] text-[#012d1d] font-extrabold text-xs rounded-2xl shadow-lg shadow-[#fea619]/25 hover:shadow-xl transition-all duration-300 block text-center uppercase tracking-widest hover:-translate-y-0.5 active:scale-95"
                 >
-                  Yêu Cầu Đặt Chuyến (Book Tour Now)
+                  Book Tour Now
                 </Link>
               </div>
 
               {/* Back to list CTA card */}
               <div className="bg-gray-50 rounded-3xl p-5 border border-gray-100 flex flex-col items-center text-center">
                 <span className="text-2xl mb-2">🧭</span>
-                <h4 className="font-bold text-gray-800 text-sm mb-1">Cần hỗ trợ thiết kế lịch trình riêng?</h4>
-                <p className="text-xs text-gray-500 mb-3">TrekMate nhận đặt tour riêng cho đoàn từ 5 người trở lên.</p>
+                <h4 className="font-bold text-gray-800 text-sm mb-1">Need a custom itinerary?</h4>
+                <p className="text-xs text-gray-500 mb-3">TrekMate designs custom private treks for groups of 5+ hikers.</p>
                 <Link
                   to="/contact"
                   className="px-4 py-2 border border-gray-300 text-gray-700 hover:bg-[#012d1d] hover:text-white hover:border-[#012d1d] rounded-full text-xs font-bold transition-all no-underline"
                 >
-                  Liên hệ chúng tôi
+                  Contact Us
                 </Link>
               </div>
             </div>
