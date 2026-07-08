@@ -410,7 +410,7 @@ const TourDetail = () => {
 
                 {/* CTA Button */}
                 <Link
-                  to="/payment"
+                  to={`/tours/${tour.slug}/book`}
                   className="w-full py-4 bg-[#fea619] hover:bg-[#ffb638] text-[#012d1d] font-extrabold text-xs rounded-2xl shadow-lg shadow-[#fea619]/25 hover:shadow-xl transition-all duration-300 block text-center uppercase tracking-widest hover:-translate-y-0.5 active:scale-95"
                 >
                   Yêu Cầu Đặt Chuyến (Book Tour Now)

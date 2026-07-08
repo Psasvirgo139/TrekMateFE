@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import PaymentMethodOption from "./components/PaymentMethodOption";
 import OrderSummary from "./components/OrderSummary";
+import api from "../../services/api";
 
 const Payment = () => {
   const [bookingId, setBookingId] = useState("1");
@@ -16,24 +17,18 @@ const Payment = () => {
 
     try {
       const endpoint = method === "PAYOS"
-        ? "http://localhost:8080/api/v1/payments/payos/create"
-        : "http://localhost:8080/api/v1/payments";
+        ? "/v1/payments/payos/create"
+        : "/v1/payments";
 
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          bookingId: parseInt(bookingId),
-          amount: parseFloat(amount),
-          paymentMethod: method,
-        }),
+      const response = await api.post(endpoint, {
+        bookingId: parseInt(bookingId),
+        amount: parseFloat(amount),
+        paymentMethod: method,
       });
 
-      const resData = await response.json();
+      const resData = response.data;
 
-      if (!response.ok || resData.code !== 200) {
+      if (response.status !== 200 || resData.code !== 200) {
         throw new Error(resData.message || "Đã xảy ra lỗi khi tạo thanh toán");
       }
 
