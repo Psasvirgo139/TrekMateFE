@@ -4,6 +4,13 @@ import { Calendar, User, Plus, Minus, Info, AlertCircle, Check, Shield, FileText
 import Header from "../../components/layout/Header";
 import api from "../../services/api";
 
+// Same destination images as TourCard & TourDetail
+const TOUR_IMAGES = {
+  "fansipan-summit":   "https://th.bing.com/th/id/R.61592cdb830787d2db63d89a47975093?rik=t7vTn9hWFnmKQg&riu=http%3a%2f%2fhanoitouristvietnam.com%2fsites%2fdefault%2ffiles%2f2025%2f01%2f1-cam-nang-du-lich-sapa_0.png&ehk=yKPmTZ5amKrvH%2b1fncZ4EUCJYXk7nhZ9jpCWvVHgMi8%3d&risl=&pid=ImgRaw&r=0",
+  "ta-nang-phan-dung": "https://toongadventure.vn/wp-content/uploads/2023/03/Ta-nang-phan-dung-5.jpg",
+  "ma-pi-leng-trek":   "https://tse4.mm.bing.net/th/id/OIP.dI0u5MdxoC__CM1XUSwm0AHaFL?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
+};
+
 const getEquipmentIcon = (iconName) => {
   switch (iconName) {
     case "tent": return "⛺";
@@ -352,8 +359,9 @@ export default function TourBooking() {
     }
   };
 
-  const coverImage = tour?.images?.find(i => i.isCover)?.imageUrl || 
-    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=80";
+  const coverImage = tour?.images?.find(i => i.isCover)?.imageUrl ||
+    TOUR_IMAGES[tour?.slug] ||
+    TOUR_IMAGES["fansipan-summit"];
 
   return (
     <div className="min-h-screen bg-[#fcfbf9] font-sans pb-16">

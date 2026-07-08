@@ -5,8 +5,7 @@ import TourCard from "../../components/tour/TourCard";
 import TourSkeleton from "../../components/tour/TourSkeleton";
 import Pagination from "../../../src/components/common/Pagination";
 
-// Import local images for page header
-import LocationsHeroBg from "../../images/hero-slider-3.webp";
+const LOCATIONS_HERO = "https://i.pinimg.com/1200x/16/05/3e/16053eb88478eadf2042ed560fccf86b.jpg";
 
 const Locations = () => {
   // Query parameters state
@@ -129,7 +128,7 @@ const Locations = () => {
     <div className="min-h-screen bg-brand-light font-sans">
       {/* Shared Header Component */}
       <Header
-        bgImage={LocationsHeroBg}
+        bgImage={LOCATIONS_HERO}
         pageTitle="TrekMate Tours"
         subheading="CONQUER CHALLENGES — ABSOLUTE SAFETY"
         mainHeading="Explore Trekking Routes"
