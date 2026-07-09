@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/layout/Header";
+import { useAuth } from "../context/AuthContext";
 import { fetchMyBookings } from "../services/bookingApi";
 import BookingHistoryBg from "../images/hero-slider-3.webp";
 import Pagination from "../components/common/Pagination";
-
-const MOCK_ACCOUNTS = [
-  { name: "Nguyễn Thị Hoa", email: "hoa@example.com", avatar: "👩‍🌾" },
-  { name: "Phạm Gia Khiêm", email: "khiem@example.com", avatar: "👨‍🚀" },
-];
 
 const STATUS_CONFIG = {
   PENDING:   { text: "Chờ thanh toán", bg: "bg-amber-50",   text_color: "text-amber-700",   border: "border-amber-200"  },
@@ -17,8 +13,18 @@ const STATUS_CONFIG = {
   CANCELLED: { text: "Đã hủy",         bg: "bg-red-50",     text_color: "text-red-700",     border: "border-red-200"    },
 };
 
+const TAB_LABELS = {
+  ALL: "Tất cả",
+  PENDING: "Chờ thanh toán",
+  CONFIRMED: "Đã xác nhận",
+  COMPLETED: "Đã hoàn thành",
+  CANCELLED: "Đã hủy",
+};
+
 const BookingHistory = () => {
-  const [currentUser, setCurrentUser] = useState(null);
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+
   const [bookings, setBookings] = useState([]);
   const [activeTab, setActiveTab] = useState("ALL");
   const [loading, setLoading] = useState(false);
@@ -27,24 +33,26 @@ const BookingHistory = () => {
   const [totalPages, setTotalPages] = useState(0);
   const size = 5;
 
+  // Redirect to login if unauthenticated
   useEffect(() => {
-    const savedToken = localStorage.getItem("token");
-    const account = MOCK_ACCOUNTS.find((acc) => acc.email === savedToken) || MOCK_ACCOUNTS[0];
-    setCurrentUser(account);
-    localStorage.setItem("token", account.email);
-  }, []);
+    if (!authLoading && !user) {
+      navigate("/auth?tab=login", { replace: true });
+    }
+  }, [authLoading, user, navigate]);
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!user) return;
+
     const loadBookings = async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetchMyBookings({ page, size, sort: "bookedAt,desc" });
+        const params = { page, size, sort: "bookedAt,desc" };
+        if (activeTab !== "ALL") params.status = activeTab;
+
+        const res = await fetchMyBookings(params);
         if (res.code === 200 && res.data) {
-          const allContent = res.data.content || [];
-          const filtered = activeTab === "ALL" ? allContent : allContent.filter((b) => b.status === activeTab);
-          setBookings(filtered);
+          setBookings(res.data.content || []);
           setTotalPages(res.data.totalPages || 0);
         } else {
           throw new Error(res.message || "Failed to load bookings");
@@ -55,15 +63,9 @@ const BookingHistory = () => {
         setLoading(false);
       }
     };
-    loadBookings();
-  }, [currentUser, page, activeTab]);
 
-  const handleSwitchUser = (account) => {
-    setCurrentUser(account);
-    localStorage.setItem("token", account.email);
-    setPage(0);
-    setBookings([]);
-  };
+    loadBookings();
+  }, [user, page, activeTab]);
 
   const formatPrice = (price) =>
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
@@ -75,10 +77,13 @@ const BookingHistory = () => {
     });
   };
 
-  const TAB_LABELS = {
-    ALL: "Tất cả", PENDING: "Chờ thanh toán",
-    CONFIRMED: "Đã xác nhận", COMPLETED: "Đã hoàn thành", CANCELLED: "Đã hủy",
-  };
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-10 h-10 border-4 border-[#012d1d] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#f7f9f6] min-h-screen">
@@ -92,45 +97,21 @@ const BookingHistory = () => {
       />
 
       <main className="max-w-3xl mx-auto px-4 py-8">
-
-        {/* JWT Auth Simulator Panel */}
-        <section className="bg-white border border-gray-200 rounded-2xl p-5 mb-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest bg-[#012d1d] text-white px-2.5 py-1 rounded-full">
-              JWT Auth Simulator
-            </span>
-            <h3 className="text-sm font-semibold text-gray-600">Đang kiểm thử với tài khoản:</h3>
+        {/* User Info */}
+        {user && (
+          <div className="bg-white border border-gray-200 rounded-2xl p-5 mb-6 shadow-sm flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-[#012d1d]/10 flex items-center justify-center text-xl font-bold text-[#012d1d]">
+              {(user.displayName || user.email || "U").charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p className="font-bold text-gray-800">{user.displayName || "Người dùng"}</p>
+              <p className="text-xs text-gray-500">{user.email}</p>
+            </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {MOCK_ACCOUNTS.map((acc) => {
-              const isActive = currentUser?.email === acc.email;
-              return (
-                <button
-                  key={acc.email}
-                  onClick={() => handleSwitchUser(acc)}
-                  className={`flex items-center gap-3 p-3.5 rounded-xl border-2 text-left transition-all duration-200 ${
-                    isActive
-                      ? "border-[#012d1d] bg-emerald-50 shadow-md"
-                      : "border-gray-200 bg-white hover:border-gray-400 hover:bg-gray-50"
-                  }`}
-                >
-                  <span className="text-2xl w-9 h-9 flex items-center justify-center bg-gray-100 rounded-full shrink-0">
-                    {acc.avatar}
-                  </span>
-                  <div>
-                    <span className={`block text-sm font-bold ${isActive ? "text-[#012d1d]" : "text-gray-800"}`}>
-                      {acc.name}
-                    </span>
-                    <span className="block text-xs text-gray-500">{acc.email}</span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </section>
+        )}
 
         {/* Tab Filters */}
-        <div className="flex gap-1 border-b border-gray-200 mb-6 overflow-x-auto pb-px scrollbar-thin">
+        <div className="flex gap-1 border-b border-gray-200 mb-6 overflow-x-auto pb-px">
           {Object.entries(TAB_LABELS).map(([key, label]) => (
             <button
               key={key}
