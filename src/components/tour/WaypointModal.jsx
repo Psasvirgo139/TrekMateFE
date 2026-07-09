@@ -4,7 +4,7 @@ const WaypointModal = ({ show, onClose, onSave, waypoint = null, totalWaypoints 
   const [formData, setFormData] = useState({
     name: '',
     sequenceOrder: 1,
-    waypointType: 'CAMP',
+    waypointType: 'CAMP_SITE',
     lat: '',
     lng: '',
     elevationM: '',
@@ -13,7 +13,8 @@ const WaypointModal = ({ show, onClose, onSave, waypoint = null, totalWaypoints 
     hasShelter: false,
     hasPhoneSignal: false,
     hasFirstAid: false,
-    waterSource: ''
+    waterSource: 'NONE',
+    waterNotes: ''
   });
 
   const [validated, setValidated] = useState(false);
@@ -25,7 +26,7 @@ const WaypointModal = ({ show, onClose, onSave, waypoint = null, totalWaypoints 
         setFormData({
           name: waypoint.name || '',
           sequenceOrder: waypoint.sequenceOrder || 1,
-          waypointType: waypoint.waypointType || 'CAMP',
+          waypointType: waypoint.waypointType || 'CAMP_SITE',
           lat: waypoint.lat !== null && waypoint.lat !== undefined ? waypoint.lat : '',
           lng: waypoint.lng !== null && waypoint.lng !== undefined ? waypoint.lng : '',
           elevationM: waypoint.elevationM !== null && waypoint.elevationM !== undefined ? waypoint.elevationM : '',
@@ -34,13 +35,14 @@ const WaypointModal = ({ show, onClose, onSave, waypoint = null, totalWaypoints 
           hasShelter: !!waypoint.hasShelter,
           hasPhoneSignal: !!waypoint.hasPhoneSignal,
           hasFirstAid: !!waypoint.hasFirstAid,
-          waterSource: waypoint.waterSource || ''
+          waterSource: waypoint.waterSource || 'NONE',
+          waterNotes: waypoint.waterNotes || ''
         });
       } else {
         setFormData({
           name: '',
           sequenceOrder: totalWaypoints + 1,
-          waypointType: 'CAMP',
+          waypointType: 'CAMP_SITE',
           lat: '',
           lng: '',
           elevationM: '',
@@ -49,7 +51,8 @@ const WaypointModal = ({ show, onClose, onSave, waypoint = null, totalWaypoints 
           hasShelter: false,
           hasPhoneSignal: false,
           hasFirstAid: false,
-          waterSource: ''
+          waterSource: 'NONE',
+          waterNotes: ''
         });
       }
       setValidated(false);
@@ -153,13 +156,17 @@ const WaypointModal = ({ show, onClose, onSave, waypoint = null, totalWaypoints 
                   onChange={(e) => setFormData({...formData, waypointType: e.target.value})}
                   className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
                 >
-                  <option value="START">START</option>
-                  <option value="END">END</option>
-                  <option value="CAMP">CAMP</option>
+                  <option value="TRAILHEAD">TRAILHEAD</option>
+                  <option value="SUMMIT">SUMMIT</option>
+                  <option value="CAMP_SITE">CAMP SITE</option>
                   <option value="VIEWPOINT">VIEWPOINT</option>
                   <option value="REST_STOP">REST STOP</option>
                   <option value="WATER_SOURCE">WATER SOURCE</option>
-                  <option value="INTERMEDIATE">INTERMEDIATE</option>
+                  <option value="CHECKPOINT">CHECKPOINT</option>
+                  <option value="VILLAGE">VILLAGE</option>
+                  <option value="JUNCTION">JUNCTION</option>
+                  <option value="EMERGENCY_POINT">EMERGENCY POINT</option>
+                  <option value="RESUPPLY_POINT">RESUPPLY POINT</option>
                 </select>
               </div>
             </div>
@@ -220,18 +227,38 @@ const WaypointModal = ({ show, onClose, onSave, waypoint = null, totalWaypoints 
               </div>
             </div>
 
-            {/* Water Source Info */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                Water Source Info
-              </label>
-              <input 
-                type="text" 
-                placeholder="e.g., Natural stream / Bottles provided..."
-                value={formData.waterSource}
-                onChange={(e) => setFormData({...formData, waterSource: e.target.value})}
-                className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
-              />
+            {/* Water Source Info & Notes */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  Water Source
+                </label>
+                <select 
+                  value={formData.waterSource}
+                  onChange={(e) => setFormData({...formData, waterSource: e.target.value})}
+                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                >
+                  <option value="NONE">NONE</option>
+                  <option value="STREAM">STREAM</option>
+                  <option value="SPRING">SPRING</option>
+                  <option value="RIVER">RIVER</option>
+                  <option value="WATERFALL">WATERFALL</option>
+                  <option value="WELL">WELL</option>
+                  <option value="VILLAGE_TAP">VILLAGE TAP</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  Water Notes
+                </label>
+                <input 
+                  type="text" 
+                  placeholder="e.g. Small stream 100m from camp, boil before use..."
+                  value={formData.waterNotes}
+                  onChange={(e) => setFormData({...formData, waterNotes: e.target.value})}
+                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                />
+              </div>
             </div>
 
             {/* Checklist */}
@@ -247,7 +274,7 @@ const WaypointModal = ({ show, onClose, onSave, waypoint = null, totalWaypoints 
                     onChange={(e) => setFormData({...formData, hasToilet: e.target.checked})}
                     className="w-4 h-4 text-[#012d1d] border-gray-300 rounded focus:ring-[#012d1d]"
                   />
-                  <span>🚽 Toilet available</span>
+                  <span>Toilet available</span>
                 </label>
                 <label className="flex items-center space-x-2 text-sm text-gray-800 cursor-pointer">
                   <input 
@@ -256,7 +283,7 @@ const WaypointModal = ({ show, onClose, onSave, waypoint = null, totalWaypoints 
                     onChange={(e) => setFormData({...formData, hasShelter: e.target.checked})}
                     className="w-4 h-4 text-[#012d1d] border-gray-300 rounded focus:ring-[#012d1d]"
                   />
-                  <span>🛖 Rain shelter available</span>
+                  <span>Rain shelter available</span>
                 </label>
                 <label className="flex items-center space-x-2 text-sm text-gray-800 cursor-pointer">
                   <input 
@@ -265,7 +292,7 @@ const WaypointModal = ({ show, onClose, onSave, waypoint = null, totalWaypoints 
                     onChange={(e) => setFormData({...formData, hasPhoneSignal: e.target.checked})}
                     className="w-4 h-4 text-[#012d1d] border-gray-300 rounded focus:ring-[#012d1d]"
                   />
-                  <span>📶 Mobile signal available</span>
+                  <span>Mobile signal available</span>
                 </label>
                 <label className="flex items-center space-x-2 text-sm text-gray-800 cursor-pointer">
                   <input 
@@ -274,7 +301,7 @@ const WaypointModal = ({ show, onClose, onSave, waypoint = null, totalWaypoints 
                     onChange={(e) => setFormData({...formData, hasFirstAid: e.target.checked})}
                     className="w-4 h-4 text-[#012d1d] border-gray-300 rounded focus:ring-[#012d1d]"
                   />
-                  <span>🩺 First aid kit available</span>
+                  <span>First aid kit available</span>
                 </label>
               </div>
             </div>
