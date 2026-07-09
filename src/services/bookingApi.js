@@ -27,3 +27,21 @@ export const cancelBooking = async (id, reason) => {
   const response = await api.post(`/v1/bookings/${id}/cancel`, { reason });
   return response.data; // Trả về ApiResponse chứa BookingDetailResponse
 };
+
+/**
+ * Tạo đơn đặt tour mới
+ * @param {Object} payload - { departureId, numParticipants, isJoinTour, participantsInfo, specialRequests }
+ */
+export const createBooking = async (payload) => {
+  const response = await api.post('/v1/bookings', payload);
+  return response.data; // Trả về ApiResponse chứa BookingDetailResponse
+};
+
+/**
+ * Lấy danh sách các đợt khởi hành của tour (OPEN/SCHEDULED)
+ * @param {string} tourIdOrSlug - ID hoặc slug của tour
+ */
+export const fetchDeparturesByTour = async (tourIdOrSlug) => {
+  const response = await api.get(`/tours/${tourIdOrSlug}/departures`);
+  return response.data;
+};

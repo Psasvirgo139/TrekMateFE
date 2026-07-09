@@ -1,14 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import Header from "../../components/layout/Header";
 import api from "../../services/api";
 import RatingStars from "../../components/common/RatingStars";
+import ReviewSection from "../../components/review/ReviewSection";
+import * as bookingApi from "../../services/bookingApi";
+import { useAuth } from "../../context/AuthContext";
 
 const TourDetail = () => {
   const { idOrSlug } = useParams();
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+
   const [tour, setTour] = useState(null);
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState("");
+
+  // Booking widget states
+  const [departures, setDepartures] = useState([]);
+  const [selectedDeparture, setSelectedDeparture] = useState(null);
+  const [numParticipants, setNumParticipants] = useState(1);
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingError, setBookingError] = useState("");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -38,6 +51,74 @@ const TourDetail = () => {
     loadTour();
     return () => controller.abort();
   }, [idOrSlug]);
+
+  // Load departures when tour is loaded
+  useEffect(() => {
+    if (!idOrSlug) return;
+    const loadDepartures = async () => {
+      try {
+        const res = await bookingApi.fetchDeparturesByTour(idOrSlug);
+        const list = Array.isArray(res) ? res : (res?.data || []);
+        setDepartures(list);
+        if (list.length > 0) setSelectedDeparture(list[0]);
+      } catch (err) {
+        console.warn("Không thể tải đợt khởi hành:", err);
+      }
+    };
+    loadDepartures();
+  }, [idOrSlug]);
+
+  const handleBookNow = async () => {
+    if (!isAuthenticated) {
+      navigate("/auth?tab=login");
+      return;
+    }
+    if (!selectedDeparture) {
+      setBookingError("Vui lòng chọn đợt khởi hành.");
+      return;
+    }
+    if (numParticipants < 1 || numParticipants > (selectedDeparture.availableSlots || 1)) {
+      setBookingError(`Số người tham gia phải từ 1 đến ${selectedDeparture.availableSlots}.`);
+      return;
+    }
+
+    setBookingLoading(true);
+    setBookingError("");
+
+    try {
+      // Build participants info — minimum required field: fullName
+      const participantsInfo = Array.from({ length: numParticipants }, (_, i) => ({
+        fullName: i === 0 && user?.fullName ? user.fullName : `Thành viên ${i + 1}`,
+        isLeader: i === 0,
+      }));
+
+      const res = await bookingApi.createBooking({
+        departureId: selectedDeparture.id,
+        numParticipants: numParticipants,
+        isJoinTour: selectedDeparture.allowJoinTour || false,
+        participantsInfo,
+      });
+
+      const booking = res?.data;
+      if (!booking?.id) throw new Error("Không nhận được thông tin đặt tour.");
+
+      navigate("/payment", {
+        state: {
+          bookingId: booking.id,
+          amount: booking.totalPrice,
+          tourTitle: tour?.title,
+          bookingCode: booking.bookingCode,
+          departureDate: selectedDeparture.departureDate,
+        },
+      });
+    } catch (err) {
+      console.error("Lỗi tạo booking:", err);
+      const msg = err.response?.data?.message || err.message || "Không thể đặt tour. Vui lòng thử lại.";
+      setBookingError(msg);
+    } finally {
+      setBookingLoading(false);
+    }
+  };
 
   const coverImage = tour?.images?.find((image) => image?.isCover) || tour?.images?.[0];
   const heroImage =
@@ -338,6 +419,9 @@ const TourDetail = () => {
                   </div>
                 </section>
               )}
+
+              {/* Review Section */}
+              <ReviewSection tourId={tour.id} tourSlug={tour.slug} />
             </div>
 
             {/* Right Sticky Sidebar Widget (4 columns) */}
@@ -395,27 +479,113 @@ const TourDetail = () => {
                   )}
                 </div>
 
-                {/* Price */}
-                <div className="mb-6 bg-emerald-50/50 border border-emerald-100/70 p-4 rounded-2xl">
+                {/* Price — show from selected departure or fallback */}
+                <div className="mb-4 bg-emerald-50/50 border border-emerald-100/70 p-4 rounded-2xl">
                   <div className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">
-                    Giá trọn gói từ
+                    {selectedDeparture ? "Giá mỗi người" : "Giá trọn gói từ"}
                   </div>
                   <div className="text-3xl font-extrabold text-emerald-800">
-                    {formatPrice(getTourPrice(tour))}
+                    {formatPrice(
+                      selectedDeparture?.pricePerPerson
+                        ? parseFloat(selectedDeparture.pricePerPerson)
+                        : getTourPrice(tour)
+                    )}
                   </div>
+                  {selectedDeparture && numParticipants > 1 && (
+                    <div className="text-sm font-bold text-emerald-700 mt-1">
+                      Tổng: {formatPrice(parseFloat(selectedDeparture.pricePerPerson) * numParticipants)}
+                    </div>
+                  )}
                   <div className="text-[11px] text-gray-500 font-semibold mt-1">
-                    Giá đã bao gồm VAT và toàn bộ chi phí hướng dẫn, ăn uống trên đường.
+                    Giá đã bao gồm VAT và toàn bộ chi phí hướng dẫn, ăn uống.
                   </div>
                 </div>
 
+                {/* Departure Selector */}
+                {departures.length > 0 ? (
+                  <div className="mb-4 space-y-3">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                        Chọn ngày khởi hành
+                      </label>
+                      <select
+                        value={selectedDeparture?.id || ""}
+                        onChange={(e) => {
+                          const dep = departures.find(d => d.id === e.target.value);
+                          setSelectedDeparture(dep || null);
+                          setBookingError("");
+                        }}
+                        className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-700 outline-none focus:border-[#fea619] transition-all bg-white"
+                      >
+                        {departures.map(dep => (
+                          <option key={dep.id} value={dep.id}>
+                            {new Date(dep.departureDate).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                            {" — "}{formatPrice(parseFloat(dep.pricePerPerson))}/người
+                            {" · "}{dep.availableSlots} chỗ còn
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {selectedDeparture && (
+                      <div className="bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 text-[11px] text-gray-500 space-y-0.5">
+                        {selectedDeparture.returnDate && (
+                          <div>📅 Về: {new Date(selectedDeparture.returnDate).toLocaleDateString("vi-VN")}</div>
+                        )}
+                        {selectedDeparture.meetingPoint && (
+                          <div>📍 {selectedDeparture.meetingPoint}</div>
+                        )}
+                        <div className="text-emerald-600 font-semibold">✅ {selectedDeparture.availableSlots} chỗ còn trống</div>
+                      </div>
+                    )}
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                        Số người tham gia
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setNumParticipants(p => Math.max(1, p - 1))}
+                          className="w-9 h-9 rounded-xl border border-gray-200 bg-white flex items-center justify-center font-bold text-lg text-gray-600 hover:bg-gray-50 transition-all"
+                        >−</button>
+                        <span className="flex-1 text-center font-extrabold text-gray-800 text-lg">{numParticipants}</span>
+                        <button
+                          type="button"
+                          onClick={() => setNumParticipants(p => Math.min(selectedDeparture?.availableSlots || 10, p + 1))}
+                          className="w-9 h-9 rounded-xl border border-gray-200 bg-white flex items-center justify-center font-bold text-lg text-gray-600 hover:bg-gray-50 transition-all"
+                        >+</button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mb-4 bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs text-amber-700 font-semibold text-center">
+                    ⚠️ Hiện chưa có đợt khởi hành nào. Liên hệ để được tư vấn.
+                  </div>
+                )}
+
+                {/* Booking Error */}
+                {bookingError && (
+                  <div className="mb-3 bg-red-50 border border-red-100 rounded-xl px-3 py-2 text-xs text-red-600 font-semibold">
+                    ⚠️ {bookingError}
+                  </div>
+                )}
+
                 {/* CTA Button */}
-                <Link
-                  to="/payment"
-                  className="w-full py-4 bg-[#fea619] hover:bg-[#ffb638] text-[#012d1d] font-extrabold text-xs rounded-2xl shadow-lg shadow-[#fea619]/25 hover:shadow-xl transition-all duration-300 block text-center uppercase tracking-widest hover:-translate-y-0.5 active:scale-95"
+                <button
+                  type="button"
+                  onClick={handleBookNow}
+                  disabled={bookingLoading || departures.length === 0}
+                  className="w-full py-4 bg-[#fea619] hover:bg-[#ffb638] disabled:bg-gray-200 disabled:text-gray-400 text-[#012d1d] font-extrabold text-xs rounded-2xl shadow-lg shadow-[#fea619]/25 hover:shadow-xl transition-all duration-300 block text-center uppercase tracking-widest hover:-translate-y-0.5 active:scale-95 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:translate-y-0"
                 >
-                  Yêu Cầu Đặt Chuyến (Book Tour Now)
-                </Link>
+                  {bookingLoading
+                    ? "⏳ Đang xử lý..."
+                    : isAuthenticated
+                      ? "Đặt Tour Ngay"
+                      : "Đăng nhập để đặt tour"}
+                </button>
               </div>
+
 
               {/* Back to list CTA card */}
               <div className="bg-gray-50 rounded-3xl p-5 border border-gray-100 flex flex-col items-center text-center">

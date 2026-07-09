@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import PaymentStatusCard from "./components/PaymentStatusCard";
 import ReceiptBox from "./components/ReceiptBox";
+import api from "../../services/api";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -20,10 +21,10 @@ const PaymentSuccess = () => {
       }
 
       try {
-        const response = await fetch(`http://localhost:8080/api/v1/payments/payos/confirm/${orderCode}`);
-        const resData = await response.json();
+        const response = await api.get(`/v1/payments/payos/confirm/${orderCode}`);
+        const resData = response.data;
 
-        if (response.ok && resData.code === 200) {
+        if (resData.code === 200) {
           setPaymentDetails(resData.data);
           setStatus("success");
         } else {
@@ -32,7 +33,8 @@ const PaymentSuccess = () => {
       } catch (err) {
         console.error(err);
         setStatus("error");
-        setErrorMsg(err.message || "Lỗi kết nối hệ thống khi kiểm tra giao dịch.");
+        const msg = err.response?.data?.message || err.message || "Lỗi kết nối hệ thống khi kiểm tra giao dịch.";
+        setErrorMsg(msg);
       }
     };
 

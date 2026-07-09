@@ -1,22 +1,34 @@
 import React from 'react';
 
-const OrderSummary = ({ bookingId, amount, serviceName = "Tour Leo Núi Bạch Mã", duration = "2 ngày 1 đêm" }) => {
+const OrderSummary = ({ bookingId, amount, serviceName, departureDate, bookingCode }) => {
+  const formattedDate = departureDate
+    ? new Date(departureDate).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    : null;
+
   return (
     <div className="flex-[0.8] p-6 sm:p-10 bg-slate-950/40 flex flex-col">
       <h3 className="text-lg sm:text-xl font-bold mb-5 text-slate-100">Tóm tắt đơn hàng</h3>
       <div className="h-px bg-white/10 my-4" />
 
       <div className="flex justify-between text-sm mb-3">
-        <span className="text-slate-400">Dịch vụ</span>
-        <span className="text-slate-200 font-semibold">{serviceName}</span>
+        <span className="text-slate-400">Tour</span>
+        <span className="text-slate-200 font-semibold text-right max-w-[60%] line-clamp-2">
+          {serviceName || "Tour TrekMate"}
+        </span>
       </div>
-      <div className="flex justify-between text-sm mb-3">
-        <span className="text-slate-400">Thời lượng</span>
-        <span className="text-slate-200">{duration}</span>
-      </div>
+
+      {formattedDate && (
+        <div className="flex justify-between text-sm mb-3">
+          <span className="text-slate-400">Ngày khởi hành</span>
+          <span className="text-slate-200">{formattedDate}</span>
+        </div>
+      )}
+
       <div className="flex justify-between text-sm mb-3">
         <span className="text-slate-400">Mã đặt chỗ</span>
-        <span className="text-slate-200">#{bookingId}</span>
+        <span className="text-slate-200 font-mono text-xs">
+          {bookingCode || (bookingId ? `#${bookingId}` : '—')}
+        </span>
       </div>
 
       <div className="h-px bg-white/10 my-4" />
