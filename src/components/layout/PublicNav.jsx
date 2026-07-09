@@ -48,6 +48,12 @@ export default function PublicNav({ activePath }) {
           >
             Tour Management
           </Link>
+          <Link
+            to="/admin/guide-calendar"
+            className={`home-nav-link${currentPath.startsWith('/admin/guide-calendar') ? ' active' : ''}`}
+          >
+            Guide Schedule
+          </Link>
         </nav>
 
         <div className="home-header-right">
