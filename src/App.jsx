@@ -87,9 +87,9 @@ function AppRoutes() {
         </Route>
         <Route path="/" element={<Home />} />
         <Route path='/about' element={<About />} />
-        <Route path='/locations' element={<Locations />} />
+        <Route path='/locations' element={<ProtectedRoute><Locations /></ProtectedRoute>} />
         <Route path='/adventures' element={<Adventures />} />
-        <Route path='/tours/:idOrSlug' element={<TourDetail />} />
+        <Route path='/tours/:idOrSlug' element={<ProtectedRoute><TourDetail /></ProtectedRoute>} />
         <Route path='/contact' element={<Contact/>} />
         <Route path='/faq' element={<FAQ/>} />
         <Route

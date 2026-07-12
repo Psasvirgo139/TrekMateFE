@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAuth } from "../../context/AuthContext";
+import AuthNav from "./AuthNav";
 import Sidebar from "./Sidebar";
 
 const Header = ({
@@ -14,6 +16,7 @@ const Header = ({
 }) => {
   const [openSidebar, setOpenSidebar] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { user } = useAuth();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -47,21 +50,28 @@ const Header = ({
               <Link to="/contact" className="home-nav-link">
                 Contact
               </Link>
-              <Link to="/payment" className="home-nav-link">
-                Payment
-              </Link>
-              <Link to="/admin/tours" className="home-nav-link">
-                Tour Management
-              </Link>
+              {user && (
+                <Link to="/payment" className="home-nav-link">
+                  Payment
+                </Link>
+              )}
+              {user && (
+                <Link to="/admin/tours" className="home-nav-link">
+                  Tour Management
+                </Link>
+              )}
             </nav>
 
-            {!hideMenuButton && (
-              <div className="menu-btn" onClick={() => setOpenSidebar((previous) => !previous)}>
-                <div></div>
-                <div></div>
-                <div></div>
-              </div>
-            )}
+            <div className="header-right-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <AuthNav />
+              {!hideMenuButton && (
+                <div className="menu-btn" onClick={() => setOpenSidebar((previous) => !previous)}>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
