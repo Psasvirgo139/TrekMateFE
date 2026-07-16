@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Header from "../../components/layout/Header";
 import api from "../../services/api";
 import TourCard from "../../components/tour/TourCard";
@@ -8,13 +9,27 @@ import Pagination from "../../../src/components/common/Pagination";
 const LOCATIONS_HERO = "https://i.pinimg.com/1200x/16/05/3e/16053eb88478eadf2042ed560fccf86b.jpg";
 
 const Locations = () => {
-  // Query parameters state
-  const [search, setSearch] = useState("");
-  const [difficulty, setDifficulty] = useState("");
-  const [durationRange, setDurationRange] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Query parameters state initialized directly from URL
+  const [search, setSearch] = useState(() => searchParams.get("search") || "");
+  const [difficulty, setDifficulty] = useState(() => searchParams.get("difficulty") || "");
+  const [durationRange, setDurationRange] = useState(() => searchParams.get("durationRange") || "");
   const [sort, setSort] = useState("avgRating,desc");
   const [page, setPage] = useState(0);
   const [size] = useState(6);
+
+  // Sync URL query params to state
+  useEffect(() => {
+    const qSearch = searchParams.get("search") || "";
+    const qDifficulty = searchParams.get("difficulty") || "";
+    const qDuration = searchParams.get("durationRange") || "";
+    
+    setSearch(qSearch);
+    setDifficulty(qDifficulty);
+    setDurationRange(qDuration);
+    setPage(0);
+  }, [searchParams]);
 
   // API response state
   const [tours, setTours] = useState([]);
@@ -93,23 +108,29 @@ const Locations = () => {
   // Handle Search submit/enter
   const handleSearchKeyPress = (e) => {
     if (e.key === "Enter") {
-      setPage(0);
-      fetchTours();
+      const newParams = new URLSearchParams(searchParams);
+      if (search.trim()) {
+        newParams.set("search", search.trim());
+      } else {
+        newParams.delete("search");
+      }
+      setSearchParams(newParams);
     }
   };
 
   const handleSearchBlur = () => {
-    setPage(0);
-    fetchTours();
+    const newParams = new URLSearchParams(searchParams);
+    if (search.trim()) {
+      newParams.set("search", search.trim());
+    } else {
+      newParams.delete("search");
+    }
+    setSearchParams(newParams);
   };
 
   // Reset all filters
   const handleResetFilters = () => {
-    setSearch("");
-    setDifficulty("");
-    setDurationRange("");
-    setSort("avgRating,desc");
-    setPage(0);
+    setSearchParams({});
   };
 
   // Difficulty badge background styling mapping
@@ -165,8 +186,13 @@ const Locations = () => {
                   className="px-4 py-3.5 rounded-xl border border-gray-200/80 bg-white/50 focus:bg-white text-brand-dark cursor-pointer focus:outline-none focus:ring-4 focus:ring-brand-orange/20 focus:border-brand-orange transition-all duration-300"
                   value={difficulty}
                   onChange={(e) => {
-                    setDifficulty(e.target.value);
-                    setPage(0);
+                    const newParams = new URLSearchParams(searchParams);
+                    if (e.target.value) {
+                      newParams.set("difficulty", e.target.value);
+                    } else {
+                      newParams.delete("difficulty");
+                    }
+                    setSearchParams(newParams);
                   }}
                 >
                   <option value="">All difficulties</option>
@@ -184,8 +210,13 @@ const Locations = () => {
                   className="px-4 py-3.5 rounded-xl border border-gray-200/80 bg-white/50 focus:bg-white text-brand-dark cursor-pointer focus:outline-none focus:ring-4 focus:ring-brand-orange/20 focus:border-brand-orange transition-all duration-300"
                   value={durationRange}
                   onChange={(e) => {
-                    setDurationRange(e.target.value);
-                    setPage(0);
+                    const newParams = new URLSearchParams(searchParams);
+                    if (e.target.value) {
+                      newParams.set("durationRange", e.target.value);
+                    } else {
+                      newParams.delete("durationRange");
+                    }
+                    setSearchParams(newParams);
                   }}
                 >
                   <option value="">All durations</option>
