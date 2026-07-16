@@ -27,25 +27,19 @@ const Payment = () => {
     setError("");
 
     try {
-      let resData;
+      const endpoint = method === "PAYOS"
+        ? "/v1/payments/payos/create"
+        : "/v1/payments";
 
-      if (method === "PAYOS") {
-        const response = await api.post('/v1/payments/payos/create', {
-          bookingId: parseInt(bookingId),
-          amount: parseFloat(amount),
-          paymentMethod: method,
-        });
-        resData = response.data;
-      } else {
-        const response = await api.post('/v1/payments', {
-          bookingId: parseInt(bookingId),
-          amount: parseFloat(amount),
-          paymentMethod: method,
-        });
-        resData = response.data;
-      }
+      const response = await api.post(endpoint, {
+        bookingId: parseInt(bookingId),
+        amount: parseFloat(amount),
+        paymentMethod: method,
+      });
 
-      if (resData.code !== 200) {
+      const resData = response.data;
+
+      if (response.status !== 200 || resData.code !== 200) {
         throw new Error(resData.message || "Đã xảy ra lỗi khi tạo thanh toán");
       }
 

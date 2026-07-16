@@ -24,7 +24,7 @@ const PaymentSuccess = () => {
         const response = await api.get(`/v1/payments/payos/confirm/${orderCode}`);
         const resData = response.data;
 
-        if (resData.code === 200) {
+        if (response.status === 200 && resData.code === 200) {
           setPaymentDetails(resData.data);
           setStatus("success");
         } else {

@@ -53,6 +53,9 @@ const Header = ({
               <Link to="/admin/tours" className="home-nav-link">
                 Tour Management
               </Link>
+              <Link to="/admin/guide-calendar" className="home-nav-link">
+                 Guide Schedule
+              </Link>
             </nav>
 
             {!hideMenuButton && (

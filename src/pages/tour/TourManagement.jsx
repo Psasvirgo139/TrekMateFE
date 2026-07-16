@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getTours, createTour, deleteTour } from '../../services/tourManagementApi';
-import { ArrowLeft, Search, Edit2, Trash2, Plus, MapPin } from 'lucide-react';
+import { getTours, createTour, deleteTour, getTourCloneSource, addWaypoint, saveItinerary, addTourImage } from '../../services/tourManagementApi';
+import { ArrowLeft, Search, Edit2, Trash2, Plus, MapPin, Copy } from 'lucide-react';
 import CreateTourModal from '../../components/tour/CreateTourModal';
 import ConfirmDeleteModal from '../../components/tour/ConfirmDeleteModal';
 import Pagination from '../../components/common/Pagination';
@@ -25,6 +25,7 @@ const TourManagement = () => {
 
   // Modals visibility states
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
+  const [cloneSourceData, setCloneSourceData] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
 
   // Toast alert state
@@ -57,8 +58,7 @@ const TourManagement = () => {
       const params = {
         page,
         size,
-        sortBy: 'createdAt',
-        direction: 'DESC'
+        sort: 'createdAt,desc'
       };
       
       if (debouncedSearch.trim()) params.search = debouncedSearch.trim();
@@ -73,13 +73,13 @@ const TourManagement = () => {
         if (json.code === 200 && json.data) {
           const pageData = json.data;
           setTours(pageData.content || []);
-          setTotalElements(pageData.totalElements || 0);
-          setTotalPages(pageData.totalPages || 0);
+          setTotalElements(pageData.page?.totalElements ?? pageData.totalElements ?? 0);
+          setTotalPages(pageData.page?.totalPages ?? pageData.totalPages ?? 0);
         // Fallbacks for legacy/alternative formats
         } else if (json.content !== undefined) {
           setTours(json.content || []);
-          setTotalElements(json.totalElements || 0);
-          setTotalPages(json.totalPages || 0);
+          setTotalElements(json.page?.totalElements ?? json.totalElements ?? 0);
+          setTotalPages(json.page?.totalPages ?? json.totalPages ?? 0);
         } else if (Array.isArray(json)) {
           setTours(json);
           setTotalElements(json.length);
@@ -114,20 +114,130 @@ const TourManagement = () => {
   const handleCreate = async (formData) => {
     try {
       const response = await createTour(formData);
-      showToast('Tour created successfully! Redirecting...');
-      setIsNewModalOpen(false);
-      
-      if (response.data && response.data.id) {
-        setTimeout(() => {
-          navigate(`/admin/tours/${response.data.id}`);
-        }, 1200);
-      } else {
-        fetchToursData();
+      const newTour = response.data;
+      const newTourId = newTour ? newTour.id : null;
+
+      if (!newTourId) {
+        throw new Error("Failed to retrieve created tour ID");
       }
+
+      if (cloneSourceData) {
+        showToast('Creating waypoints, itineraries & images...', 'success');
+        
+        // 1. Copy waypoints
+        const oldToNewWpIdMap = {};
+        for (const wp of cloneSourceData.waypoints || []) {
+          const wpPayload = {
+            name: wp.name,
+            sequenceOrder: wp.sequenceOrder,
+            waypointType: wp.waypointType,
+            lat: wp.lat,
+            lng: wp.lng,
+            elevationM: wp.elevationM,
+            dayNumber: wp.dayNumber,
+            isDayEnd: wp.isDayEnd,
+            description: wp.description,
+            notesForGuide: wp.notesForGuide,
+            hasToilet: wp.hasToilet,
+            hasShelter: wp.hasShelter,
+            hasPhoneSignal: wp.hasPhoneSignal,
+            hasFirstAid: wp.hasFirstAid,
+            waterSource: wp.waterSource,
+            waterNotes: wp.waterNotes,
+            accommodation: wp.accommodation,
+            campsiteCapacity: wp.campsiteCapacity,
+            campsiteFeeVnd: wp.campsiteFeeVnd,
+            resupplyNotes: wp.resupplyNotes,
+            emergencyPhone: wp.emergencyPhone,
+            evacuationRouteNotes: wp.evacuationRouteNotes,
+            nearestHospital: wp.nearestHospital,
+            hospitalDistanceKm: wp.hospitalDistanceKm,
+            helicopterLanding: wp.helicopterLanding,
+            imageUrl: wp.imageUrl,
+            thumbnailUrl: wp.thumbnailUrl,
+            isActive: wp.isActive
+          };
+          const wpRes = await addWaypoint(newTourId, wpPayload);
+          const newWp = wpRes.data;
+          if (newWp && newWp.id) {
+            oldToNewWpIdMap[wp.id] = newWp.id;
+          }
+        }
+
+        // 2. Copy daily itineraries
+        for (const itin of cloneSourceData.dailyItinerary || []) {
+          const itinPayload = {
+            dayNumber: itin.dayNumber,
+            dayTitle: itin.dayTitle,
+            dayDescription: itin.dayDescription,
+            startWaypointId: oldToNewWpIdMap[itin.startWaypointId] || null,
+            endWaypointId: oldToNewWpIdMap[itin.endWaypointId] || null,
+            overnightWaypointId: oldToNewWpIdMap[itin.overnightWaypointId] || null,
+            distanceKm: itin.distanceKm,
+            elevationGainM: itin.elevationGainM,
+            elevationLossM: itin.elevationLossM,
+            walkingHoursMin: itin.walkingHoursMin,
+            walkingHoursMax: itin.walkingHoursMax,
+            dayDifficulty: itin.dayDifficulty,
+            suggestedStartTime: itin.suggestedStartTime,
+            suggestedEndTime: itin.suggestedEndTime,
+            mealsIncluded: itin.mealsIncluded,
+            mealNotes: itin.mealNotes,
+            overnightNotes: itin.overnightNotes,
+            safetyNotes: itin.safetyNotes,
+            guideNotes: itin.guideNotes,
+            sortOrder: itin.sortOrder,
+            waypointLinks: (itin.waypointLinks || []).map(link => ({
+              waypointId: oldToNewWpIdMap[link.waypointId],
+              visitOrder: link.visitOrder,
+              isMandatory: link.isMandatory,
+              visitNotes: link.visitNotes,
+              estimatedArrival: link.estimatedArrival
+            }))
+          };
+          await saveItinerary(newTourId, itinPayload);
+        }
+
+        // 3. Copy images
+        for (const img of cloneSourceData.images || []) {
+          const imgPayload = {
+            imageUrl: img.imageUrl,
+            caption: img.caption,
+            altText: img.altText,
+            isCover: img.isCover,
+            sortOrder: img.sortOrder
+          };
+          await addTourImage(newTourId, imgPayload);
+        }
+      }
+
+      showToast('Tour cloned successfully! Redirecting...');
+      setIsNewModalOpen(false);
+      setCloneSourceData(null);
+      
+      setTimeout(() => {
+        navigate(`/admin/tours/${newTourId}`);
+      }, 1200);
     } catch (error) {
       console.error(error);
       showToast('Failed to save the new tour!', 'danger');
       throw error;
+    }
+  };
+
+  const handleCloneClick = async (id) => {
+    try {
+      showToast('Fetching clone data from server...', 'success');
+      const response = await getTourCloneSource(id);
+      if (response.data) {
+        setCloneSourceData(response.data);
+        setIsNewModalOpen(true);
+      } else {
+        showToast('Failed to fetch clone source details.', 'danger');
+      }
+    } catch (error) {
+      console.error(error);
+      showToast('Error loading clone source details.', 'danger');
     }
   };
 
@@ -182,7 +292,7 @@ const TourManagement = () => {
       {/* Toast Alert */}
       {toast.visible && (
         <div 
-          className="fixed top-5 right-5 z-[10000] p-4 rounded-xl shadow-xl flex items-center justify-between gap-4 text-white bg-opacity-95 transform transition-all duration-300 animate-slide-in"
+          className="fixed top-5 right-5 z-[50000] p-4 rounded-xl shadow-xl flex items-center justify-between gap-4 text-white bg-opacity-95 transform transition-all duration-300 animate-slide-in"
           style={{ backgroundColor: toast.type === 'danger' ? '#dc2626' : '#10b981' }}
         >
           <div className="flex items-center gap-2">
@@ -250,6 +360,22 @@ const TourManagement = () => {
             }`}
           >
             Draft
+          </button>
+          <button 
+            onClick={() => setStatusTab('INACTIVE')}
+            className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
+              statusTab === 'INACTIVE' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'
+            }`}
+          >
+            Inactive
+          </button>
+          <button 
+            onClick={() => setStatusTab('ARCHIVED')}
+            className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
+              statusTab === 'ARCHIVED' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'
+            }`}
+          >
+            Archived
           </button>
         </div>
 
@@ -377,6 +503,13 @@ const TourManagement = () => {
                         <Edit2 size={16} />
                       </button>
                       <button 
+                        onClick={() => handleCloneClick(tour.id)}
+                        className="p-2 text-gray-500 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-colors focus:outline-none"
+                        title="Clone Tour"
+                      >
+                        <Copy size={16} />
+                      </button>
+                      <button 
                         onClick={() => setDeleteId(tour.id)}
                         className="p-2 text-gray-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors focus:outline-none"
                         title="Archive Tour"
@@ -410,8 +543,9 @@ const TourManagement = () => {
       {/* Create New Tour Modal */}
       <CreateTourModal 
         show={isNewModalOpen}
-        onClose={() => setIsNewModalOpen(false)}
+        onClose={() => { setIsNewModalOpen(false); setCloneSourceData(null); }}
         onSave={handleCreate}
+        initialData={cloneSourceData}
       />
 
       {/* Confirmation Modal */}
