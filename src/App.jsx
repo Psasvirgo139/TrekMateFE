@@ -17,6 +17,7 @@ import PaymentCancel from './pages/payment/PaymentCancel';
 import AuthPage from './pages/auth/AuthPage';
 import TourManagement from './pages/tour/TourManagement';
 import TourEditPage from './pages/tour/TourEditPage';
+import GuideCalendar from './pages/tour/GuideCalendar';
 import ScrollToTop from './components/common/ScrollToTop';
 import Footer from './components/layout/Footer';
 import GuideDashboardLayout from './layouts/GuideDashboardLayout';
@@ -124,6 +125,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute roles={['GUIDE', 'ADMIN']}>
               <TourEditPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/admin/guide-calendar'
+          element={
+            <ProtectedRoute roles={['GUIDE', 'ADMIN']}>
+              <GuideCalendar />
             </ProtectedRoute>
           }
         />
