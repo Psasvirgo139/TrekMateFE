@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { validateTourData, getValidNightsOptions } from '../../utils/validation';
-import SearchableLocationSelect from '../common/SearchableLocationSelect';
 
-const CreateTourModal = ({ show, onClose, onSave, initialData }) => {
+const CreateTourModal = ({ show, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     title: '',
     difficulty: 'EASY',
@@ -15,65 +13,27 @@ const CreateTourModal = ({ show, onClose, onSave, initialData }) => {
 
   const [validated, setValidated] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
-  const [useNightsDropdown, setUseNightsDropdown] = useState(true);
 
   useEffect(() => {
     if (show) {
-      if (initialData) {
-        setFormData({
-          title: initialData.title || '',
-          difficulty: initialData.difficulty || 'EASY',
-          durationDays: initialData.durationDays || 1,
-          durationNights: initialData.durationNights || 0,
-          startLocation: initialData.startLocation || '',
-          endLocation: initialData.endLocation || '',
-          status: initialData.status || 'DRAFT'
-        });
-      } else {
-        setFormData({
-          title: '',
-          difficulty: 'EASY',
-          durationDays: 1,
-          durationNights: 0,
-          startLocation: '',
-          endLocation: '',
-          status: 'DRAFT'
-        });
-      }
+      setFormData({
+        title: '',
+        difficulty: 'EASY',
+        durationDays: 1,
+        durationNights: 0,
+        startLocation: '',
+        endLocation: '',
+        status: 'DRAFT'
+      });
       setValidated(false);
       setSaving(false);
-      setErrors({});
-      setTouched({});
     }
-  }, [show, initialData]);
-
-  useEffect(() => {
-    const valErrors = validateTourData(formData);
-    setErrors(valErrors);
-  }, [formData]);
-
-  const handleBlur = (field) => {
-    setTouched(prev => ({ ...prev, [field]: true }));
-  };
-
-  const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    setTouched(prev => ({ ...prev, [field]: true }));
-  };
-
-  const hasErrors = Object.keys(errors).length > 0 || !formData.title.trim();
-
-  const showError = (field) => {
-    return errors[field] && (touched[field] || validated);
-  };
-
+  }, [show]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setValidated(true);
-    if (hasErrors) {
+    if (!formData.title.trim()) {
+      setValidated(true);
       return;
     }
 
@@ -174,82 +134,25 @@ const CreateTourModal = ({ show, onClose, onSave, initialData }) => {
                 </label>
                 <input 
                   type="number" 
-                  min="0" 
+                  min="1" 
                   required
                   value={formData.durationDays}
-                  onChange={(e) => {
-                    const days = e.target.value === '' ? '' : parseInt(e.target.value);
-                    let nights = formData.durationNights;
-                    
-                    if (useNightsDropdown && !isNaN(days) && days >= 0) {
-                      const validNights = getValidNightsOptions(days);
-                      if (validNights.length > 0 && !validNights.includes(nights)) {
-                        nights = validNights[0];
-                      }
-                    }
-                    
-                    setFormData(prev => ({
-                      ...prev,
-                      durationDays: days,
-                      durationNights: nights
-                    }));
-                  }}
-                  onBlur={() => handleBlur('durationDays')}
-                  className={`w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#012d1d]/20 transition-all ${
-                    showError('durationDays') 
-                      ? 'border-red-500 focus:border-red-500' 
-                      : 'border-gray-300 focus:border-[#012d1d]'
-                  }`}
+                  onChange={(e) => setFormData({...formData, durationDays: parseInt(e.target.value) || 1})}
+                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
                 />
-                {showError('durationDays') && (
-                  <p className="mt-1 text-xs text-red-500">{errors.durationDays}</p>
-                )}
               </div>
-              
               <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Duration Nights <span className="text-red-500">*</span>
-                  </label>
-                  <label className="flex items-center gap-1 text-[10px] text-gray-500 cursor-pointer select-none">
-                    <input 
-                      type="checkbox"
-                      checked={useNightsDropdown}
-                      onChange={(e) => setUseNightsDropdown(e.target.checked)}
-                      className="rounded text-[#012d1d] focus:ring-[#012d1d] w-3 h-3"
-                    />
-                    Use Dropdown
-                  </label>
-                </div>
-                
-                {useNightsDropdown ? (
-                  <select
-                    value={formData.durationNights}
-                    onChange={(e) => handleChange('durationNights', parseInt(e.target.value))}
-                    className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all bg-white"
-                  >
-                    {getValidNightsOptions(formData.durationDays).map(opt => (
-                      <option key={opt} value={opt}>{opt} nights</option>
-                    ))}
-                  </select>
-                ) : (
-                  <input 
-                    type="number" 
-                    min="0" 
-                    required
-                    value={formData.durationNights}
-                    onChange={(e) => handleChange('durationNights', e.target.value === '' ? '' : parseInt(e.target.value))}
-                    onBlur={() => handleBlur('durationNights')}
-                    className={`w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#012d1d]/20 transition-all ${
-                      showError('durationNights') 
-                        ? 'border-red-500 focus:border-red-500' 
-                        : 'border-gray-300 focus:border-[#012d1d]'
-                    }`}
-                  />
-                )}
-                {showError('durationNights') && !useNightsDropdown && (
-                  <p className="mt-1 text-xs text-red-500">{errors.durationNights}</p>
-                )}
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  Duration Nights <span className="text-red-500">*</span>
+                </label>
+                <input 
+                  type="number" 
+                  min="0" 
+                  required
+                  value={formData.durationNights}
+                  onChange={(e) => setFormData({...formData, durationNights: parseInt(e.target.value) || 0})}
+                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                />
               </div>
             </div>
 
@@ -257,31 +160,27 @@ const CreateTourModal = ({ show, onClose, onSave, initialData }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                  Start Location <span className="text-red-500">*</span>
+                  Start Location
                 </label>
-                <SearchableLocationSelect
-                  value={formData.startLocation}
-                  onChange={(val) => handleChange('startLocation', val)}
+                <input 
+                  type="text" 
                   placeholder="e.g., Da Nang City Center"
-                  error={showError('startLocation')}
+                  value={formData.startLocation}
+                  onChange={(e) => setFormData({...formData, startLocation: e.target.value})}
+                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
                 />
-                {showError('startLocation') && (
-                  <p className="mt-1 text-xs text-red-500">{errors.startLocation}</p>
-                )}
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                  End Location <span className="text-red-500">*</span>
+                  End Location
                 </label>
-                <SearchableLocationSelect
-                  value={formData.endLocation}
-                  onChange={(val) => handleChange('endLocation', val)}
+                <input 
+                  type="text" 
                   placeholder="e.g., Hoa Ninh, Hoa Vang"
-                  error={showError('endLocation')}
+                  value={formData.endLocation}
+                  onChange={(e) => setFormData({...formData, endLocation: e.target.value})}
+                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
                 />
-                {showError('endLocation') && (
-                  <p className="mt-1 text-xs text-red-500">{errors.endLocation}</p>
-                )}
               </div>
             </div>
           </div>
@@ -298,8 +197,8 @@ const CreateTourModal = ({ show, onClose, onSave, initialData }) => {
             </button>
             <button 
               type="submit" 
-              disabled={saving || hasErrors}
-              className="px-5 py-2 text-sm font-bold text-white bg-[#012d1d] hover:bg-[#0c432d] rounded-lg transition-colors duration-150 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={saving}
+              className="px-5 py-2 text-sm font-bold text-white bg-[#012d1d] hover:bg-[#0c432d] rounded-lg transition-colors duration-150 shadow-sm disabled:opacity-50"
             >
               {saving ? 'Saving...' : 'Create & Edit Details'}
             </button>
