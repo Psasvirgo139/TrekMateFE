@@ -11,7 +11,7 @@ export default function Pagination({
   itemsCount = 0,
   variant = 'text' // 'text', 'round'
 }) {
-  if (totalPages <= 1) return null;
+  if (totalPages === 0) return null;
 
   const isVi = locale === 'vi';
   const prevLabel = isVi ? '‹ Trước' : 'Previous';
@@ -23,6 +23,41 @@ export default function Pagination({
 
   const handleNext = () => {
     if (page < totalPages - 1) onPageChange(page + 1);
+  };
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 5;
+    
+    if (totalPages <= maxVisible) {
+      for (let i = 0; i < totalPages; i++) pages.push(i);
+    } else {
+      pages.push(0);
+      
+      let start = Math.max(1, page - 1);
+      let end = Math.min(totalPages - 2, page + 1);
+      
+      if (page <= 2) {
+        end = 3;
+      } else if (page >= totalPages - 3) {
+        start = totalPages - 4;
+      }
+      
+      if (start > 1) {
+        pages.push('ellipsis1');
+      }
+      
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      
+      if (end < totalPages - 2) {
+        pages.push('ellipsis2');
+      }
+      
+      pages.push(totalPages - 1);
+    }
+    return pages;
   };
 
   if (variant === 'round') {
@@ -63,25 +98,46 @@ export default function Pagination({
         </div>
       )}
       
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         <button
           type="button"
           disabled={page === 0}
           onClick={handlePrev}
-          className="px-4 py-2 text-xs font-semibold border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all focus:outline-none focus:ring-2 focus:ring-emerald-800/10"
+          className="px-3 py-1.5 text-xs font-semibold border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all focus:outline-none focus:ring-2 focus:ring-emerald-800/10"
         >
           {prevLabel}
         </button>
         
-        <span className="px-4 py-2 text-xs font-bold bg-[#012d1d] text-white rounded-lg">
-          {page + 1} / {totalPages}
-        </span>
+        {getPageNumbers().map((p, idx) => {
+          if (p === 'ellipsis1' || p === 'ellipsis2') {
+            return (
+              <span key={idx} className="px-2 text-xs text-gray-400 select-none">
+                ...
+              </span>
+            );
+          }
+          const isActive = page === p;
+          return (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => onPageChange(p)}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all focus:outline-none ${
+                isActive 
+                  ? 'bg-[#012d1d] text-white shadow-sm' 
+                  : 'border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-2 focus:ring-emerald-800/10'
+              }`}
+            >
+              {p + 1}
+            </button>
+          );
+        })}
         
         <button
           type="button"
           disabled={page === totalPages - 1}
           onClick={handleNext}
-          className="px-4 py-2 text-xs font-semibold border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all focus:outline-none focus:ring-2 focus:ring-emerald-800/10"
+          className="px-3 py-1.5 text-xs font-semibold border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all focus:outline-none focus:ring-2 focus:ring-emerald-800/10"
         >
           {nextLabel}
         </button>
