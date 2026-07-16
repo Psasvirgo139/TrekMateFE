@@ -8,6 +8,7 @@ import About from './pages/About';
 import Locations from './pages/tour/Locations';
 import Adventures from './pages/Adventures';
 import TourDetail from './pages/tour/TourDetail';
+import TourBooking from './pages/tour/TourBooking';
 import Contact from './pages/Contact';
 import FAQ from './pages/FAQ';
 import Payment from './pages/payment/Payment';
@@ -90,6 +91,14 @@ function AppRoutes() {
         <Route path='/locations' element={<Locations />} />
         <Route path='/adventures' element={<Adventures />} />
         <Route path='/tours/:idOrSlug' element={<TourDetail />} />
+        <Route
+          path='/tours/:idOrSlug/book'
+          element={
+            <ProtectedRoute>
+              <TourBooking />
+            </ProtectedRoute>
+          }
+        />
         <Route path='/contact' element={<Contact/>} />
         <Route path='/faq' element={<FAQ/>} />
         <Route
