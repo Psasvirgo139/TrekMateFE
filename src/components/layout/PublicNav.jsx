@@ -1,11 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import AuthNav from './AuthNav';
 import '../../pages/Home.css';
 
 export default function PublicNav({ activePath }) {
   const location = useLocation();
   const currentPath = activePath || location.pathname;
+  const { user } = useAuth();
 
   return (
     <header className="home-header">
@@ -36,33 +38,34 @@ export default function PublicNav({ activePath }) {
           >
             Contact
           </Link>
-          <Link
-            to="/payment"
-            className={`home-nav-link${currentPath === '/payment' ? ' active' : ''}`}
-          >
-            Payment
-          </Link>
-          <Link
-            to="/admin/tours"
-            className={`home-nav-link${currentPath.startsWith('/admin/tours') ? ' active' : ''}`}
-          >
-            Tour Management
-          </Link>
+          {user && (
+            <Link
+              to="/admin/tours"
+              className={`home-nav-link${currentPath.startsWith('/admin/tours') ? ' active' : ''}`}
+            >
+              Tour Management
+            </Link>
+          )}
+          {user && (
           <Link
             to="/admin/guide-calendar"
             className={`home-nav-link${currentPath.startsWith('/admin/guide-calendar') ? ' active' : ''}`}
           >
             Guide Schedule
           </Link>
+          )}
         </nav>
 
         <div className="home-header-right">
-          <Link to="/payment" className="home-button primary-button">
-            Book Now
-          </Link>
+          {user && (
+            <Link to="/payment" className="home-button primary-button">
+              Book Now
+            </Link>
+          )}
           <AuthNav />
         </div>
       </div>
     </header>
   );
 }
+
