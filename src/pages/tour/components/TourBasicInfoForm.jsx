@@ -1,6 +1,28 @@
 import React from 'react';
+import { getValidNightsOptions } from '../../../utils/validation';
+import SearchableLocationSelect from '../../../components/common/SearchableLocationSelect';
 
-export default function TourBasicInfoForm({ tour, onChange, handleTitleChange, generateSlug }) {
+export default function TourBasicInfoForm({ 
+  tour, 
+  onChange, 
+  handleTitleChange, 
+  generateSlug,
+  errors = {},
+  touched = {},
+  setTouched,
+  useNightsDropdown = true,
+  setUseNightsDropdown
+}) {
+  const handleBlur = (field) => {
+    if (setTouched) {
+      setTouched(prev => ({ ...prev, [field]: true }));
+    }
+  };
+
+  const showError = (field) => {
+    return errors[field] && touched[field];
+  };
+
   return (
     <div className="space-y-6">
       {/* General & Status */}
@@ -79,25 +101,93 @@ export default function TourBasicInfoForm({ tour, onChange, handleTitleChange, g
               </label>
               <input 
                 type="number" 
+                min="0"
                 required
                 placeholder="e.g., 3"
-                value={tour.durationDays || ''}
-                onChange={(e) => onChange({...tour, durationDays: e.target.value})}
-                className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                value={tour.durationDays !== undefined && tour.durationDays !== null ? tour.durationDays : ''}
+                onChange={(e) => {
+                  const days = e.target.value === '' ? '' : parseInt(e.target.value);
+                  let nights = tour.durationNights;
+                  
+                  if (useNightsDropdown && !isNaN(days) && days >= 0) {
+                    const validNights = getValidNightsOptions(days);
+                    if (validNights.length > 0 && !validNights.includes(nights)) {
+                      nights = validNights[0];
+                    }
+                  }
+                  
+                  onChange({
+                    ...tour,
+                    durationDays: days,
+                    durationNights: nights
+                  });
+                }}
+                onBlur={() => handleBlur('durationDays')}
+                className={`w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#012d1d]/20 transition-all ${
+                  showError('durationDays') 
+                    ? 'border-red-500 focus:border-red-500' 
+                    : 'border-gray-300 focus:border-[#012d1d]'
+                }`}
               />
+              {showError('durationDays') && (
+                <p className="mt-1 text-[11px] text-red-500 leading-tight">{errors.durationDays}</p>
+              )}
             </div>
+            
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                Duration (Nights) *
-              </label>
-              <input 
-                type="number" 
-                required
-                placeholder="e.g., 2"
-                value={tour.durationNights || ''}
-                onChange={(e) => onChange({...tour, durationNights: e.target.value})}
-                className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
-              />
+              <div className="flex justify-between items-center mb-1">
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Duration (Nights) *
+                </label>
+                <label className="flex items-center gap-1 text-[10px] text-gray-500 cursor-pointer select-none">
+                  <input 
+                    type="checkbox"
+                    checked={useNightsDropdown}
+                    onChange={(e) => setUseNightsDropdown(e.target.checked)}
+                    className="rounded text-[#012d1d] focus:ring-[#012d1d] w-3 h-3"
+                  />
+                  Use Dropdown
+                </label>
+              </div>
+              
+              {useNightsDropdown ? (
+                <select
+                  value={tour.durationNights !== undefined && tour.durationNights !== null ? tour.durationNights : 0}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    onChange({ ...tour, durationNights: val });
+                    if (setTouched) {
+                      setTouched(prev => ({ ...prev, durationNights: true }));
+                    }
+                  }}
+                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all bg-white"
+                >
+                  {getValidNightsOptions(tour.durationDays).map(opt => (
+                    <option key={opt} value={opt}>{opt} Đêm</option>
+                  ))}
+                </select>
+              ) : (
+                <input 
+                  type="number" 
+                  min="0"
+                  required
+                  placeholder="e.g., 2"
+                  value={tour.durationNights !== undefined && tour.durationNights !== null ? tour.durationNights : ''}
+                  onChange={(e) => {
+                    const val = e.target.value === '' ? '' : parseInt(e.target.value);
+                    onChange({ ...tour, durationNights: val });
+                  }}
+                  onBlur={() => handleBlur('durationNights')}
+                  className={`w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#012d1d]/20 transition-all ${
+                    showError('durationNights') 
+                      ? 'border-red-500 focus:border-red-500' 
+                      : 'border-gray-300 focus:border-[#012d1d]'
+                  }`}
+                />
+              )}
+              {showError('durationNights') && !useNightsDropdown && (
+                <p className="mt-1 text-[11px] text-red-500 leading-tight">{errors.durationNights}</p>
+              )}
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
@@ -173,27 +263,41 @@ export default function TourBasicInfoForm({ tour, onChange, handleTitleChange, g
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                Start Location (Name)
+                Start Location (Name) *
               </label>
-              <input 
-                type="text" 
-                placeholder="e.g., Sapa Town, Lao Cai"
+              <SearchableLocationSelect
                 value={tour.startLocation || ''}
-                onChange={(e) => onChange({...tour, startLocation: e.target.value})}
-                className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                onChange={(val) => {
+                  onChange({...tour, startLocation: val});
+                  if (setTouched) {
+                    setTouched(prev => ({ ...prev, startLocation: true }));
+                  }
+                }}
+                placeholder="e.g., Sapa Town, Lao Cai"
+                error={showError('startLocation')}
               />
+              {showError('startLocation') && (
+                <p className="mt-1 text-[11px] text-red-500 leading-tight">{errors.startLocation}</p>
+              )}
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                End Location (Name)
+                End Location (Name) *
               </label>
-              <input 
-                type="text" 
-                placeholder="e.g., Fansipan Summit"
+              <SearchableLocationSelect
                 value={tour.endLocation || ''}
-                onChange={(e) => onChange({...tour, endLocation: e.target.value})}
-                className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                onChange={(val) => {
+                  onChange({...tour, endLocation: val});
+                  if (setTouched) {
+                    setTouched(prev => ({ ...prev, endLocation: true }));
+                  }
+                }}
+                placeholder="e.g., Fansipan Summit"
+                error={showError('endLocation')}
               />
+              {showError('endLocation') && (
+                <p className="mt-1 text-[11px] text-red-500 leading-tight">{errors.endLocation}</p>
+              )}
             </div>
           </div>
 

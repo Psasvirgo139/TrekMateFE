@@ -33,6 +33,7 @@ const Sidebar = ({ open, setOpen }) => {
           <Link to='/contact'><li>Contact us</li></Link>
           <Link to='/faq'><li>FAQ</li></Link>
           <Link to='/admin/tours'><li>Tour Management</li></Link>
+          <Link to='/admin/guide-calendar'><li>Guide Calendar</li></Link>
         </ul>
 
         <img src={footerImg} alt="TrekMate" className="sidebar-footer-img" />

@@ -1,0 +1,466 @@
+/* Extra small devices (phones, <576px) */
+@media (max-width: 575px) {
+  .home-about-section {
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 95%;
+  }
+
+  .home-about-section .img-section img {
+    height: 300px;
+  }
+
+  .home-about-section .text-section {
+    width: 100%;
+  }
+
+  .section-heading {
+    font-size: 28px;
+  }
+
+  .section-subheading {
+    font-size: 20px;
+  }
+
+  .bottom-btns-heading {
+    font-size: 20px;
+  }
+
+  .home-about-section ul li {
+    padding: 0.6rem;
+    font-size: 14px;
+  }
+
+  .destinations-cards {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .destination-card{
+    margin-bottom: 5rem;
+  }
+
+  .destination-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+
+  .card-content {
+    width: 90%;
+    bottom: 0;
+    padding: 0.5rem 0.4rem;
+    bottom: -80px;
+  }
+
+  .card-content h3 {
+    font-size: 20px;
+  }
+
+  .card-content p {
+    font-size: 12px;
+  }
+
+  .footer-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 30px;
+  }
+
+  .footer-logo {
+    font-size: 28px;
+  }
+
+  .footer-col h4 {
+    font-size: 20px;
+  }
+
+  .footer-col p,
+  .footer-col ul li {
+    font-size: 14px;
+  }
+
+  .footer-bottom-img {
+    height: 250px;
+  }
+
+ .next-section-margin{
+  margin-top: 40rem;
+ }
+}
+
+/* Small devices (sm: 576px and up) */
+@media (min-width: 576px) and (max-width: 767px) {
+  .home-about-section {
+    flex-direction: column;
+    gap: 1.8rem;
+    width: 90%;
+  }
+
+  .home-about-section .img-section img {
+    height: 350px;
+  }
+
+  .home-about-section .text-section{
+    width:80%;
+    margin: auto;
+  }
+
+  .section-heading {
+    font-size: 32px;
+  }
+
+  .section-subheading {
+    font-size: 22px;
+  }
+
+  .bottom-btns-heading {
+    font-size: 22px;
+  }
+
+  .home-about-section ul li {
+    padding: 0.8rem;
+    font-size: 15px;
+  }
+
+  .destinations-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .destination-card{
+    margin-bottom: 4rem;
+  }
+
+  .destination-card img {
+    width: 100%;
+    height: 220px;
+  }
+
+  .card-content h3 {
+    font-size: 22px;
+  }
+
+  .card-content p {
+    font-size: 13px;
+  }
+
+  .footer-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 35px;
+  }
+
+  .footer-logo {
+    font-size: 30px;
+  }
+
+  .footer-col h4 {
+    font-size: 22px;
+  }
+
+  .footer-col p,
+  .footer-col ul li {
+    font-size: 14px;
+  }
+
+  .footer-bottom-img {
+    height: 300px;
+  }
+
+  .hero-content h2{
+  font-size: 30px;
+}
+
+.hero-content p{
+  font-size: 14px;
+}
+
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 32px;
+  }
+
+  .hero-small-title {
+    font-size: 20px;
+  }
+
+  .hero-bold-title {
+    font-size: 28px;
+  }
+
+  .hero-description {
+    font-size: 14px;
+  }
+
+  .vector-img-home-about,.vector-img-location,.plane-img-1,.plane-img-2,.plane-img-1-location,.plane-img-2-location{
+    display: none;
+  }
+}
+
+
+@media (max-width: 990px) {
+  .section-heading{
+    line-height: 1;
+  }
+}
+
+/* Medium devices (md: 768px and up) */
+@media (min-width: 768px) and (max-width: 991px) {
+  .home-about-section {
+    flex-direction: row;
+    gap: 1.5rem;
+    width: 90%;
+  }
+
+  .home-about-section .img-section img {
+    height: 400px;
+  }
+
+  .section-heading {
+    font-size: 34px;
+  }
+
+  .section-subheading {
+    font-size: 24px;
+  }
+
+  .bottom-btns-heading {
+    font-size: 22px;
+  }
+
+  .home-about-section ul li {
+    padding: 0.9rem;
+    font-size: 15px;
+  }
+
+  .destinations-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.8rem;
+  }
+
+  .destination-card img {
+    width: 100%;
+    height: 250px;
+  }
+
+  .card-content h3 {
+    font-size: 24px;
+  }
+
+  .card-content p {
+    font-size: 14px;
+  }
+
+  .full-textarea {
+    grid-row: span 3;
+    height: 170px;
+  }
+
+  .footer-top {
+    flex-wrap: wrap;
+    gap: 30px;
+  }
+
+  .footer-logo {
+    font-size: 34px;
+  }
+
+  .footer-col h4 {
+    font-size: 23px;
+  }
+
+  .footer-col p,
+  .footer-col ul li {
+    font-size: 15px;
+  }
+
+  .footer-bottom-img {
+    height: 350px;
+  }
+
+  .section-heading {
+    font-size: 34px;
+  }
+
+  .plane-img-1 {
+   display: none;
+}
+
+.plane-img-2 {
+   position: absolute;
+  top: 13.5%;   
+  right: 95%; 
+  transform: rotate(-125deg);
+}
+
+  .plane-img-1-location {
+    top: 89%;   
+  right: 0%; 
+  }
+
+  .plane-img-2-location {
+  top: 8%;   
+  right: -5%;
+  }
+
+
+}
+
+/* Large devices (lg: 992px and up) */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .home-about-section {
+    flex-direction: row;
+    gap: 2rem;
+    width: 95%;
+  }
+
+  .home-about-section .img-section img {
+    height: 450px;
+  }
+
+  .section-heading {
+    font-size: 36px;
+  }
+
+  .section-subheading {
+    font-size: 25px;
+  }
+
+  .bottom-btns-heading {
+    font-size: 23px;
+  }
+
+  .home-about-section ul li {
+    padding: 1rem;
+    font-size: 16px;
+  }
+
+  .destinations-cards {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  .destination-card img {
+    width: 100%;
+    height: 280px;
+  }
+
+  .card-content h3 {
+    font-size: 25px;
+    line-height: 1;
+  }
+
+  .card-content p {
+    font-size: 14px;
+  }
+
+
+  .footer-top {
+    gap: 35px;
+  }
+
+  .footer-logo {
+    font-size: 36px;
+  }
+
+  .footer-col h4 {
+    font-size: 24px;
+  }
+
+  .footer-col p,
+  .footer-col ul li {
+    font-size: 15px;
+  }
+
+  .footer-bottom-img {
+    height: 400px;
+  }
+
+  .section-heading {
+    font-size: 38px;
+  }
+
+  .plane-img-1 {
+   position: absolute;
+  top: 90%;   
+  right: 95%; 
+}
+
+.plane-img-2 {
+   position: absolute;
+  top: 17%;   
+  right: 95%; 
+  transform: rotate(-125deg);
+}
+
+  .plane-img-1-location {
+    top: 87%;   
+  right: 0%;
+  }
+
+}
+
+
+
+@media (min-width: 1500px) and (max-width: 2000px) {
+
+  .vector-img-home-about {
+   top: -25%;
+   right:85%;
+   width: 45%;
+}
+
+.plane-img-1 {
+   position: absolute;
+  top: 90%;   
+  right: 99%; 
+}
+
+.plane-img-2 {
+   position: absolute;
+  top: 15%;   
+  right: 100%; 
+}
+
+   .plane-img-1-location {
+    top: 89%;   
+  right: max(-15%, 55px); 
+  }
+
+  .plane-img-2-location {
+  top: 8%;   
+  right: -2%;
+  }
+
+  .vector-img-location {
+   width: 100%;
+   right: -30%;
+  }
+  
+}
+
+
+@media (min-width: 2000px) {
+
+  .vector-img-home-about {
+   top: -5%;
+   right:85%;
+   width: 45%;
+}
+
+.plane-img-1 {
+   position: absolute;
+  top: 90%;   
+  right: 85%; 
+}
+
+.plane-img-2 {
+   position: absolute;
+  top: 35%;   
+  right: 100%; 
+}
+}
+

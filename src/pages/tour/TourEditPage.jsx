@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { validateTourData } from '../../utils/validation';
 import { 
   getTourDetail, 
   updateTour, 
@@ -19,6 +20,8 @@ import TourTagsSection from './components/TourTagsSection';
 import TourWaypointList from './components/TourWaypointList';
 import TourDailyItineraryList from './components/TourDailyItineraryList';
 import TourGallerySection from './components/TourGallerySection';
+import TourDepartureList from './components/TourDepartureList';
+import ConfirmDeleteModal from '../../components/tour/ConfirmDeleteModal';
 
 const ArrowLeft = ({ size = 16, className = "" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
@@ -66,15 +69,29 @@ const TourEditPage = () => {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
   const [toast, setToast] = useState({ message: '', type: 'success', visible: false });
+  const [confirmModal, setConfirmModal] = useState({ show: false, title: '', message: '', onConfirm: null });
 
   // Main data states
   const [tour, setTour] = useState(null);
   const [waypoints, setWaypoints] = useState([]);
   const [itineraries, setItineraries] = useState([]);
   const [images, setImages] = useState([]);
+  const [departuresCount, setDeparturesCount] = useState(0);
 
   // Tag inputs state
   const [tagInputs, setTagInputs] = useState({ highlight: '', include: '', exclude: '', requirement: '' });
+
+  // Validation states
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [useNightsDropdown, setUseNightsDropdown] = useState(true);
+
+  useEffect(() => {
+    if (tour) {
+      const valErrors = validateTourData(tour);
+      setErrors(valErrors);
+    }
+  }, [tour]);
 
   // Waypoint Modal state
   const [isWpModalOpen, setIsWpModalOpen] = useState(false);
@@ -141,6 +158,10 @@ const TourEditPage = () => {
   // --- TAB 1: BASIC INFO ACTION ---
   const handleBasicInfoSubmit = async (e) => {
     e.preventDefault();
+    if (Object.keys(errors).length > 0) {
+      showToast('Please correct any data entry errors before saving!', 'danger');
+      return;
+    }
     try {
       const payload = {
         title: tour.title,
@@ -224,23 +245,34 @@ const TourEditPage = () => {
     }
   };
 
-  const handleDeleteWp = async (wpId) => {
-    if (!window.confirm('Are you sure you want to delete this waypoint?')) return;
-    try {
-      await deleteWaypoint(id, wpId);
-      showToast('Waypoint deleted successfully.');
-      fetchDetail();
-    } catch (error) {
-      console.error(error);
-      showToast('Failed to delete waypoint!', 'danger');
-    }
+  const handleDeleteWp = (wpId) => {
+    setConfirmModal({
+      show: true,
+      title: 'Confirm Deletion',
+      message: 'Are you sure you want to delete this waypoint? This action cannot be undone.',
+      onConfirm: async () => {
+        try {
+          await deleteWaypoint(id, wpId);
+          showToast('Waypoint deleted successfully.');
+          fetchDetail();
+        } catch (error) {
+          console.error(error);
+          showToast('Failed to delete waypoint!', 'danger');
+        }
+      }
+    });
   };
 
   // --- TAB 3: DAILY ITINERARY ACTION ---
   const addNewDayItinerary = () => {
-    const nextDay = itineraries.length + 1;
+    const maxDayNumber = itineraries.reduce((max, it) => {
+      const num = parseInt(it.dayNumber);
+      return (!isNaN(num) && num > max) ? num : max;
+    }, 0);
+    const nextDay = maxDayNumber + 1;
     const newDay = {
       id: 'it-new-' + Math.random().toString(36).substr(2, 9),
+      dayNumber: nextDay,
       dayTitle: `Day ${nextDay}: Enter itinerary title`,
       dayDescription: 'Enter trekking details for today...',
       startWaypointId: waypoints[0]?.id || '',
@@ -276,6 +308,7 @@ const TourEditPage = () => {
   const handleSaveItinerary = async (it) => {
     const payload = {
       id: it.id.startsWith('it-new-') ? null : it.id,
+      dayNumber: it.dayNumber,
       dayTitle: it.dayTitle,
       dayDescription: it.dayDescription,
       startWaypointId: it.startWaypointId || null,
@@ -305,22 +338,26 @@ const TourEditPage = () => {
     }
   };
 
-  const handleDeleteItinerary = async (itId) => {
-    if (!window.confirm('Are you sure you want to delete this itinerary day?')) return;
-    
-    if (itId.startsWith('it-new-')) {
-      setItineraries(prev => prev.filter(it => it.id !== itId));
-      return;
-    }
-
-    try {
-      await deleteItinerary(id, itId);
-      showToast('Itinerary day deleted successfully.');
-      fetchDetail();
-    } catch (error) {
-      console.error(error);
-      showToast('Failed to delete itinerary day on the backend!', 'danger');
-    }
+  const handleDeleteItinerary = (itId) => {
+    setConfirmModal({
+      show: true,
+      title: 'Confirm Deletion',
+      message: 'Are you sure you want to delete this itinerary day? This action cannot be undone.',
+      onConfirm: async () => {
+        if (itId.startsWith('it-new-')) {
+          setItineraries(prev => prev.filter(it => it.id !== itId));
+          return;
+        }
+        try {
+          await deleteItinerary(id, itId);
+          showToast('Itinerary day deleted successfully.');
+          fetchDetail();
+        } catch (error) {
+          console.error(error);
+          showToast('Failed to delete itinerary day on the backend!', 'danger');
+        }
+      }
+    });
   };
 
   const toggleWaypointInDay = (itId, wpId) => {
@@ -375,16 +412,24 @@ const TourEditPage = () => {
     }
   };
 
-  const handleDeleteImage = async (imgId) => {
-    if (!window.confirm('Are you sure you want to delete this image?')) return;
-    try {
-      await deleteTourImage(id, imgId);
-      showToast('Deleted image successfully!');
-      fetchDetail();
-    } catch (error) {
-      console.error(error);
-      showToast('Failed to delete image on the backend!', 'danger');
-    }
+  const handleDeleteImage = (imgId) => {
+    setConfirmModal({
+      show: true,
+      title: 'Confirm photo Delete',
+      message: 'Are you sure you want to delete this image from the tour?',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      onConfirm: async () => {
+        try {
+          await deleteTourImage(id, imgId);
+          showToast('Successfully deleted image!');
+          fetchDetail();
+        } catch (error) {
+          console.error(error);
+          showToast('Failed to delete image!', 'danger');
+        }
+      }
+    });
   };
 
   if (loading) {
@@ -416,6 +461,7 @@ const TourEditPage = () => {
     { id: 'waypoints', label: `Waypoints (${waypoints.length})` },
     { id: 'itinerary', label: `Daily Itinerary (${itineraries.length})` },
     { id: 'gallery', label: `Image Gallery (${images.length})` },
+    { id: 'departures', label: `Departures (${departuresCount})` }
   ];
 
   return (
@@ -423,7 +469,7 @@ const TourEditPage = () => {
       {/* Toast Alert */}
       {toast.visible && (
         <div 
-          className="fixed top-5 right-5 z-[10000] p-4 rounded-xl shadow-xl flex items-center justify-between gap-4 text-white bg-opacity-95 transform transition-all duration-300 animate-slide-in"
+          className="fixed top-5 right-5 z-[50000] p-4 rounded-xl shadow-xl flex items-center justify-between gap-4 text-white bg-opacity-95 transform transition-all duration-300 animate-slide-in"
           style={{ backgroundColor: toast.type === 'danger' ? '#dc2626' : '#10b981' }}
         >
           <div className="flex items-center gap-2">
@@ -487,20 +533,23 @@ const TourEditPage = () => {
               onChange={setTour}
               handleTitleChange={handleTitleChange}
               generateSlug={generateSlug}
+              errors={errors}
+              touched={touched}
+              setTouched={setTouched}
+              useNightsDropdown={useNightsDropdown}
+              setUseNightsDropdown={setUseNightsDropdown}
             />
             
             <TourTagsSection
               tour={tour}
-              tagInputs={tagInputs}
-              onChangeTagInputs={setTagInputs}
-              addTag={addTag}
-              removeTag={removeTag}
+              onChange={(updatedFields) => setTour(prev => ({ ...prev, ...updatedFields }))}
             />
 
             <div className="flex justify-end pt-4">
               <button 
                 type="submit" 
-                className="bg-[#012d1d] hover:bg-[#0c432d] text-white px-8 py-3.5 font-bold rounded-lg transition-all shadow-md hover:-translate-y-0.5"
+                disabled={Object.keys(errors).length > 0}
+                className="bg-[#012d1d] hover:bg-[#0c432d] text-white px-8 py-3.5 font-bold rounded-lg transition-all shadow-md hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Save All Changes
               </button>
@@ -543,6 +592,16 @@ const TourEditPage = () => {
             onDeleteImage={handleDeleteImage}
           />
         )}
+
+        {/* TAB 5: DEPARTURES */}
+        <div style={{ display: activeTab === 'departures' ? 'block' : 'none' }}>
+          <TourDepartureList
+            tourId={id}
+            durationDays={tour?.durationDays || 1}
+            showToast={showToast}
+            onDeparturesChange={setDeparturesCount}
+          />
+        </div>
       </div>
 
       {/* Waypoint Modal */}
@@ -552,6 +611,20 @@ const TourEditPage = () => {
         onSave={handleWpSubmit}
         waypoint={currentWp}
         totalWaypoints={waypoints.length}
+      />
+
+      {/* Custom Confirmation Modal */}
+      <ConfirmDeleteModal 
+        show={confirmModal.show}
+        onClose={() => setConfirmModal({ show: false, title: '', message: '', onConfirm: null })}
+        onConfirm={() => {
+          if (confirmModal.onConfirm) confirmModal.onConfirm();
+          setConfirmModal({ show: false, title: '', message: '', onConfirm: null });
+        }}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText}
+        cancelText={confirmModal.cancelText}
       />
     </div>
   );

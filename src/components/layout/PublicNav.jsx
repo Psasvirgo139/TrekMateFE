@@ -40,19 +40,19 @@ export default function PublicNav({ activePath }) {
           </Link>
           {user && (
             <Link
-              to="/payment"
-              className={`home-nav-link${currentPath === '/payment' ? ' active' : ''}`}
-            >
-              Payment
-            </Link>
-          )}
-          {user && (
-            <Link
               to="/admin/tours"
               className={`home-nav-link${currentPath.startsWith('/admin/tours') ? ' active' : ''}`}
             >
               Tour Management
             </Link>
+          )}
+          {user && (
+          <Link
+            to="/admin/guide-calendar"
+            className={`home-nav-link${currentPath.startsWith('/admin/guide-calendar') ? ' active' : ''}`}
+          >
+            Guide Schedule
+          </Link>
           )}
         </nav>
 

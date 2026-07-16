@@ -51,14 +51,14 @@ const Header = ({
                 Contact
               </Link>
               {user && (
-                <Link to="/payment" className="home-nav-link">
-                  Payment
-                </Link>
-              )}
-              {user && (
                 <Link to="/admin/tours" className="home-nav-link">
                   Tour Management
                 </Link>
+              )}
+              {user && (
+              <Link to="/admin/guide-calendar" className="home-nav-link">
+                 Guide Schedule
+              </Link>
               )}
             </nav>
 

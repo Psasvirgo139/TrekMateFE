@@ -2,17 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import RatingStars from '../common/RatingStars';
 
-// Local images fallbacks
-import dest1 from "../../images/destination-1.webp";
-import dest2 from "../../images/destination-2.webp";
-import dest3 from "../../images/destination-3.webp";
-
-const getTourImage = (slug) => {
-  if (slug === "fansipan-summit") return dest3;
-  if (slug === "ta-nang-phan-dung") return dest2;
-  if (slug === "ma-pi-leng-trek") return dest1;
-  return dest1;
+// Destination image URLs by tour slug
+const TOUR_IMAGES = {
+  "fansipan-summit":   "https://th.bing.com/th/id/R.61592cdb830787d2db63d89a47975093?rik=t7vTn9hWFnmKQg&riu=http%3a%2f%2fhanoitouristvietnam.com%2fsites%2fdefault%2ffiles%2f2025%2f01%2f1-cam-nang-du-lich-sapa_0.png&ehk=yKPmTZ5amKrvH%2b1fncZ4EUCJYXk7nhZ9jpCWvVHgMi8%3d&risl=&pid=ImgRaw&r=0",
+  "ta-nang-phan-dung": "https://toongadventure.vn/wp-content/uploads/2023/03/Ta-nang-phan-dung-5.jpg",
+  "ma-pi-leng-trek":   "https://tse4.mm.bing.net/th/id/OIP.dI0u5MdxoC__CM1XUSwm0AHaFL?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
 };
+
+const getTourImage = (slug) => TOUR_IMAGES[slug] || TOUR_IMAGES["fansipan-summit"];
 
 const getDifficultyColor = (diff) => {
   if (!diff) return "bg-gray-500 text-white";
@@ -35,13 +32,15 @@ const formatPrice = (price) => {
 };
 
 export default function TourCard({ tour }) {
+  const coverImg = tour.coverUrl || getTourImage(tour.slug);
+
   return (
     <article className="group flex flex-col h-full bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-2 border border-gray-100/70 transition-all duration-300 relative">
       
       {/* Tour Image Header with Gradient Overlay */}
       <div className="relative h-56 overflow-hidden bg-slate-100">
         <img
-          src={getTourImage(tour.slug)}
+          src={coverImg}
           alt={tour.title}
           className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700"
           loading="lazy"
