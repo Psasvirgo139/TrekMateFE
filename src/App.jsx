@@ -23,6 +23,7 @@ import Footer from './components/layout/Footer';
 import GuideDashboardLayout from './layouts/GuideDashboardLayout';
 import UserManagement from './pages/guide/UserManagement';
 import GuidePlaceholder from './pages/guide/GuidePlaceholder';
+import EquipmentManagement from './pages/guide/EquipmentManagement';
 import UserProfileDemo from './pages/UserProfileDemo';
 
 import BookingHistory from './pages/BookingHistory';
@@ -50,6 +51,7 @@ function AppRoutes() {
         >
           <Route index element={<Navigate to="users" replace />} />
           <Route path="users" element={<UserManagement />} />
+          <Route path="equipment" element={<EquipmentManagement />} />
           <Route
             path="dashboard"
             element={
