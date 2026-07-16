@@ -1,0 +1,83 @@
+.site-footer {
+  background: #012d1d;
+  color: #eaf1ff;
+  padding: 4rem 24px 2.2rem;
+}
+
+.footer-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 2rem;
+}
+
+.footer-brand h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.55rem;
+  margin: 0 0 1rem;
+}
+
+.footer-brand p {
+  margin: 0 0 1.5rem;
+  max-width: 40ch;
+  line-height: 1.9;
+  color: rgba(234, 241, 255, 0.88);
+}
+
+.footer-copy {
+  color: rgba(234, 241, 255, 0.7);
+  font-size: 0.92rem;
+}
+
+.footer-group h4 {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fea619;
+}
+
+.footer-group ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.footer-link,
+.footer-contact-link {
+  color: rgba(234, 241, 255, 0.9);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-link:hover,
+.footer-contact-link:hover {
+  color: #ffffff;
+}
+
+.footer-contact-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.footer-contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+@media (max-width: 900px) {
+  .footer-container {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .footer-container {
+    grid-template-columns: 1fr;
+  }
+}

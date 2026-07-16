@@ -33,7 +33,8 @@ const PaymentSuccess = () => {
       } catch (err) {
         console.error(err);
         setStatus("error");
-        setErrorMsg(err.message || "Lỗi kết nối hệ thống khi kiểm tra giao dịch.");
+        const msg = err.response?.data?.message || err.message || "Lỗi kết nối hệ thống khi kiểm tra giao dịch.";
+        setErrorMsg(msg);
       }
     };
 

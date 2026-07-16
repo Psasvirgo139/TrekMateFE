@@ -1,14 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import PaymentMethodOption from "./components/PaymentMethodOption";
 import OrderSummary from "./components/OrderSummary";
 import api from "../../services/api";
 
 const Payment = () => {
-  const [bookingId, setBookingId] = useState("1");
-  const [amount, setAmount] = useState("250000");
+  const location = useLocation();
+  const [bookingId, setBookingId] = useState("");
+  const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("PAYOS");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (location.state?.bookingId) {
+      setBookingId(location.state.bookingId.toString());
+    }
+    if (location.state?.amount) {
+      setAmount(location.state.amount.toString());
+    }
+  }, [location]);
 
   const handlePayment = async (e) => {
     e.preventDefault();
@@ -35,16 +46,15 @@ const Payment = () => {
       const data = resData.data;
 
       if (method === "PAYOS" && data.checkoutUrl) {
-        // Redirect to PayOS checkout page
         window.location.href = data.checkoutUrl;
       } else {
-        // Manual payment success redirect
         alert("Yêu cầu thanh toán thủ công đã được gửi thành công!");
         window.location.href = "/";
       }
     } catch (err) {
       console.error(err);
-      setError(err.message || "Không thể kết nối đến máy chủ. Vui lòng thử lại!");
+      const msg = err.response?.data?.message || err.message || "Không thể kết nối đến máy chủ. Vui lòng thử lại!";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -143,7 +153,13 @@ const Payment = () => {
         </div>
 
         {/* Right Order Summary side */}
-        <OrderSummary bookingId={bookingId} amount={amount} />
+        <OrderSummary
+          bookingId={bookingId}
+          amount={amount}
+          serviceName={location.state?.tourTitle}
+          departureDate={location.state?.departureDate}
+          bookingCode={location.state?.bookingCode}
+        />
       </div>
     </div>
   );
