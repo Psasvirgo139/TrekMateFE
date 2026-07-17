@@ -4,12 +4,10 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Home from './pages/Home';
-import About from './pages/About';
 import Locations from './pages/tour/Locations';
 import Adventures from './pages/Adventures';
 import TourDetail from './pages/tour/TourDetail';
 import TourBooking from './pages/tour/TourBooking';
-import Contact from './pages/Contact';
 import FAQ from './pages/FAQ';
 import Payment from './pages/payment/Payment';
 import PaymentSuccess from './pages/payment/PaymentSuccess';
@@ -90,7 +88,7 @@ function AppRoutes() {
           />
         </Route>
         <Route path="/" element={<Home />} />
-        <Route path='/about' element={<About />} />
+        <Route path='/about' element={<Navigate to="/" state={{ scrollTo: "about-section" }} replace />} />
         <Route path='/locations' element={<Locations />} />
         <Route path='/adventures' element={<Adventures />} />
         <Route path='/tours/:idOrSlug' element={<TourDetail />} />
@@ -102,7 +100,7 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
-        <Route path='/contact' element={<Contact/>} />
+        <Route path='/contact' element={<Navigate to="/" state={{ scrollTo: "contact-section" }} replace />} />
         <Route path='/faq' element={<FAQ/>} />
         <Route
           path='/payment'
