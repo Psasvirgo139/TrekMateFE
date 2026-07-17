@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth, useHasRole } from "../../context/AuthContext";
 import AuthNav from "./AuthNav";
 import Sidebar from "./Sidebar";
 
@@ -16,8 +16,18 @@ const Header = ({
 }) => {
   const [openSidebar, setOpenSidebar] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [guideMenuOpen, setGuideMenuOpen] = useState(false);
+  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
   const { user } = useAuth();
-  
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isGuide = useHasRole('GUIDE');
+  const isAdmin = useHasRole('ADMIN');
+
+  const guideMenuRef = useRef(null);
+  const adminMenuRef = useRef(null);
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 18);
@@ -28,6 +38,32 @@ const Header = ({
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (guideMenuRef.current && !guideMenuRef.current.contains(e.target)) {
+        setGuideMenuOpen(false);
+      }
+      if (adminMenuRef.current && !adminMenuRef.current.contains(e.target)) {
+        setAdminMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Smart navigation: scroll on homepage, navigate with state from other pages
+  const handleScrollNavigation = (sectionId) => {
+    if (location.pathname === "/") {
+      const el = document.getElementById(sectionId);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      navigate("/", { state: { scrollTo: sectionId } });
+    }
+  };
 
   return (
     <>
@@ -41,24 +77,89 @@ const Header = ({
               <Link to="/" className="home-nav-link">
                 Home
               </Link>
-              <Link to="/locations" className="home-nav-link active">
+              <Link to="/locations" className="home-nav-link">
                 Tours
               </Link>
-              <Link to="/about" className="home-nav-link">
+              <a
+                href="#about-section"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleScrollNavigation("about-section");
+                }}
+                className="home-nav-link"
+              >
                 About Us
-              </Link>
-              <Link to="/contact" className="home-nav-link">
+              </a>
+              <a
+                href="#contact-section"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleScrollNavigation("contact-section");
+                }}
+                className="home-nav-link"
+              >
                 Contact
-              </Link>
-              {user && (
-                <Link to="/admin/tours" className="home-nav-link">
-                  Tour Management
-                </Link>
+              </a>
+
+              {/* Guide Menu Dropdown */}
+              {(isGuide || isAdmin) && (
+                <div className="nav-dropdown" ref={guideMenuRef}>
+                  <button
+                    className="home-nav-link nav-dropdown-trigger"
+                    onClick={() => {
+                      setGuideMenuOpen(prev => !prev);
+                      setAdminMenuOpen(false);
+                    }}
+                    type="button"
+                  >
+                    Guide Menu ▾
+                  </button>
+                  {guideMenuOpen && (
+                    <div className="nav-dropdown-menu">
+                      <Link
+                        to="/admin/tours"
+                        className="nav-dropdown-item"
+                        onClick={() => setGuideMenuOpen(false)}
+                      >
+                        📋 Tour Management
+                      </Link>
+                      <Link
+                        to="/admin/guide-calendar"
+                        className="nav-dropdown-item"
+                        onClick={() => setGuideMenuOpen(false)}
+                      >
+                        📅 Guide Calendar
+                      </Link>
+                    </div>
+                  )}
+                </div>
               )}
-              {user && (
-              <Link to="/admin/guide-calendar" className="home-nav-link">
-                 Guide Schedule
-              </Link>
+
+              {/* Admin Menu Dropdown */}
+              {isAdmin && (
+                <div className="nav-dropdown" ref={adminMenuRef}>
+                  <button
+                    className="home-nav-link nav-dropdown-trigger"
+                    onClick={() => {
+                      setAdminMenuOpen(prev => !prev);
+                      setGuideMenuOpen(false);
+                    }}
+                    type="button"
+                  >
+                    Admin Menu ▾
+                  </button>
+                  {adminMenuOpen && (
+                    <div className="nav-dropdown-menu">
+                      <Link
+                        to="/guide"
+                        className="nav-dropdown-item"
+                        onClick={() => setAdminMenuOpen(false)}
+                      >
+                        📊 Operations Dashboard
+                      </Link>
+                    </div>
+                  )}
+                </div>
               )}
             </nav>
 
@@ -131,3 +232,4 @@ const Header = ({
 };
 
 export default Header;
+

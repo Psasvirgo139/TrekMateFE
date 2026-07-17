@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
+import Header from "../components/layout/Header";
 import AuthNav from "../components/layout/AuthNav";
 import TourCard from "../components/tour/TourCard";
 import api from "../services/api";
@@ -11,6 +12,7 @@ const ABOUT_IMG = "https://i.pinimg.com/1200x/5e/a5/da/5ea5da76c4d2b0ff9b59033c5
 
 export default function Home() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
 
   // Hero search state
@@ -34,6 +36,23 @@ export default function Home() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Auto-scroll to section when navigated from other pages (About/Contact links)
+  useEffect(() => {
+    if (location.state?.scrollTo) {
+      const sectionId = location.state.scrollTo;
+      // Small delay to ensure the page is fully rendered
+      const timer = setTimeout(() => {
+        const el = document.getElementById(sectionId);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 300);
+      // Clear the state to prevent re-scrolling on re-renders
+      window.history.replaceState({}, document.title);
+      return () => clearTimeout(timer);
+    }
+  }, [location.state]);
 
   // Fetch featured tours from backend
   useEffect(() => {
@@ -82,12 +101,25 @@ export default function Home() {
   return (
     <div className="home-page">
 
+      {/* Shared Header Component — renders just the fixed navbar */}
+      <Header
+        bgImage="transparent"
+        hideMenuButton={true}
+        showDescription={false}
+      />
+
       {/* ──────────── HERO + HEADER ──────────── */}
       <section className="home-hero-section" style={{ backgroundImage: `url(${HERO_BG})` }}>
         {/* Dark Overlay */}
         <div className="home-hero-overlay" />
 
-        {/* HEADER — same pattern as site-header */}
+        {/* HEADER — using shared Header component via hideMenuButton prop override */}
+        {/* ============================================================
+         * [ARCHIVED] — Inline header code below has been replaced by
+         * the shared <Header /> component to unify navigation logic,
+         * role-based access control, and dropdown menus across
+         * all pages. This code is kept commented for historical reference.
+         * ============================================================
         <header className={`site-header ${scrolled ? "scrolled" : ""}`}>
           <div className="header-inner">
             <Link to="/" style={{ textDecoration: "none" }}>
@@ -126,6 +158,7 @@ export default function Home() {
             </div>
           </div>
         </header>
+        */}
 
         {/* Hero Content */}
         <div className="home-hero-content">

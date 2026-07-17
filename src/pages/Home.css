@@ -24,6 +24,23 @@
   overflow-x: hidden;
 }
 
+/* Collapse the Header component's hero-section wrapper on homepage
+   so only the fixed navbar is visible. The home-hero-section below
+   provides its own background image and hero content. */
+.home-page > .hero-section {
+  min-height: 0;
+  height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Hide the hero overlay and content inside collapsed Header hero on homepage */
+.home-page > .hero-section > .hero-overlay,
+.home-page > .hero-section > div:not(.hero-overlay):not(header) {
+  display: none;
+}
+
+
 /* ─────────────────────────────────────────────────
    HERO SECTION
 ────────────────────────────────────────────────── */

@@ -63,7 +63,7 @@ export default function TourBooking() {
 
         // Fetch Departures
         const depRes = await api.get(`/tours/${idOrSlug}/departures`);
-        const deps = depRes?.data?.data || [];
+        const deps = Array.isArray(depRes.data) ? depRes.data : (depRes.data?.data || []);
         
         // Filter OPEN/SCHEDULED departures that have slots and aren't past cutoff date
         const now = new Date();
@@ -81,8 +81,8 @@ export default function TourBooking() {
         }
 
         // Fetch Equipments
-        const equipRes = await api.get("/v1/equipments");
-        const equips = equipRes?.data?.data || [];
+        const equipRes = await api.get("/v1/rental/equipments");
+        const equips = equipRes?.data?.content || equipRes?.data?.data || [];
         setEquipments(equips);
         
         setStatus("success");
