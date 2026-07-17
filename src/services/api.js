@@ -21,7 +21,17 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const resData = response.data;
+    // Nếu response có dạng cấu trúc ApiResponse chuẩn { code, message, data }
+    if (resData && typeof resData === 'object' && 'code' in resData && 'message' in resData) {
+      if ('data' in resData) {
+        return resData.data; // trả về data nghiệp vụ
+      }
+      return resData; // trả về cả object nếu không có data field (ví dụ MessageResponse)
+    }
+    return resData; // trả về raw data của axios (ví dụ không bọc wrapper)
+  },
   (error) => {
     if (error.response?.status === 401) {
       handleUnauthorized();

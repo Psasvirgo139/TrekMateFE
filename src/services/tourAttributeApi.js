@@ -11,7 +11,7 @@ export const getTourAttributes = (type, search) => {
   if (search && search.trim() !== '') {
     params.search = search.trim();
   }
-  return api.get('/tour-attributes', { params }).then(r => r.data.data);
+  return api.get('/tour-attributes', { params });
 };
 
 /**
@@ -20,5 +20,5 @@ export const getTourAttributes = (type, search) => {
  * @returns {Promise} Axios promise
  */
 export const createTourAttribute = (attributeData) => {
-  return api.post('/tour-attributes', attributeData).then(r => r.data.data);
+  return api.post('/tour-attributes', attributeData);
 };
