@@ -35,18 +35,12 @@ export default function GuideCalendar() {
     try {
       // 1. Fetch schedules (occupied guides)
       const schedRes = await getGuideSchedules(firstDayStr, lastDayStr);
-      let schedData = [];
-      if (schedRes.data && schedRes.data.code === 200) {
-        schedData = schedRes.data.data || [];
-      }
+      const schedData = Array.isArray(schedRes) ? schedRes : [];
       setSchedules(schedData);
 
       // 2. Fetch available guides (non-occupied guides)
       const availRes = await getAvailableGuides(firstDayStr, lastDayStr);
-      let availData = [];
-      if (availRes.data && availRes.data.code === 200) {
-        availData = availRes.data.data || [];
-      }
+      const availData = Array.isArray(availRes) ? availRes : [];
 
       // 3. Combine unique guides list
       const guideMap = new Map();

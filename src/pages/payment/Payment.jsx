@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import PaymentMethodOption from "./components/PaymentMethodOption";
 import OrderSummary from "./components/OrderSummary";
-import api from "../../services/api";
+import { createPayOSPayment, makePayment } from "../../services/paymentApi";
 
 const Payment = () => {
   const location = useLocation();
@@ -27,23 +27,19 @@ const Payment = () => {
     setError("");
 
     try {
-      const endpoint = method === "PAYOS"
-        ? "/v1/payments/payos/create"
-        : "/v1/payments";
-
-      const response = await api.post(endpoint, {
+      const payload = {
         bookingId: parseInt(bookingId),
         amount: parseFloat(amount),
         paymentMethod: method,
-      });
+      };
 
-      const resData = response.data;
+      const data = method === "PAYOS"
+        ? await createPayOSPayment(payload)
+        : await makePayment(payload);
 
-      if (response.status !== 200 || resData.code !== 200) {
-        throw new Error(resData.message || "Đã xảy ra lỗi khi tạo thanh toán");
+      if (!data) {
+        throw new Error("Đã xảy ra lỗi khi tạo thanh toán");
       }
-
-      const data = resData.data;
 
       if (method === "PAYOS" && data.checkoutUrl) {
         window.location.href = data.checkoutUrl;

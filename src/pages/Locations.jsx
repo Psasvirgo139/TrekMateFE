@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Components/Header";
 import { Link } from "react-router-dom";
-import api from "../services/api";
+import { fetchPublicTours } from "../services/tourApi";
 
 // Import local images for page header & tour cards
 import LocationsHeroBg from "../Images/hero-slider-3.webp";
@@ -80,21 +80,10 @@ const Locations = () => {
       }
 
       // Axios call
-      const response = await api.get("/tours", { params: queryParams });
+      const json = await fetchPublicTours(queryParams);
       
-      if (response && response.status === 200 && response.data) {
-        const json = response.data;
-        // Handle standard API response layout from backend (code: 200 & data)
-        if (json.code === 200 && json.data) {
-          setTours(json.data.content || []);
-          setTotalPages(json.data.totalPages || 0);
-          setTotalElements(json.data.totalElements || 0);
-        // Fallbacks for legacy/alternative formats
-        } else if ((json.status === 200 || json.status === "200" || json.statusCode === 200) && json.data) {
-          setTours(json.data.content || []);
-          setTotalPages(json.data.totalPages || 0);
-          setTotalElements(json.data.totalElements || 0);
-        } else if (json.content !== undefined) {
+      if (json) {
+        if (json.content !== undefined) {
           setTours(json.content || []);
           setTotalPages(json.totalPages || 0);
           setTotalElements(json.totalElements || 0);
@@ -103,7 +92,7 @@ const Locations = () => {
           setTotalPages(1);
           setTotalElements(json.length);
         } else {
-          throw new Error(json.message || "Invalid API response structure");
+          throw new Error("Invalid API response structure");
         }
       }
     } catch (err) {

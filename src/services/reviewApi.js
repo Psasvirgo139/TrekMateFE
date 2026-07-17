@@ -7,7 +7,7 @@ import api from './api';
  */
 export const fetchReviewsByTour = async (tourId, params = {}) => {
   const response = await api.get(`/reviews/tour/${tourId}`, { params });
-  return response.data;
+  return response.data?.data;
 };
 
 /**
@@ -16,7 +16,7 @@ export const fetchReviewsByTour = async (tourId, params = {}) => {
  */
 export const fetchReviewSummary = async (tourId) => {
   const response = await api.get(`/reviews/tour/${tourId}/summary`);
-  return response.data;
+  return response.data?.data;
 };
 
 /**
@@ -25,7 +25,7 @@ export const fetchReviewSummary = async (tourId) => {
  */
 export const createReview = async (payload) => {
   const response = await api.post('/reviews', payload);
-  return response.data;
+  return response.data?.data;
 };
 
 /**
@@ -34,7 +34,7 @@ export const createReview = async (payload) => {
  */
 export const toggleHelpful = async (reviewId) => {
   const response = await api.post(`/reviews/${reviewId}/helpful`);
-  return response.data;
+  return response.data?.data;
 };
 
 /**
@@ -53,5 +53,5 @@ export const deleteReview = async (reviewId) => {
  */
 export const replyToReview = async (reviewId, payload) => {
   const response = await api.patch(`/reviews/${reviewId}/reply`, payload);
-  return response.data;
+  return response.data?.data;
 };

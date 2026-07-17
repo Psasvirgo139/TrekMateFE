@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Calendar, User, Plus, Minus, Info, AlertCircle, Check, Shield, FileText, ChevronRight, HelpCircle } from "lucide-react";
 import Header from "../../components/layout/Header";
-import api from "../../services/api";
+import { fetchAvailableEquipments } from "../../services/equipmentApi";
+import { fetchPublicTourDetail, fetchDeparturesByTour } from "../../services/tourApi";
+import { createBooking } from "../../services/bookingApi";
+import { createPayOSPayment } from "../../services/paymentApi";
 
 // Same destination images as TourCard & TourDetail
 const TOUR_IMAGES = {
@@ -55,15 +58,12 @@ export default function TourBooking() {
         setStatus("loading");
         
         // Fetch Tour Details
-        const tourRes = await api.get(`/tours/${idOrSlug}`);
-        if (!tourRes || tourRes.status !== 200 || !tourRes.data) {
-          throw new Error("Không tìm thấy dữ liệu tour.");
-        }
-        setTour(tourRes.data);
+        const tourData = await fetchPublicTourDetail(idOrSlug);
+        if (!tourData) throw new Error("Điều kiện tour không hợp lệ.");
+        setTour(tourData);
 
         // Fetch Departures
-        const depRes = await api.get(`/tours/${idOrSlug}/departures`);
-        const deps = Array.isArray(depRes.data) ? depRes.data : (depRes.data?.data || []);
+        const deps = await fetchDeparturesByTour(idOrSlug);
         
         // Filter OPEN/SCHEDULED departures that have slots and aren't past cutoff date
         const now = new Date();
@@ -81,8 +81,8 @@ export default function TourBooking() {
         }
 
         // Fetch Equipments
-        const equipRes = await api.get("/v1/rental/equipments");
-        const equips = equipRes?.data?.content || equipRes?.data?.data || [];
+        const equipRes = await fetchAvailableEquipments();
+        const equips = equipRes?.content || [];
         setEquipments(equips);
         
         setStatus("success");
@@ -317,26 +317,23 @@ export default function TourBooking() {
       };
 
       // 1. Create Booking (PENDING)
-      const bookingRes = await api.post("/v1/bookings", bookingPayload);
-      if (!bookingRes || bookingRes.status > 299 || !bookingRes.data) {
+      const bookingData = await createBooking(bookingPayload);
+      if (!bookingData) {
         throw new Error("No response from server while creating booking.");
       }
 
-      const bookingData = bookingRes.data.data;
       const createdBookingId = bookingData.id;
       const createdTotalPrice = bookingData.totalPrice;
 
       // 2. Create PayOS Payment Url
-      const paymentRes = await api.post("/v1/payments/payos/create", {
+      const paymentData = await createPayOSPayment({
         bookingId: createdBookingId,
         amount: createdTotalPrice
       });
 
-      if (!paymentRes || paymentRes.status !== 200 || !paymentRes.data?.data) {
+      if (!paymentData) {
         throw new Error("PayOS payment creation failed. You can retry payment from booking history.");
       }
-
-      const paymentData = paymentRes.data.data;
 
       if (paymentData.checkoutUrl) {
         // Redirect to PayOS checkout page

@@ -51,11 +51,11 @@ const BookingHistory = () => {
         if (activeTab !== "ALL") params.status = activeTab;
 
         const res = await fetchMyBookings(params);
-        if (res.code === 200 && res.data) {
-          setBookings(res.data.content || []);
-          setTotalPages(res.data.totalPages || 0);
+        if (res) {
+          setBookings(res.content || []);
+          setTotalPages(res.totalPages || 0);
         } else {
-          throw new Error(res.message || "Failed to load bookings");
+          throw new Error("Failed to load bookings");
         }
       } catch (err) {
         setError(err.response?.data?.message || err.message || "Không thể kết nối đến máy chủ.");

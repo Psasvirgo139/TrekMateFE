@@ -34,10 +34,10 @@ const BookingDetail = () => {
     setError(null);
     try {
       const res = await fetchBookingDetail(id);
-      if (res.code === 200 && res.data) {
-        setBooking(res.data);
+      if (res) {
+        setBooking(res);
       } else {
-        throw new Error(res.message || "Failed to load booking details");
+        throw new Error("Failed to load booking details");
       }
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Không thể tải thông tin đặt tour.");
@@ -58,12 +58,12 @@ const BookingDetail = () => {
     setCancelError("");
     try {
       const res = await cancelBooking(id, cancelReason);
-      if (res.code === 200 && res.data) {
-        setBooking(res.data);
+      if (res) {
+        setBooking(res);
         setShowCancelModal(false);
         setCancelReason("");
       } else {
-        throw new Error(res.message || "Hủy đặt tour thất bại");
+        throw new Error("Hủy đặt tour thất bại");
       }
     } catch (err) {
       setCancelError(err.response?.data?.message || err.message || "Lỗi khi hủy tour.");

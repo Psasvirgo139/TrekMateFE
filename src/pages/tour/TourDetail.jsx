@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import Header from "../../components/layout/Header";
-import api from "../../services/api";
 import RatingStars from "../../components/common/RatingStars";
 import ReviewSection from "../../components/review/ReviewSection";
 import * as bookingApi from "../../services/bookingApi";
+import { fetchPublicTourDetail } from "../../services/tourApi";
 import { useAuth } from "../../context/AuthContext";
 
 // Same destination images as TourCard
@@ -31,24 +31,24 @@ const TourDetail = () => {
   const [bookingError, setBookingError] = useState("");
 
   useEffect(() => {
-    const controller = new AbortController();
+    let active = true;
 
     const loadTour = async () => {
       try {
         setStatus("loading");
         setError("");
-        const response = await api.get(`/tours/${idOrSlug}`, {
-          signal: controller.signal,
-        });
+        const tourData = await fetchPublicTourDetail(idOrSlug);
         
-        if (response && response.status === 200 && response.data) {
-          setTour(response.data);
-          setStatus("success");
-        } else {
-          throw new Error("Tour details not found.");
+        if (active) {
+          if (tourData) {
+            setTour(tourData);
+            setStatus("success");
+          } else {
+            throw new Error("Tour details not found.");
+          }
         }
       } catch (err) {
-        if (err.name === "CanceledError" || err.name === "AbortError" || err.message === "canceled") return;
+        if (!active) return;
         console.error("Lỗi khi tải chi tiết tour:", err);
         setError(err.response?.data?.message || err.message || "An error occurred while loading tour details.");
         setStatus("error");
@@ -56,7 +56,9 @@ const TourDetail = () => {
     };
 
     loadTour();
-    return () => controller.abort();
+    return () => {
+      active = false;
+    };
   }, [idOrSlug]);
 
   // Load departures when tour is loaded
@@ -65,7 +67,8 @@ const TourDetail = () => {
     const loadDepartures = async () => {
       try {
         const res = await bookingApi.fetchDeparturesByTour(idOrSlug);
-        const list = Array.isArray(res) ? res : (res?.data || []);
+        // bookingApi.fetchDeparturesByTour đã trả thẳng mảng (response.data.data)
+        const list = Array.isArray(res) ? res : [];
         setDepartures(list);
         if (list.length > 0) setSelectedDeparture(list[0]);
       } catch (err) {
@@ -106,7 +109,7 @@ const TourDetail = () => {
         participantsInfo,
       });
 
-      const booking = res?.data;
+      const booking = res;
       if (!booking?.id) throw new Error("Không nhận được thông tin đặt tour.");
 
       navigate("/payment", {

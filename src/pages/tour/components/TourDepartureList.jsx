@@ -34,8 +34,8 @@ export default function TourDepartureList({ tourId, durationDays = 1, showToast,
         size, 
         sort: 'departureDate,asc'
       });
-      if (res.data && res.data.code === 200) {
-        const pageData = res.data.data;
+      if (res) {
+        const pageData = res;
         setDepartures(pageData.content || []);
         setTotalElements(pageData.page?.totalElements ?? pageData.totalElements ?? 0);
         setTotalPages(pageData.page?.totalPages ?? pageData.totalPages ?? 0);

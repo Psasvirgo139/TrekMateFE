@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Header from "../components/layout/Header";
 import AuthNav from "../components/layout/AuthNav";
 import TourCard from "../components/tour/TourCard";
-import api from "../services/api";
+import { fetchPublicTours } from "../services/tourApi";
 import "./Home.css";
 
 const HERO_BG = "https://i.pinimg.com/1200x/16/05/3e/16053eb88478eadf2042ed560fccf86b.jpg";
@@ -58,8 +58,8 @@ export default function Home() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await api.get("/tours", { params: { page: 0, size: 3, sort: "avgRating,desc" } });
-        if (res?.data?.content) setFeaturedTours(res.data.content);
+        const data = await fetchPublicTours({ page: 0, size: 3, sort: "avgRating,desc" });
+        if (data?.content) setFeaturedTours(data.content);
       } catch { /* silently fallback */ }
       finally { setLoadingTours(false); }
     };

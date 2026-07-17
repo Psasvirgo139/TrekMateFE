@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import Header from "../../components/layout/Header";
-import api from "../../services/api";
+import { fetchPublicTours } from "../../services/tourApi";
 import TourCard from "../../components/tour/TourCard";
 import TourSkeleton from "../../components/tour/TourSkeleton";
 import Pagination from "../../../src/components/common/Pagination";
@@ -65,21 +65,10 @@ const Locations = () => {
       }
 
       // Axios call
-      const response = await api.get("/tours", { params: queryParams });
+      const json = await fetchPublicTours(queryParams);
       
-      if (response && response.status === 200 && response.data) {
-        const json = response.data;
-        // Handle standard API response layout from backend (code: 200 & data)
-        if (json.code === 200 && json.data) {
-          setTours(json.data.content || []);
-          setTotalPages(json.data.totalPages || 0);
-          setTotalElements(json.data.totalElements || 0);
-        // Fallbacks for legacy/alternative formats
-        } else if ((json.status === 200 || json.status === "200" || json.statusCode === 200) && json.data) {
-          setTours(json.data.content || []);
-          setTotalPages(json.data.totalPages || 0);
-          setTotalElements(json.data.totalElements || 0);
-        } else if (json.content !== undefined) {
+      if (json) {
+        if (json.content !== undefined) {
           setTours(json.content || []);
           setTotalPages(json.totalPages || 0);
           setTotalElements(json.totalElements || 0);

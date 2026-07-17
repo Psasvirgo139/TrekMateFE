@@ -10,7 +10,7 @@ export const getLocations = (search) => {
   if (search && search.trim() !== '') {
     params.search = search.trim();
   }
-  return api.get('/locations', { params });
+  return api.get('/locations', { params }).then(r => r.data.data);
 };
 
 /**
@@ -19,5 +19,5 @@ export const getLocations = (search) => {
  * @returns {Promise} Axios promise
  */
 export const createLocation = (locationData) => {
-  return api.post('/locations', locationData);
+  return api.post('/locations', locationData).then(r => r.data.data);
 };

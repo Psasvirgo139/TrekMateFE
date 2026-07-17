@@ -67,16 +67,9 @@ const TourManagement = () => {
 
       const response = await getTours(params);
       
-      if (response.data) {
-        const json = response.data;
-        // Handle wrapped response: { code: 200, data: { content: [...] } }
-        if (json.code === 200 && json.data) {
-          const pageData = json.data;
-          setTours(pageData.content || []);
-          setTotalElements(pageData.page?.totalElements ?? pageData.totalElements ?? 0);
-          setTotalPages(pageData.page?.totalPages ?? pageData.totalPages ?? 0);
-        // Fallbacks for legacy/alternative formats
-        } else if (json.content !== undefined) {
+      if (response) {
+        const json = response;
+        if (json.content !== undefined) {
           setTours(json.content || []);
           setTotalElements(json.page?.totalElements ?? json.totalElements ?? 0);
           setTotalPages(json.page?.totalPages ?? json.totalPages ?? 0);
@@ -114,7 +107,7 @@ const TourManagement = () => {
   const handleCreate = async (formData) => {
     try {
       const response = await createTour(formData);
-      const newTour = response.data;
+      const newTour = response;
       const newTourId = newTour ? newTour.id : null;
 
       if (!newTourId) {
@@ -158,7 +151,7 @@ const TourManagement = () => {
             isActive: wp.isActive
           };
           const wpRes = await addWaypoint(newTourId, wpPayload);
-          const newWp = wpRes.data;
+          const newWp = wpRes;
           if (newWp && newWp.id) {
             oldToNewWpIdMap[wp.id] = newWp.id;
           }
@@ -229,8 +222,8 @@ const TourManagement = () => {
     try {
       showToast('Fetching clone data from server...', 'success');
       const response = await getTourCloneSource(id);
-      if (response.data) {
-        setCloneSourceData(response.data);
+      if (response) {
+        setCloneSourceData(response);
         setIsNewModalOpen(true);
       } else {
         showToast('Failed to fetch clone source details.', 'danger');
