@@ -17,7 +17,6 @@ const Header = ({
   const [openSidebar, setOpenSidebar] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [guideMenuOpen, setGuideMenuOpen] = useState(false);
-  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -26,7 +25,6 @@ const Header = ({
   const isAdmin = useHasRole('ADMIN');
 
   const guideMenuRef = useRef(null);
-  const adminMenuRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,9 +42,6 @@ const Header = ({
     const handleClickOutside = (e) => {
       if (guideMenuRef.current && !guideMenuRef.current.contains(e.target)) {
         setGuideMenuOpen(false);
-      }
-      if (adminMenuRef.current && !adminMenuRef.current.contains(e.target)) {
-        setAdminMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -108,7 +103,6 @@ const Header = ({
                     className="home-nav-link nav-dropdown-trigger"
                     onClick={() => {
                       setGuideMenuOpen(prev => !prev);
-                      setAdminMenuOpen(false);
                     }}
                     type="button"
                   >
@@ -135,31 +129,11 @@ const Header = ({
                 </div>
               )}
 
-              {/* Admin Menu Dropdown */}
+              {/* Admin direct link to Operations Dashboard */}
               {isAdmin && (
-                <div className="nav-dropdown" ref={adminMenuRef}>
-                  <button
-                    className="home-nav-link nav-dropdown-trigger"
-                    onClick={() => {
-                      setAdminMenuOpen(prev => !prev);
-                      setGuideMenuOpen(false);
-                    }}
-                    type="button"
-                  >
-                    Admin Menu ▾
-                  </button>
-                  {adminMenuOpen && (
-                    <div className="nav-dropdown-menu">
-                      <Link
-                        to="/guide"
-                        className="nav-dropdown-item"
-                        onClick={() => setAdminMenuOpen(false)}
-                      >
-                        📊 Operations Dashboard
-                      </Link>
-                    </div>
-                  )}
-                </div>
+                <Link to="/guide" className="home-nav-link">
+                  Operations Dashboard
+                </Link>
               )}
             </nav>
 
