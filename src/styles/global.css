@@ -31,9 +31,9 @@ body {
 }
 
 .hero-content {
-   position: absolute;
+  position: absolute;
   left: 50%;
-  bottom: 40px;       
+  bottom: 40px;
   transform: translateX(-50%);
   z-index: 10;
   text-align: center;
@@ -41,7 +41,8 @@ body {
   max-width: 1400px;
   width: 80%;
   padding: 0 20px;
-  z-index: 10;;
+  z-index: 10;
+  ;
 }
 
 .hero-content h2 {
@@ -70,11 +71,11 @@ body {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
-   z-index: 1;
+  z-index: 1;
 }
 
 .logo {
-  color: white; 
+  color: white;
   font-family: "Pirata One", cursive;
   font-size: 40px;
   font-weight: 600;
@@ -82,7 +83,7 @@ body {
 }
 
 .menu-btn {
-   position: relative;   
+  position: relative;
   cursor: pointer;
 }
 
@@ -100,7 +101,7 @@ body {
   width: 100%;
   height: 80px;
   z-index: 3000;
-  
+
   display: flex;
   align-items: center;
 
@@ -120,7 +121,7 @@ body {
   transition: transform 0.25s ease, letter-spacing 0.25s ease;
 }
 
-.header-inner a{
+.header-inner a {
   text-decoration: none;
 }
 
@@ -219,8 +220,15 @@ body {
 }
 
 @keyframes dropdownFadeIn {
-  from { opacity: 0; transform: translateX(-50%) translateY(-6px); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 .nav-dropdown-item {
@@ -253,7 +261,7 @@ body {
 
 @media (min-width: 992px) {
   .site-header .menu-btn {
-    display: none;
+    display: none !important;
   }
 }
 
@@ -273,7 +281,7 @@ body {
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .hero-title {
@@ -284,7 +292,7 @@ body {
   font-weight: 700;
   margin-bottom: 0;
   font-family: "Pirata One", cursive;
-   margin-top:2rem;  
+  margin-top: 2rem;
 }
 
 .hero-content-box {
@@ -347,13 +355,13 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  width: 280px;        
+  width: 280px;
   height: 100vh;
   background: #fff;
   z-index: 9999;
   padding: 20px;
   overflow-y: auto;
-  box-shadow: 4px 0 12px rgba(0,0,0,0.15);
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
 }
 
 .sidebar-backdrop {
@@ -410,11 +418,11 @@ body {
   cursor: pointer;
 }
 
-.sidebar a{
+.sidebar a {
   text-decoration: none;
   color: black;
   font-family: 'Montserrat', sans-serif;
-   text-align: center;
+  text-align: center;
 }
 
 .sidebar-footer-img {
@@ -422,21 +430,21 @@ body {
   margin-top: auto;
 }
 
-.white-bg-wrapper{
-  width:100%;
+.white-bg-wrapper {
+  width: 100%;
   background-color: #ffffff;
 }
 
-.home-about-section{
+.home-about-section {
   padding-top: 5rem;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   max-width: 1400px;
-  width:90%;
+  width: 90%;
   margin: auto;
-  gap:2rem;
+  gap: 2rem;
   padding-bottom: 5rem;
   position: relative;
 }
@@ -451,7 +459,7 @@ body {
   border-radius: 6px;
   object-fit: cover;
   position: relative;
-  z-index:5;
+  z-index: 5;
 }
 
 .home-about-section .text-section {
@@ -479,12 +487,13 @@ body {
   letter-spacing: 1px;
 }
 
-.home-about-section a{
+.home-about-section a {
   text-decoration: none;
   color: #787459;
 }
 
-.home-about-section ul,.seasons-section ul {
+.home-about-section ul,
+.seasons-section ul {
   list-style: none;
   padding: 0;
   display: flex;
@@ -492,7 +501,8 @@ body {
   gap: 10px;
 }
 
-.home-about-section ul li,.seasons-section ul li {
+.home-about-section ul li,
+.seasons-section ul li {
   border: 2px solid #76290D;
   font-family: 'Montserrat', sans-serif;
   padding: 1rem;
@@ -502,23 +512,24 @@ body {
   font-weight: 300;
 }
 
-.home-about-section ul li:hover,.seasons-section ul li:hover {
+.home-about-section ul li:hover,
+.seasons-section ul li:hover {
   background: #e7dccd;
   cursor: pointer;
 }
 
 .vector-img-home-about {
   position: absolute;
-   top: -10%;
-   right:75%;
+  top: -10%;
+  right: 75%;
   z-index: 1;
   pointer-events: none;
   overflow: hidden;
 }
 
 .plane-img-1 {
-   position: absolute;
-  top: 83%;  
+  position: absolute;
+  top: 83%;
   right: max(88%, 55px);
   width: 60px;
   height: auto;
@@ -528,9 +539,9 @@ body {
 }
 
 .plane-img-2 {
-   position: absolute;
-  top: 11.5%;  
-  right: 100%; 
+  position: absolute;
+  top: 11.5%;
+  right: 100%;
   width: 50px;
   height: auto;
   transform: rotate(-100deg);
@@ -539,11 +550,11 @@ body {
 }
 
 
-.text-section{
+.text-section {
   width: 40%;
 }
 
-.section-heading{
+.section-heading {
   font-family: "Pirata One", cursive;
   font-size: 42px;
   color: #76290D;
@@ -551,7 +562,7 @@ body {
   line-height: 0.5;
 }
 
-.section-subheading{
+.section-subheading {
   font-family: "Grenze Gotisch", serif;
   font-size: 30px;
   color: #787459;
@@ -559,7 +570,7 @@ body {
   line-height: 1;
 }
 
-.destinations-section{
+.destinations-section {
   width: 90%;
   max-width: 1400px;
   margin: auto;
@@ -568,37 +579,38 @@ body {
   position: relative;
 }
 
-.destinations-section .section-heading,.destinations-section .section-subheading{
+.destinations-section .section-heading,
+.destinations-section .section-subheading {
   text-align: center;
 }
 
-.destinations-section .section-subheading{
+.destinations-section .section-subheading {
   padding-top: 2rem;
 }
 
-.destinations-cards{
+.destinations-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
 }
 
-.destination-card{
+.destination-card {
   position: relative;
   display: inline-block;
-  overflow:visible;
+  overflow: visible;
   margin-bottom: 2rem;
 }
 
-.destination-card img{
+.destination-card img {
   display: block;
-  width: 100%;  
+  width: 100%;
   height: auto;
 }
 
-.card-content{
+.card-content {
   position: absolute;
   bottom: -40px;
-  left: 50%;             
+  left: 50%;
   transform: translateX(-50%);
   background: white;
   color: black;
@@ -606,14 +618,14 @@ body {
   border-radius: 8px;
   width: 80%;
   text-align: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.card-content h3{
+.card-content h3 {
   font-size: 26px;
 }
 
-.card-content p{
+.card-content p {
   font-family: 'Montserrat', sans-serif;
   color: #787459;
   font-size: 14px;
@@ -622,8 +634,8 @@ body {
 
 .vector-img-location {
   position: absolute;
-   top: -10%;
-   right:-15%;
+  top: -10%;
+  right: -15%;
   height: 110%;
   width: 50%;
   z-index: -1;
@@ -633,8 +645,8 @@ body {
 
 .plane-img-1-location {
   position: absolute;
-  top: 85%;   
-  right: max(-15%, 55px); 
+  top: 85%;
+  right: max(-15%, 55px);
   width: 60px;
   height: auto;
   transform: rotate(-125deg);
@@ -643,9 +655,9 @@ body {
 }
 
 .plane-img-2-location {
-   position: absolute;
-  top: 8%;   
-  right: -2%; 
+  position: absolute;
+  top: 8%;
+  right: -2%;
   width: 50px;
   height: auto;
   transform: rotate(10deg);
@@ -662,20 +674,20 @@ body {
   max-width: 1400px;
   margin: auto;
   display: flex;
-  justify-content: space-between; 
-  align-items: flex-start;       
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 40px;
-  flex-wrap: nowrap;            
+  flex-wrap: nowrap;
 }
 
 .footer-col {
   display: flex;
   flex-direction: column;
-  flex: 1;                        
+  flex: 1;
 }
 
 .footer-col.brand {
-  flex: 1.2;                      
+  flex: 1.2;
 }
 
 .footer-logo {
@@ -719,28 +731,29 @@ body {
   font-family: 'Montserrat', sans-serif;
 }
 
-footer a{
+footer a {
   text-decoration: none;
-  color:#292929 ;
+  color: #292929;
 }
 
 .footer-bottom-img {
-  width: 100%;                
+  width: 100%;
   height: 500px;
   background: url('../images/footer.webp') center/cover no-repeat;
 }
 
-.margin-class{
+.margin-class {
   margin-top: 5rem;
 }
 
-.no-margin-class{
+.no-margin-class {
   margin-top: 0rem;
 }
 
-.special-margin{
+.special-margin {
   margin-top: 8rem;
 }
+
 /* Extra small devices (phones, <576px) */
 @media (max-width: 575px) {
   .home-about-section {
@@ -779,7 +792,7 @@ footer a{
     gap: 1rem;
   }
 
-  .destination-card{
+  .destination-card {
     margin-bottom: 5rem;
   }
 
@@ -827,9 +840,9 @@ footer a{
     height: 250px;
   }
 
- .next-section-margin{
-  margin-top: 40rem;
- }
+  .next-section-margin {
+    margin-top: 40rem;
+  }
 }
 
 /* Small devices (sm: 576px and up) */
@@ -844,8 +857,8 @@ footer a{
     height: 350px;
   }
 
-  .home-about-section .text-section{
-    width:80%;
+  .home-about-section .text-section {
+    width: 80%;
     margin: auto;
   }
 
@@ -871,7 +884,7 @@ footer a{
     gap: 1.5rem;
   }
 
-  .destination-card{
+  .destination-card {
     margin-bottom: 4rem;
   }
 
@@ -911,13 +924,13 @@ footer a{
     height: 300px;
   }
 
-  .hero-content h2{
-  font-size: 30px;
-}
+  .hero-content h2 {
+    font-size: 30px;
+  }
 
-.hero-content p{
-  font-size: 14px;
-}
+  .hero-content p {
+    font-size: 14px;
+  }
 
 }
 
@@ -938,14 +951,19 @@ footer a{
     font-size: 14px;
   }
 
-  .vector-img-home-about,.vector-img-location,.plane-img-1,.plane-img-2,.plane-img-1-location,.plane-img-2-location{
+  .vector-img-home-about,
+  .vector-img-location,
+  .plane-img-1,
+  .plane-img-2,
+  .plane-img-1-location,
+  .plane-img-2-location {
     display: none;
   }
 }
 
 
 @media (max-width: 990px) {
-  .section-heading{
+  .section-heading {
     line-height: 1;
   }
 }
@@ -1029,24 +1047,24 @@ footer a{
   }
 
   .plane-img-1 {
-   display: none;
-}
+    display: none;
+  }
 
-.plane-img-2 {
-   position: absolute;
-  top: 13.5%;   
-  right: 95%; 
-  transform: rotate(-125deg);
-}
+  .plane-img-2 {
+    position: absolute;
+    top: 13.5%;
+    right: 95%;
+    transform: rotate(-125deg);
+  }
 
   .plane-img-1-location {
-    top: 89%;   
-  right: 0%; 
+    top: 89%;
+    right: 0%;
   }
 
   .plane-img-2-location {
-  top: 8%;   
-  right: -5%;
+    top: 8%;
+    right: -5%;
   }
 
 
@@ -1127,21 +1145,21 @@ footer a{
   }
 
   .plane-img-1 {
-   position: absolute;
-  top: 90%;   
-  right: 95%; 
-}
+    position: absolute;
+    top: 90%;
+    right: 95%;
+  }
 
-.plane-img-2 {
-   position: absolute;
-  top: 17%;   
-  right: 95%; 
-  transform: rotate(-125deg);
-}
+  .plane-img-2 {
+    position: absolute;
+    top: 17%;
+    right: 95%;
+    transform: rotate(-125deg);
+  }
 
   .plane-img-1-location {
-    top: 87%;   
-  right: 0%;
+    top: 87%;
+    right: 0%;
   }
 
 }
@@ -1151,59 +1169,58 @@ footer a{
 @media (min-width: 1500px) and (max-width: 2000px) {
 
   .vector-img-home-about {
-   top: -25%;
-   right:85%;
-   width: 45%;
-}
+    top: -25%;
+    right: 85%;
+    width: 45%;
+  }
 
-.plane-img-1 {
-   position: absolute;
-  top: 90%;   
-  right: 99%; 
-}
+  .plane-img-1 {
+    position: absolute;
+    top: 90%;
+    right: 99%;
+  }
 
-.plane-img-2 {
-   position: absolute;
-  top: 15%;   
-  right: 100%; 
-}
+  .plane-img-2 {
+    position: absolute;
+    top: 15%;
+    right: 100%;
+  }
 
-   .plane-img-1-location {
-    top: 89%;   
-  right: max(-15%, 55px); 
+  .plane-img-1-location {
+    top: 89%;
+    right: max(-15%, 55px);
   }
 
   .plane-img-2-location {
-  top: 8%;   
-  right: -2%;
+    top: 8%;
+    right: -2%;
   }
 
   .vector-img-location {
-   width: 100%;
-   right: -30%;
+    width: 100%;
+    right: -30%;
   }
-  
+
 }
 
 
 @media (min-width: 2000px) {
 
   .vector-img-home-about {
-   top: -5%;
-   right:85%;
-   width: 45%;
-}
+    top: -5%;
+    right: 85%;
+    width: 45%;
+  }
 
-.plane-img-1 {
-   position: absolute;
-  top: 90%;   
-  right: 85%; 
-}
+  .plane-img-1 {
+    position: absolute;
+    top: 90%;
+    right: 85%;
+  }
 
-.plane-img-2 {
-   position: absolute;
-  top: 35%;   
-  right: 100%; 
+  .plane-img-2 {
+    position: absolute;
+    top: 35%;
+    right: 100%;
+  }
 }
-}
-

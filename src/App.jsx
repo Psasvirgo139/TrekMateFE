@@ -5,7 +5,6 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Home from './pages/Home';
 import Locations from './pages/tour/Locations';
-import Adventures from './pages/Adventures';
 import TourDetail from './pages/tour/TourDetail';
 import TourBooking from './pages/tour/TourBooking';
 import FAQ from './pages/FAQ';
@@ -90,7 +89,6 @@ function AppRoutes() {
         <Route path="/" element={<Home />} />
         <Route path='/about' element={<Navigate to="/" state={{ scrollTo: "about-section" }} replace />} />
         <Route path='/locations' element={<Locations />} />
-        <Route path='/adventures' element={<Adventures />} />
         <Route path='/tours/:idOrSlug' element={<TourDetail />} />
         <Route
           path='/tours/:idOrSlug/book'

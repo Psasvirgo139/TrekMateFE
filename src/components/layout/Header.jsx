@@ -16,15 +16,12 @@ const Header = ({
 }) => {
   const [openSidebar, setOpenSidebar] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [guideMenuOpen, setGuideMenuOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const isGuide = useHasRole('GUIDE');
   const isAdmin = useHasRole('ADMIN');
-
-  const guideMenuRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,17 +32,6 @@ const Header = ({
     window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (guideMenuRef.current && !guideMenuRef.current.contains(e.target)) {
-        setGuideMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Smart navigation: scroll on homepage, navigate with state from other pages
@@ -95,51 +81,11 @@ const Header = ({
               >
                 Contact
               </a>
-
-              {/* Guide Menu Dropdown */}
-              {(isGuide || isAdmin) && (
-                <div className="nav-dropdown" ref={guideMenuRef}>
-                  <button
-                    className="home-nav-link nav-dropdown-trigger"
-                    onClick={() => {
-                      setGuideMenuOpen(prev => !prev);
-                    }}
-                    type="button"
-                  >
-                    Guide Menu ▾
-                  </button>
-                  {guideMenuOpen && (
-                    <div className="nav-dropdown-menu">
-                      <Link
-                        to="/admin/tours"
-                        className="nav-dropdown-item"
-                        onClick={() => setGuideMenuOpen(false)}
-                      >
-                        📋 Tour Management
-                      </Link>
-                      <Link
-                        to="/admin/guide-calendar"
-                        className="nav-dropdown-item"
-                        onClick={() => setGuideMenuOpen(false)}
-                      >
-                        📅 Guide Calendar
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Admin direct link to Operations Dashboard */}
-              {isAdmin && (
-                <Link to="/guide" className="home-nav-link">
-                  Operations Dashboard
-                </Link>
-              )}
             </nav>
 
             <div className="header-right-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <AuthNav />
-              {!hideMenuButton && (
+              {user && (
                 <div className="menu-btn" onClick={() => setOpenSidebar((previous) => !previous)}>
                   <div></div>
                   <div></div>
@@ -180,7 +126,7 @@ const Header = ({
                   {subheading}
                 </span>
               )}
-              
+
               {mainHeading && (
                 <h1 className="font-montserrat font-extrabold text-3xl md:text-5xl lg:text-6xl tracking-tight leading-tight mt-2 text-white">
                   {mainHeading}
