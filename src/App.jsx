@@ -21,7 +21,8 @@ import GuideDashboardLayout from './layouts/GuideDashboardLayout';
 import UserManagement from './pages/guide/UserManagement';
 import GuidePlaceholder from './pages/guide/GuidePlaceholder';
 import EquipmentManagement from './pages/guide/EquipmentManagement';
-import UserProfileDemo from './pages/UserProfileDemo';
+import Profile from './pages/Profile';
+import TourLeading from './pages/guide/TourLeading';
 
 import BookingHistory from './pages/BookingHistory';
 import BookingDetail from './pages/BookingDetail';
@@ -136,7 +137,15 @@ function AppRoutes() {
         />
         <Route path='/bookings' element={<BookingHistory />} />
         <Route path='/bookings/:id' element={<BookingDetail />} />
-        <Route path='/profile' element={<UserProfileDemo />} />
+        <Route path='/profile' element={<Profile />} />
+        <Route
+          path='/tour-leading'
+          element={
+            <ProtectedRoute roles={['GUIDE']}>
+              <TourLeading />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       {!isGuideArea && !isAuthPage && <Footer />}

@@ -9,6 +9,7 @@ import MedicalNotesBox from './customer/MedicalNotesBox';
 import TripHistoryList from './customer/TripHistoryList';
 import BioCard from './guide/BioCard';
 import CertificateList from './guide/CertificateList';
+import ToursLedHistoryList from './guide/ToursLedHistoryList';
 
 const UserProfile = ({ role = 'customer', data, isOwnProfile = true, onAction, trips = [] }) => {
   const isGuide = role === 'guide';
@@ -64,6 +65,7 @@ const UserProfile = ({ role = 'customer', data, isOwnProfile = true, onAction, t
                 colorTheme="secondary" 
               />
               <CertificateList certifications={data.certifications} />
+              <ToursLedHistoryList tours={data.toursLedHistory} />
             </>
           ) : (
             <>

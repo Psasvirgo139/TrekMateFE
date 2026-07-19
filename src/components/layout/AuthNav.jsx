@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { LogOut, Calendar } from 'lucide-react';
+import { LogOut, Calendar, User } from 'lucide-react';
 import { useAuth, useHasRole } from '../../context/AuthContext';
 import { saveReturnUrl } from '../../utils/authToken';
 import './AuthNav.css';
@@ -44,6 +44,17 @@ export default function AuthNav({ className = '' }) {
 
         {dropdownOpen && (
           <div className="auth-dropdown-menu">
+            {!isAdmin && (
+              <Link
+                to="/profile"
+                className="auth-dropdown-item"
+                onClick={() => setDropdownOpen(false)}
+              >
+                <User size={15} />
+                My Profile
+              </Link>
+            )}
+
             <Link
               to="/bookings"
               className="auth-dropdown-item"
@@ -52,6 +63,17 @@ export default function AuthNav({ className = '' }) {
               <Calendar size={15} />
               Booking History
             </Link>
+
+            {isGuide && (
+              <Link
+                to="/tour-leading"
+                className="auth-dropdown-item"
+                onClick={() => setDropdownOpen(false)}
+              >
+                <span aria-hidden="true" style={{ fontSize: '14px' }}>🥾</span>
+                Tour Leading
+              </Link>
+            )}
 
             {/* Guide & Admin Links */}
             {(isGuide || isAdmin) && (
