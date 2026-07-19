@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="IndiVoyage is a modern React travel website template for tour agencies and tourism businesses with responsive design, fast performance, and easy customization." />
+  <meta name="description" content="TrekMate is a modern React travel website template for tour agencies and tourism businesses with responsive design, fast performance, and easy customization." />
   <meta name="keywords" content="travel-website-template, tour-booking-react-template, travel-agency-website, tourism-website-template, react-travel-template, tour-company-website-template" />
   <meta name="author" content="Themixly Web" />
   <link rel="canonical" href="https://themixly.com/themes/tour-booking-website-react-template/" />
@@ -37,17 +37,17 @@
 
 <h2>🛠️ Tech Stack</h2>
 <ul>
-  <li>⚛️ React 19+</li>
+  <li>⚛️ React 19 + vite</li>
 </ul>
 
 <h2>🚀 Getting Started</h2>
 <pre><code>npm install       # Install dependencies
-npm start       # Start development server
+npm run dev       # Start development server
 npm run build     # Build for production
 </code></pre>
 
 <h3>📁 Folder Structure</h3>
-<pre><code>IndiVoyage/
+<pre><code>TrekMate/
 ├── components/
 ├── pages/
 ├── public/

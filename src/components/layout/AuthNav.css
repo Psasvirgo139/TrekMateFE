@@ -1,0 +1,258 @@
+.auth-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.auth-nav-user {
+  margin-left: auto;
+}
+
+.auth-nav-name {
+  font-size: 0.9rem;
+  color: #012d1d;
+  font-weight: 600;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.auth-nav-link {
+  color: #012d1d;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.auth-nav-link:hover {
+  text-decoration: underline;
+}
+
+.auth-nav-btn {
+  border: 1px solid #012d1d;
+  background: transparent;
+  color: #012d1d;
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.auth-nav-btn.primary {
+  background: #f97316;
+  border-color: #f97316;
+  color: #fff;
+}
+
+.auth-nav-btn:hover {
+  opacity: 0.92;
+}
+
+.auth-nav-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(1, 45, 29, 0.18);
+  border-radius: 999px;
+  background: #fff;
+  color: #012d1d;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-nav-logout:hover {
+  background: rgba(1, 45, 29, 0.05);
+  border-color: rgba(1, 45, 29, 0.35);
+}
+
+.auth-nav-btn:hover {
+  opacity: 0.92;
+}
+
+.auth-nav-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(1, 45, 29, 0.18);
+  border-radius: 999px;
+  background: #fff;
+  color: #012d1d;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-nav-logout:hover {
+  background: rgba(1, 45, 29, 0.05);
+  border-color: rgba(1, 45, 29, 0.35);
+}
+
+.auth-nav-btn:hover {
+  opacity: 0.92;
+}
+
+.auth-nav-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(1, 45, 29, 0.18);
+  border-radius: 999px;
+  background: #fff;
+  color: #012d1d;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-nav-logout:hover {
+  background: rgba(1, 45, 29, 0.05);
+  border-color: rgba(1, 45, 29, 0.35);
+}
+
+.auth-nav-btn:hover {
+  opacity: 0.92;
+}
+
+.auth-nav-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(1, 45, 29, 0.18);
+  border-radius: 999px;
+  background: #fff;
+  color: #012d1d;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-nav-logout:hover {
+  background: rgba(1, 45, 29, 0.05);
+  border-color: rgba(1, 45, 29, 0.35);
+}
+
+.auth-loading {
+  min-height: 40vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #012d1d;
+}
+
+/* ─── Auth Dropdown Styles ────────────────────────────────────────── */
+.auth-nav-user {
+  position: relative;
+}
+
+.auth-nav-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 6px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Scrolled header styling adjustments */
+.site-header.scrolled .auth-nav-trigger {
+  border-color: rgba(1, 45, 29, 0.15);
+  background: rgba(1, 45, 29, 0.03);
+}
+
+.auth-nav-trigger:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.site-header.scrolled .auth-nav-trigger:hover {
+  background: rgba(1, 45, 29, 0.06);
+  border-color: rgba(1, 45, 29, 0.25);
+}
+
+/* User display name styling */
+.site-header:not(.scrolled) .auth-nav-name {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.site-header.scrolled .auth-nav-name {
+  color: #012d1d;
+}
+
+.site-header:not(.scrolled) .auth-nav-caret {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.site-header.scrolled .auth-nav-caret {
+  color: #012d1d;
+}
+
+.auth-nav-caret {
+  font-size: 0.75rem;
+  transition: transform 0.2s ease;
+}
+
+/* Dropdown menu box */
+.auth-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  min-width: 180px;
+  padding: 6px;
+  z-index: 5000;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: authDropdownFadeIn 0.18s ease-out;
+}
+
+@keyframes authDropdownFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.auth-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #2d3a34 !important;
+  text-decoration: none !important;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.auth-dropdown-item:hover {
+  background: rgba(254, 166, 25, 0.1);
+  color: #855300 !important;
+}
+
+.auth-dropdown-item.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: #b91c1c !important;
+}
