@@ -53,7 +53,11 @@ const Profile = () => {
               date: new Date(b.departureDate).toLocaleDateString("vi-VN", { day: '2-digit', month: '2-digit', year: 'numeric' }),
               title: b.tourTitle,
               difficulty: b.difficulty || 'Moderate',
-              status: b.status === 'COMPLETED' ? 'completed' : (b.status === 'CANCELLED' ? 'cancelled' : 'upcoming')
+              status: b.status === 'COMPLETED' ? 'completed' : 
+                      (b.status === 'CANCELLED' ? 'cancelled' : 
+                      (b.status === 'MISSING' ? 'missing' : 
+                      (b.status === 'MISSED' ? 'missed' : 
+                      (b.status === 'ONGOING' ? 'ongoing' : 'upcoming'))))
             }));
             setTrips(mappedTrips);
           }
@@ -94,35 +98,9 @@ const Profile = () => {
   }
 
   return (
-    <div className="bg-[#f7f9f6] min-h-screen profile-page">
-      <style>{`
-        .profile-page > .hero-section {
-          height: 80px !important;
-          min-height: 80px !important;
-          padding: 0 !important;
-          background: #012d1d !important;
-          overflow: visible !important;
-        }
-        .profile-page > .hero-section > .hero-overlay,
-        .profile-page > .hero-section > div:not(.hero-overlay):not(header) {
-          display: none !important;
-        }
-        .profile-page .site-header {
-          position: fixed !important;
-          background: #012d1d !important;
-        }
-        .profile-page main {
-          padding-top: 20px !important;
-        }
-      `}</style>
-      <Header
-        bgImage=""
-        pageTitle=""
-        subheading=""
-        mainHeading=""
-        description=""
-        showDescription={false}
-      />
+    <div className="bg-[#f7f9f6] min-h-screen">
+      <Header hideHero={true} />
+      <div className="h-[80px] bg-[#012d1d] w-full" />
 
       <main className="max-w-6xl mx-auto py-8">
         {loading && !profileData ? (

@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  ArrowLeft, 
-  Calendar, 
-  Users, 
-  CheckCircle2, 
-  Compass, 
-  Check, 
-  X, 
-  RefreshCw, 
+import {
+  ArrowLeft,
+  Calendar,
+  Users,
+  CheckCircle2,
+  Compass,
+  Check,
+  X,
+  RefreshCw,
   Info,
   Clock,
   History
 } from 'lucide-react';
-import { 
-  getGuideDepartures, 
-  getDepartureParticipants, 
-  startTour, 
-  updateAttendance, 
-  completeTour 
+import {
+  getGuideDepartures,
+  getDepartureParticipants,
+  startTour,
+  updateAttendance,
+  completeTour
 } from '../../services/guideOperationApi';
 import Header from '../../components/layout/Header';
 
@@ -31,13 +31,23 @@ export default function TourLeading() {
   const [message, setMessage] = useState(null);
   const [showHistory, setShowHistory] = useState(false);
 
-  const filteredDepartures = departures.filter(dep => {
-    if (showHistory) {
-      return dep.status === 'COMPLETED' || dep.status === 'CANCELLED';
-    } else {
-      return dep.status !== 'COMPLETED' && dep.status !== 'CANCELLED';
-    }
-  });
+  const filteredDepartures = departures
+    .filter(dep => {
+      if (showHistory) {
+        return dep.status === 'COMPLETED';
+      } else {
+        return dep.status !== 'COMPLETED' && dep.status !== 'CANCELLED';
+      }
+    })
+    .sort((a, b) => {
+      if (showHistory) {
+        // Descending: future to past (newest first)
+        return b.departureDate.localeCompare(a.departureDate);
+      } else {
+        // Ascending: past to future (oldest/earliest first)
+        return a.departureDate.localeCompare(b.departureDate);
+      }
+    });
 
   const fetchDepartures = async () => {
     setLoading(true);
@@ -63,7 +73,7 @@ export default function TourLeading() {
       const data = await getDepartureParticipants(dep.departureId);
       const participantList = Array.isArray(data) ? data : [];
       setParticipants(participantList);
-      
+
       // Initialize attendance map based on current booking status
       const initialAttendance = {};
       participantList.forEach(p => {
@@ -98,7 +108,7 @@ export default function TourLeading() {
   const getAttendancePayload = () => {
     const presentBookingIds = [];
     const absentBookingIds = [];
-    
+
     Object.keys(attendance).forEach(idKey => {
       const bId = Number(idKey);
       if (attendance[bId]) {
@@ -117,7 +127,7 @@ export default function TourLeading() {
       const payload = getAttendancePayload();
       await startTour(selectedDeparture.departureId, payload);
       showFeedback("Tour started and attendance logged successfully!", "success");
-      
+
       // Refresh current departure data
       const updatedDep = { ...selectedDeparture, status: 'ONGOING' };
       setSelectedDeparture(updatedDep);
@@ -150,7 +160,7 @@ export default function TourLeading() {
     try {
       await completeTour(selectedDeparture.departureId);
       showFeedback("Tour has been completed! All stats are updated.", "success");
-      
+
       const updatedDep = { ...selectedDeparture, status: 'COMPLETED' };
       setSelectedDeparture(updatedDep);
       selectDeparture(updatedDep);
@@ -193,13 +203,13 @@ export default function TourLeading() {
 
   return (
     <div className="bg-[#f8fafc] min-h-screen text-slate-800 flex flex-col font-sans pb-12">
-      <Header />
-      
+      <Header hideHero={true} />
+      <div className="h-[80px] bg-[#012d1d] w-full" />
+
       {/* Toast Feedback */}
       {message && (
-        <div className={`fixed top-6 right-6 z-50 px-5 py-3 rounded-2xl shadow-xl text-white font-medium transition-all duration-300 transform scale-100 flex items-center gap-2 ${
-          message.type === 'danger' ? 'bg-red-500' : 'bg-[#012d1d]'
-        }`}>
+        <div className={`fixed top-6 right-6 z-50 px-5 py-3 rounded-2xl shadow-xl text-white font-medium transition-all duration-300 transform scale-100 flex items-center gap-2 ${message.type === 'danger' ? 'bg-red-500' : 'bg-[#012d1d]'
+          }`}>
           {message.type === 'success' ? <CheckCircle2 size={18} /> : <X size={18} />}
           <span>{message.text}</span>
         </div>
@@ -215,24 +225,23 @@ export default function TourLeading() {
                   {showHistory ? "Tour History" : "Tour Leading & Attendance"}
                 </h1>
                 <p className="text-slate-500 text-sm mt-1">
-                  {showHistory 
-                    ? "View your completed and cancelled tour departures." 
+                  {showHistory
+                    ? "View your completed tour departures."
                     : "Manage your assigned departures, log guest attendance, and complete active tours."}
                 </p>
               </div>
               <div className="flex items-center gap-3 self-start md:self-auto">
                 <button
                   onClick={() => setShowHistory(prev => !prev)}
-                  className={`p-2.5 rounded-xl border font-bold text-xs transition duration-150 flex items-center gap-2 shadow-sm ${
-                    showHistory 
-                      ? 'bg-[#012d1d] text-white border-[#012d1d] hover:bg-[#023f29]' 
+                  className={`p-2.5 rounded-xl border font-bold text-xs transition duration-150 flex items-center gap-2 shadow-sm ${showHistory
+                      ? 'bg-[#012d1d] text-white border-[#012d1d] hover:bg-[#023f29]'
                       : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-                  }`}
+                    }`}
                 >
                   <History size={14} />
                   {showHistory ? "Active Tours" : "History"}
                 </button>
-                <button 
+                <button
                   onClick={fetchDepartures}
                   disabled={loading}
                   className="p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition duration-150 flex items-center gap-2 shadow-sm font-bold text-xs"
@@ -257,16 +266,16 @@ export default function TourLeading() {
                   {showHistory ? "No Completed Tours" : "No Active Tours"}
                 </h3>
                 <p className="text-slate-500 text-sm mt-2">
-                  {showHistory 
-                    ? "You haven't completed any tours yet." 
+                  {showHistory
+                    ? "You haven't completed any tours yet."
                     : "You do not have any active tour departures assigned to you currently."}
                 </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredDepartures.map((dep) => (
-                  <div 
-                    key={dep.departureId} 
+                  <div
+                    key={dep.departureId}
                     className="bg-white rounded-3xl border border-slate-100 shadow-md hover:shadow-xl hover:border-slate-200 transition-all duration-300 overflow-hidden flex flex-col group cursor-pointer"
                     onClick={() => selectDeparture(dep)}
                   >
@@ -306,7 +315,7 @@ export default function TourLeading() {
           <>
             {/* Detail view header */}
             <div className="mb-6">
-              <button 
+              <button
                 onClick={() => { setSelectedDeparture(null); fetchDepartures(); }}
                 className="flex items-center gap-2 text-sm text-slate-500 hover:text-[#012d1d] font-bold transition duration-150"
               >
@@ -374,7 +383,7 @@ export default function TourLeading() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="text-xs text-slate-500 italic max-w-sm">
                       Check each customer as Present (Tham gia) or Absent (Vắng mặt) prior to starting the tour.
                     </div>
@@ -408,12 +417,11 @@ export default function TourLeading() {
                               </td>
                               <td className="p-4 text-center font-bold text-slate-700">{p.numParticipants}</td>
                               <td className="p-4">
-                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                  p.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800' :
-                                  p.status === 'ONGOING' ? 'bg-blue-100 text-blue-800' :
-                                  p.status === 'MISSING' ? 'bg-rose-100 text-rose-800' :
-                                  'bg-slate-100 text-slate-600'
-                                }`}>
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${p.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800' :
+                                    p.status === 'ONGOING' ? 'bg-blue-100 text-blue-800' :
+                                      p.status === 'MISSING' ? 'bg-rose-100 text-rose-800' :
+                                        'bg-slate-100 text-slate-600'
+                                  }`}>
                                   {p.status}
                                 </span>
                               </td>
@@ -422,11 +430,10 @@ export default function TourLeading() {
                                   type="button"
                                   onClick={() => handleToggleAttendance(p.bookingId)}
                                   disabled={selectedDeparture.status === 'COMPLETED' || selectedDeparture.status === 'CANCELLED'}
-                                  className={`px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 justify-center shadow-sm ml-auto border transition duration-150 ${
-                                    isPresent 
-                                      ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100' 
+                                  className={`px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 justify-center shadow-sm ml-auto border transition duration-150 ${isPresent
+                                      ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100'
                                       : 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100'
-                                  }`}
+                                    }`}
                                 >
                                   {isPresent ? (
                                     <>
@@ -457,7 +464,7 @@ export default function TourLeading() {
                         <div>
                           <p className="font-bold text-slate-700">Tour is Ongoing.</p>
                           <p className="mt-1">
-                            You can edit attendance checklists mid-tour. To complete the tour and credit participant stats, click <b>Mark Tour as Completed</b>. 
+                            You can edit attendance checklists mid-tour. To complete the tour and credit participant stats, click <b>Mark Tour as Completed</b>.
                             <span className="text-rose-700 font-bold"> Note: This button is only enabled on or after the return date ({new Date(selectedDeparture.returnDate).toLocaleDateString("vi-VN")}).</span>
                           </p>
                         </div>
@@ -495,11 +502,10 @@ export default function TourLeading() {
                             onClick={handleCompleteTour}
                             disabled={actionLoading || !isReturnDatePassedOrToday()}
                             title={!isReturnDatePassedOrToday() ? "Disabled until the return date" : ""}
-                            className={`px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition duration-150 flex items-center gap-2 ${
-                              isReturnDatePassedOrToday()
+                            className={`px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition duration-150 flex items-center gap-2 ${isReturnDatePassedOrToday()
                                 ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer'
                                 : 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
-                            }`}
+                              }`}
                           >
                             {actionLoading && <RefreshCw size={15} className="animate-spin" />}
                             Mark Tour as Completed

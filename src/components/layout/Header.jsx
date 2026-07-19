@@ -12,7 +12,8 @@ const Header = ({
   mainHeading,
   description,
   showDescription = true,
-  hideMenuButton = false
+  hideMenuButton = false,
+  hideHero = false
 }) => {
   const [openSidebar, setOpenSidebar] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -45,6 +46,63 @@ const Header = ({
       navigate("/", { state: { scrollTo: sectionId } });
     }
   };
+
+  if (hideHero) {
+    return (
+      <>
+        <header className={`site-header ${scrolled ? "scrolled" : ""}`} style={{ position: 'fixed', width: '100%', top: 0, left: 0, zIndex: 3000 }}>
+          <div className="header-inner">
+            <Link to='/'><h1 className="logo">TrekMate Danang</h1></Link>
+
+            <nav className="home-nav">
+              <Link to="/" className="home-nav-link">
+                Home
+              </Link>
+              <Link to="/locations" className="home-nav-link">
+                Tours
+              </Link>
+              <a
+                href="#about-section"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleScrollNavigation("about-section");
+                }}
+                className="home-nav-link"
+              >
+                About Us
+              </a>
+              <a
+                href="#contact-section"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleScrollNavigation("contact-section");
+                }}
+                className="home-nav-link"
+              >
+                Contact
+              </a>
+            </nav>
+
+            <div className="header-right-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <AuthNav />
+              {user && (
+                <div className="menu-btn" onClick={() => setOpenSidebar((previous) => !previous)}>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {openSidebar && (
+          <div className="sidebar-backdrop" onClick={() => setOpenSidebar(false)} />
+        )}
+        <Sidebar open={openSidebar} setOpen={setOpenSidebar} />
+      </>
+    );
+  }
 
   return (
     <>
