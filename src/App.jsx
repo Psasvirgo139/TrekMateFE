@@ -137,6 +137,7 @@ function AppRoutes() {
         <Route path='/bookings' element={<BookingHistory />} />
         <Route path='/bookings/:id' element={<BookingDetail />} />
         <Route path='/profile' element={<UserProfileDemo />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       {!isGuideArea && !isAuthPage && <Footer />}
     </>

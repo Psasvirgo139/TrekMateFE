@@ -304,7 +304,6 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <Link to="/about" className="about-btn">Discover More About Us</Link>
           </div>
         </div>
       </section>
