@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Calendar, User, Plus, Minus, Info, AlertCircle, Check, Shield, FileText, ChevronRight, HelpCircle } from "lucide-react";
+import { Calendar, User, Plus, Minus, Info, AlertCircle, Check, Shield, FileText, ChevronRight, HelpCircle, Sparkles } from "lucide-react";
 import Header from "../../components/layout/Header";
 import { fetchAvailableEquipments } from "../../services/equipmentApi";
 import { fetchPublicTourDetail, fetchDeparturesByTour } from "../../services/tourApi";
-import { createBooking } from "../../services/bookingApi";
+import { createBooking, fetchDepartureWeather, fetchAiGearRecommendation } from "../../services/bookingApi";
 import { createPayOSPayment } from "../../services/paymentApi";
+import WeatherForecast from "../../components/booking/WeatherForecast";
 
 // Same destination images as TourCard & TourDetail
 const TOUR_IMAGES = {
@@ -52,6 +53,15 @@ export default function TourBooking() {
   // Selected rental quantities: { [equipmentId]: quantity }
   const [rentals, setRentals] = useState({});
 
+  // Weather forecast for selected departure
+  const [weatherForecast, setWeatherForecast] = useState([]);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+
+  // AI recommended equipment IDs to highlight
+  const [aiHighlightedIds, setAiHighlightedIds] = useState(new Set());
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiRan, setAiRan] = useState(false);
+
   useEffect(() => {
     const loadTourData = async () => {
       try {
@@ -95,6 +105,61 @@ export default function TourBooking() {
 
     loadTourData();
   }, [idOrSlug]);
+
+  // Fetch weather whenever selectedDeparture changes
+  useEffect(() => {
+    if (!selectedDeparture?.departureId) {
+      setWeatherForecast([]);
+      return;
+    }
+    setWeatherLoading(true);
+    fetchDepartureWeather(selectedDeparture.departureId)
+      .then((res) => {
+        // Axios interceptor tự động bóc tách trả về resData.data trực tiếp (là Array)
+        // Nếu không đi qua interceptor, fallback lấy res.data.data hoặc res.data
+        const forecast = Array.isArray(res) 
+          ? res 
+          : (res?.data?.data || res?.data || []);
+        setWeatherForecast(forecast);
+      })
+      .catch(() => setWeatherForecast([]))
+      .finally(() => setWeatherLoading(false));
+  }, [selectedDeparture?.departureId]);
+
+  // Auto-fetch AI recommendation once per departure (silent background)
+  const fetchAiHighlights = useCallback(async (departureId) => {
+    if (!departureId || aiLoading) return;
+    setAiLoading(true);
+    try {
+      const res = await fetchAiGearRecommendation(departureId);
+      // Axios interceptor tự động bóc tách trả về resData.data trực tiếp (là Object gợi ý)
+      const recommendation = (res && typeof res === 'object' && ('essentials' in res || 'recommended' in res))
+        ? res
+        : (res?.data?.data || res?.data || {});
+      const ids = new Set();
+      [...(recommendation?.essentials || []), ...(recommendation?.recommended || [])]
+        .filter((item) => item.isAvailableForRent && item.equipmentId)
+        .forEach((item) => ids.add(item.equipmentId));
+      setAiHighlightedIds(ids);
+      setAiRan(true);
+    } catch {
+      // Silently fail — AI highlight is non-critical
+    } finally {
+      setAiLoading(false);
+    }
+  }, [aiLoading]);
+
+
+
+  useEffect(() => {
+    if (selectedDeparture?.departureId && !aiRan) {
+      fetchAiHighlights(selectedDeparture.departureId);
+    }
+    // Reset AI highlights when departure changes
+    setAiHighlightedIds(new Set());
+    setAiRan(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDeparture?.departureId]);
 
   // Adjust participant details list when count changes
   const handleParticipantsCountChange = (count) => {
@@ -479,6 +544,16 @@ export default function TourBooking() {
                 )}
               </section>
 
+              {/* Weather forecast card — updates with selected departure */}
+              {selectedDeparture && (
+                <WeatherForecast
+                  weatherForecast={weatherForecast}
+                  departureDate={selectedDeparture?.departureDate}
+                  returnDate={selectedDeparture?.returnDate}
+                  loading={weatherLoading}
+                />
+              )}
+
               {/* Step 2: Participants input */}
               <section className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -654,9 +729,21 @@ export default function TourBooking() {
 
               {/* Step 3: Rental equipment selection */}
               <section className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="w-1.5 h-6 bg-[#fea619] rounded-full"></span>
-                  <h2 className="font-montserrat font-bold text-xl text-gray-800 m-0">Step 3: Rent optional trekking equipment</h2>
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <div className="flex items-center gap-3">
+                    <span className="w-1.5 h-6 bg-[#fea619] rounded-full"></span>
+                    <h2 className="font-montserrat font-bold text-xl text-gray-800 m-0">Step 3: Rent optional trekking equipment</h2>
+                  </div>
+                  {aiLoading && (
+                    <span className="flex items-center gap-1.5 text-[11px] text-emerald-600 font-semibold animate-pulse">
+                      <Sparkles className="w-3.5 h-3.5" /> AI đang phân tích...
+                    </span>
+                  )}
+                  {!aiLoading && aiHighlightedIds.size > 0 && (
+                    <span className="flex items-center gap-1.5 text-[11px] text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
+                      <Sparkles className="w-3.5 h-3.5" /> AI gợi ý {aiHighlightedIds.size} món
+                    </span>
+                  )}
                 </div>
                 <p className="text-xs text-gray-400 mb-6">
                   * Rental price is calculated based on tour duration ({tourDurationDays} days). Max quantity is limited by remaining stock.
@@ -666,10 +753,17 @@ export default function TourBooking() {
                   {equipments.map((eq) => {
                     const isSelected = Boolean(rentals[eq.id]);
                     const currentQty = rentals[eq.id] || 1;
+                    const isAiHighlighted = aiHighlightedIds.has(eq.id);
 
                     return (
-                      <div key={eq.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
-                        
+                      <div
+                        key={eq.id}
+                        className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 first:pt-0 last:pb-0 rounded-xl px-2 transition-all ${
+                          isAiHighlighted
+                            ? "bg-emerald-50/60 border border-emerald-200/70 -mx-2 px-4"
+                            : ""
+                        }`}
+                      >
                         {/* Checkbox and info */}
                         <div className="flex items-start gap-4 flex-grow min-w-0">
                           <input
@@ -680,7 +774,14 @@ export default function TourBooking() {
                           />
                           <div className="text-2xl shrink-0">{getEquipmentIcon(eq.categoryIcon)}</div>
                           <div className="min-w-0">
-                            <h4 className="font-bold text-[#012d1d] text-sm leading-snug">{eq.name}</h4>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h4 className="font-bold text-[#012d1d] text-sm leading-snug">{eq.name}</h4>
+                              {isAiHighlighted && (
+                                <span className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wide text-emerald-700 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-full">
+                                  <Sparkles className="w-2.5 h-2.5" /> AI recommend
+                                </span>
+                              )}
+                            </div>
                             <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{eq.description}</p>
                             <span className="inline-block text-[11px] text-[#fea619] font-bold mt-1 bg-amber-50 px-2 py-0.5 rounded border border-amber-100/50">
                               {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(eq.pricePerDay)}/day

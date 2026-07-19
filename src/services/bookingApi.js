@@ -33,5 +33,23 @@ export const createBooking = async (payload) => {
   return api.post('/v1/bookings', payload);
 };
 
+/**
+ * Lấy dự báo thời tiết theo ngày cho một departure cụ thể.
+ * @param {string} departureId - UUID của departure
+ */
+export const fetchDepartureWeather = async (departureId) => {
+  return api.get(`/v1/weather/departure/${departureId}`);
+};
+
+/**
+ * Lấy gợi ý trang bị từ AI (Gemini) cho một departure.
+ * Items có sẵn trong kho cho thuê sẽ được đánh dấu isAvailableForRent = true.
+ * @param {string} departureId - UUID của departure
+ */
+export const fetchAiGearRecommendation = async (departureId) => {
+  return api.get(`/v1/weather/departure/${departureId}/ai-recommendation`);
+};
+
 import { fetchDeparturesByTour } from './tourApi';
 export { fetchDeparturesByTour };
+
