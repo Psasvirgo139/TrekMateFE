@@ -241,19 +241,46 @@ const Locations = () => {
             {search && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-sky-50 text-sky-900 border border-sky-200 text-xs font-semibold">
                 Keyword: "{search}"
-                <button className="text-sky-600 hover:text-sky-800 font-bold" onClick={() => { setSearch(""); setPage(0); setTimeout(fetchTours, 50); }}>×</button>
+                <button 
+                  className="text-sky-600 hover:text-sky-800 font-bold" 
+                  onClick={() => { 
+                    const newParams = new URLSearchParams(searchParams);
+                    newParams.delete("search");
+                    setSearchParams(newParams);
+                  }}
+                >
+                  ×
+                </button>
               </span>
             )}
             {difficulty && (
               <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold ${getDifficultyColor(difficulty)}`}>
                 Difficulty: {difficulty}
-                <button className="hover:text-red-200 font-bold" onClick={() => { setDifficulty(""); setPage(0); }}>×</button>
+                <button 
+                  className="hover:text-red-200 font-bold" 
+                  onClick={() => { 
+                    const newParams = new URLSearchParams(searchParams);
+                    newParams.delete("difficulty");
+                    setSearchParams(newParams);
+                  }}
+                >
+                  ×
+                </button>
               </span>
             )}
             {durationRange && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-slate-100 text-slate-800 border border-slate-200 text-xs font-semibold">
                 Duration: {durationRange === "short" ? "< 3 days" : durationRange === "medium" ? "3 - 5 days" : "> 5 days"}
-                <button className="text-slate-600 hover:text-slate-900 font-bold" onClick={() => { setDurationRange(""); setPage(0); }}>×</button>
+                <button 
+                  className="text-slate-600 hover:text-slate-900 font-bold" 
+                  onClick={() => { 
+                    const newParams = new URLSearchParams(searchParams);
+                    newParams.delete("durationRange");
+                    setSearchParams(newParams);
+                  }}
+                >
+                  ×
+                </button>
               </span>
             )}
           </div>
