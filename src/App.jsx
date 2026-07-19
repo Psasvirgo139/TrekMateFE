@@ -25,6 +25,7 @@ import UserProfileDemo from './pages/UserProfileDemo';
 
 import BookingHistory from './pages/BookingHistory';
 import BookingDetail from './pages/BookingDetail';
+import AiChatWidget from './components/ai/AiChatWidget';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
@@ -123,6 +124,7 @@ function AppRoutes() {
         <Route path='/profile' element={<UserProfileDemo />} />
       </Routes>
       {!isGuideArea && !isAuthPage && <Footer />}
+      {!isGuideArea && !isAuthPage && <AiChatWidget />}
     </>
   );
 }
