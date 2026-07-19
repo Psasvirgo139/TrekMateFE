@@ -75,26 +75,28 @@ export default function AuthNav({ className = '' }) {
               </Link>
             )}
 
+            {/* Admin Only Link */}
+            {isAdmin && (
+              <Link
+                to="/admin/tours"
+                className="auth-dropdown-item"
+                onClick={() => setDropdownOpen(false)}
+              >
+                <span aria-hidden="true" style={{ fontSize: '14px' }}>📋</span>
+                Tour Management
+              </Link>
+            )}
+
             {/* Guide & Admin Links */}
             {(isGuide || isAdmin) && (
-              <>
-                <Link
-                  to="/admin/tours"
-                  className="auth-dropdown-item"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  <span aria-hidden="true" style={{ fontSize: '14px' }}>📋</span>
-                  Tour Management
-                </Link>
-                <Link
-                  to="/admin/guide-calendar"
-                  className="auth-dropdown-item"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  <span aria-hidden="true" style={{ fontSize: '14px' }}>📅</span>
-                  Guide Calendar
-                </Link>
-              </>
+              <Link
+                to="/admin/guide-calendar"
+                className="auth-dropdown-item"
+                onClick={() => setDropdownOpen(false)}
+              >
+                <span aria-hidden="true" style={{ fontSize: '14px' }}>📅</span>
+                Guide Calendar
+              </Link>
             )}
 
             {/* Admin Only Links */}

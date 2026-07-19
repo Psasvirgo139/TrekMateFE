@@ -23,7 +23,8 @@ export default function SingleDepartureModal({
     meetingPoint: '',
     allowJoinTour: true,
     notes: '',
-    guideIds: []
+    guideIds: [],
+    openBooking: false
   });
   const [availableGuides, setAvailableGuides] = useState([]);
   const [loadingGuides, setLoadingGuides] = useState(false);
@@ -50,8 +51,8 @@ export default function SingleDepartureModal({
             editingDeparture.returnDate,
             editingDeparture.departureId
           );
-          if (res.data && res.data.code === 200) {
-            currentAvailable = res.data.data || [];
+          if (Array.isArray(res)) {
+            currentAvailable = res;
             setAvailableGuides(currentAvailable);
           }
         } catch (e) {
@@ -71,7 +72,8 @@ export default function SingleDepartureModal({
           meetingPoint: editingDeparture.meetingPoint || '',
           allowJoinTour: editingDeparture.allowJoinTour ?? true,
           notes: editingDeparture.notes || '',
-          guideIds: preselectedIds
+          guideIds: preselectedIds,
+          openBooking: editingDeparture.status === 'OPEN'
         });
       };
 
@@ -87,7 +89,8 @@ export default function SingleDepartureModal({
         meetingPoint: '',
         allowJoinTour: true,
         notes: '',
-        guideIds: []
+        guideIds: [],
+        openBooking: false
       });
       setAvailableGuides([]);
     }
@@ -105,8 +108,8 @@ export default function SingleDepartureModal({
         setLoadingGuides(true);
         try {
           const res = await getAvailableGuides(depDate, retDate);
-          if (res.data && res.data.code === 200) {
-            setAvailableGuides(res.data.data || []);
+          if (Array.isArray(res)) {
+            setAvailableGuides(res);
           } else {
             setAvailableGuides([]);
           }
@@ -137,8 +140,10 @@ export default function SingleDepartureModal({
         pricePerPerson: parseFloat(form.pricePerPerson),
         maxGroupSize: parseInt(form.maxGroupSize),
         minGroupSize: parseInt(form.minGroupSize),
-        returnDate: form.returnDate || null
+        returnDate: form.returnDate || null,
+        status: form.openBooking ? 'OPEN' : 'SCHEDULED'
       };
+      delete payload.openBooking;
 
       if (editingDeparture) {
         await updateDeparture(tourId, editingDeparture.departureId, payload);
@@ -240,7 +245,7 @@ export default function SingleDepartureModal({
                   className="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d]"
                 />
               </div>
-              <div className="pt-5">
+              <div className="flex flex-col gap-2 pt-2">
                 <label className="flex items-center gap-2 cursor-pointer select-none">
                   <input
                     type="checkbox"
@@ -249,6 +254,15 @@ export default function SingleDepartureModal({
                     className="rounded border-gray-300 text-[#012d1d] focus:ring-[#012d1d]"
                   />
                   <span className="font-semibold text-gray-700">Allow join group</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={form.openBooking || false}
+                    onChange={(e) => setForm({ ...form, openBooking: e.target.checked })}
+                    className="rounded border-gray-300 text-[#012d1d] focus:ring-[#012d1d]"
+                  />
+                  <span className="font-semibold text-emerald-700">Open booking (Publish to customers)</span>
                 </label>
               </div>
             </div>

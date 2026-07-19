@@ -114,7 +114,7 @@ function AppRoutes() {
         <Route
           path='/admin/tours'
           element={
-            <ProtectedRoute roles={['GUIDE', 'ADMIN']}>
+            <ProtectedRoute roles={['ADMIN']}>
               <TourManagement />
             </ProtectedRoute>
           }
@@ -122,7 +122,7 @@ function AppRoutes() {
         <Route
           path='/admin/tours/:id'
           element={
-            <ProtectedRoute roles={['GUIDE', 'ADMIN']}>
+            <ProtectedRoute roles={['ADMIN']}>
               <TourEditPage />
             </ProtectedRoute>
           }
