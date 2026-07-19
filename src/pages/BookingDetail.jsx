@@ -10,7 +10,6 @@ import RentalsList from "../components/booking/RentalsList";
 import PaymentsList from "../components/booking/PaymentsList";
 import CancelBookingModal from "../components/booking/CancelBookingModal";
 import WeatherForecast from "../components/booking/WeatherForecast";
-import AiGearRecommendation from "../components/booking/AiGearRecommendation";
 
 const STATUS_CONFIG = {
   PENDING:   { text: "Chờ thanh toán", bg: "bg-amber-50",   text_color: "text-amber-700",   border: "border-amber-200",  step: 1 },
@@ -233,11 +232,6 @@ const BookingDetail = () => {
               departureDate={booking.departureDate}
               returnDate={booking.returnDate}
               loading={false}
-            />
-
-            {/* AI Gear Recommendation */}
-            <AiGearRecommendation
-              departureId={booking.departureId}
             />
 
             {/* Travelers list component */}
