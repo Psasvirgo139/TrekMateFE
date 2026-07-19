@@ -11,7 +11,7 @@ export default function Pagination({
   itemsCount = 0,
   variant = 'text' // 'text', 'round'
 }) {
-  if (totalPages === 0) return null;
+  if (totalPages <= 1) return null;
 
   const isVi = locale === 'vi';
   const prevLabel = isVi ? '‹ Trước' : 'Previous';
