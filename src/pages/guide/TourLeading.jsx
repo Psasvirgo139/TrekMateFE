@@ -99,6 +99,9 @@ export default function TourLeading() {
     if (selectedDeparture.status === 'COMPLETED' || selectedDeparture.status === 'CANCELLED') {
       return; // Read-only
     }
+    if (selectedDeparture.status !== 'ONGOING') {
+      if (!isDepartureDateToday() || hasOngoingTour) return;
+    }
     setAttendance(prev => ({
       ...prev,
       [bookingId]: !prev[bookingId]
@@ -191,7 +194,6 @@ export default function TourLeading() {
     }
   };
 
-  // Helper to check if "Mark Tour as Completed" button should be active
   const isReturnDatePassedOrToday = () => {
     if (!selectedDeparture) return false;
     const today = new Date();
@@ -200,6 +202,21 @@ export default function TourLeading() {
     returnDate.setHours(0, 0, 0, 0);
     return today >= returnDate;
   };
+
+  const getTodayString = () => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const isDepartureDateToday = () => {
+    if (!selectedDeparture) return false;
+    return selectedDeparture.departureDate === getTodayString();
+  };
+
+  const hasOngoingTour = departures.some(dep => dep.status === 'ONGOING');
 
   return (
     <div className="bg-[#f8fafc] min-h-screen text-slate-800 flex flex-col font-sans pb-12">
@@ -429,7 +446,11 @@ export default function TourLeading() {
                                 <button
                                   type="button"
                                   onClick={() => handleToggleAttendance(p.bookingId)}
-                                  disabled={selectedDeparture.status === 'COMPLETED' || selectedDeparture.status === 'CANCELLED'}
+                                  disabled={
+                                    selectedDeparture.status === 'COMPLETED' || 
+                                    selectedDeparture.status === 'CANCELLED' ||
+                                    (selectedDeparture.status !== 'ONGOING' && (!isDepartureDateToday() || hasOngoingTour))
+                                  }
                                   className={`px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 justify-center shadow-sm ml-auto border transition duration-150 ${isPresent
                                       ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100'
                                       : 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100'
@@ -469,7 +490,15 @@ export default function TourLeading() {
                           </p>
                         </div>
                       ) : (
-                        <p>Attendance checklists must be saved by clicking <b>Start Tour & Log Attendance</b> to mark the tour as active.</p>
+                        <div>
+                          <p>Attendance checklists must be saved by clicking <b>Start Tour & Log Attendance</b> to mark the tour as active.</p>
+                          {!isDepartureDateToday() && (
+                            <p className="text-rose-600 font-bold mt-1">⚠️ You can only start the tour on its departure date ({new Date(selectedDeparture.departureDate).toLocaleDateString("vi-VN")}).</p>
+                          )}
+                          {hasOngoingTour && (
+                            <p className="text-rose-600 font-bold mt-1">⚠️ You are already leading another ongoing tour. Complete it first.</p>
+                          )}
+                        </div>
                       )}
                     </div>
 
@@ -478,8 +507,17 @@ export default function TourLeading() {
                       {(selectedDeparture.status === 'SCHEDULED' || selectedDeparture.status === 'OPEN' || selectedDeparture.status === 'FULL') && (
                         <button
                           onClick={handleStartTour}
-                          disabled={actionLoading}
-                          className="bg-[#012d1d] hover:bg-[#023f29] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition duration-150 flex items-center gap-2"
+                          disabled={actionLoading || !isDepartureDateToday() || hasOngoingTour}
+                          title={
+                            hasOngoingTour 
+                              ? "You are already leading another ongoing tour" 
+                              : (!isDepartureDateToday() ? "You can only start the tour on its departure date" : "")
+                          }
+                          className={`px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition duration-150 flex items-center gap-2 ${
+                            (!isDepartureDateToday() || hasOngoingTour)
+                              ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed font-medium'
+                              : 'bg-[#012d1d] hover:bg-[#023f29] text-white cursor-pointer'
+                          }`}
                         >
                           {actionLoading && <RefreshCw size={15} className="animate-spin" />}
                           Start Tour & Log Attendance
