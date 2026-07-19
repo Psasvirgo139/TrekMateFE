@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { Calendar, User, Plus, Minus, Info, AlertCircle, Check, Shield, FileText, ChevronRight, HelpCircle, Sparkles } from "lucide-react";
 import Header from "../../components/layout/Header";
 import { fetchAvailableEquipments } from "../../services/equipmentApi";
@@ -31,6 +31,11 @@ const getEquipmentIcon = (iconName) => {
 export default function TourBooking() {
   const { idOrSlug } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const passedNumParticipants = location.state?.numParticipants;
+  const initialNum = passedNumParticipants ? parseInt(passedNumParticipants, 10) : 1;
+  const initialSelectedDepartureId = location.state?.selectedDepartureId;
 
   const [tour, setTour] = useState(null);
   const [departures, setDepartures] = useState([]);
@@ -43,12 +48,14 @@ export default function TourBooking() {
   const [formErrors, setFormErrors] = useState({});
 
   // Booking states
-  const [numParticipants, setNumParticipants] = useState(1);
+  const [numParticipants, setNumParticipants] = useState(initialNum);
   const [isJoinTour, setIsJoinTour] = useState(true);
   const [specialRequests, setSpecialRequests] = useState("");
-  const [participantsInfo, setParticipantsInfo] = useState([
-    { name: "", dob: "", phone: "", emergency_contact: "" }
-  ]);
+  const [participantsInfo, setParticipantsInfo] = useState(() => {
+    return Array.from({ length: initialNum }, () => ({
+      name: "", dob: "", phone: "", emergency_contact: ""
+    }));
+  });
   
   // Selected rental quantities: { [equipmentId]: quantity }
   const [rentals, setRentals] = useState({});
@@ -87,7 +94,20 @@ export default function TourBooking() {
         setDepartures(activeDeps);
         
         if (activeDeps.length > 0) {
-          setSelectedDeparture(activeDeps[0]);
+          const found = initialSelectedDepartureId 
+            ? activeDeps.find(d => d.id === initialSelectedDepartureId || d.departureId === initialSelectedDepartureId) 
+            : null;
+          const targetDeparture = found || activeDeps[0];
+          setSelectedDeparture(targetDeparture);
+
+          // Safe bounds check against selected departure's available slots
+          const maxSlots = targetDeparture.availableSlots || 10;
+          if (initialNum > maxSlots) {
+            setNumParticipants(maxSlots);
+            setParticipantsInfo(Array.from({ length: maxSlots }, () => ({
+              name: "", dob: "", phone: "", emergency_contact: ""
+            })));
+          }
         }
 
         // Fetch Equipments
@@ -163,24 +183,30 @@ export default function TourBooking() {
 
   // Adjust participant details list when count changes
   const handleParticipantsCountChange = (count) => {
+    if (count === "" || isNaN(count)) {
+      setNumParticipants("");
+      return;
+    }
     if (count < 1) return;
-    setNumParticipants(count);
+    
+    const maxSlots = selectedDeparture?.availableSlots || 10;
+    const finalCount = count > maxSlots ? maxSlots : count;
+
+    setNumParticipants(finalCount);
     
     setParticipantsInfo(prev => {
       const copy = [...prev];
-      if (count > prev.length) {
+      if (finalCount > prev.length) {
         // Add new participant template
-        for (let i = prev.length; i < count; i++) {
+        for (let i = prev.length; i < finalCount; i++) {
           copy.push({ name: "", dob: "", phone: "", emergency_contact: "" });
         }
-      } else if (count < prev.length) {
+      } else if (finalCount < prev.length) {
         // Shrink
-        return copy.slice(0, count);
+        return copy.slice(0, finalCount);
       }
       return copy;
     });
-
-
 
     // Clean up formErrors for deleted indices
     setFormErrors(prev => {
@@ -188,7 +214,7 @@ export default function TourBooking() {
       Object.keys(nextErrors).forEach(key => {
         const parts = key.split("-");
         const idx = parseInt(parts[parts.length - 1]);
-        if (idx >= count) {
+        if (idx >= finalCount) {
           delete nextErrors[key];
         }
       });
@@ -276,7 +302,7 @@ export default function TourBooking() {
   // Pricing calculations
   const tourDurationDays = tour?.durationDays || 1;
   const pricePerPerson = selectedDeparture?.pricePerPerson || 0;
-  const tourSubtotal = numParticipants * pricePerPerson;
+  const tourSubtotal = (Number(numParticipants) || 0) * pricePerPerson;
   
   const rentalSubtotal = Object.keys(rentals).reduce((sum, eqId) => {
     const eq = equipments.find(e => e.id === parseInt(eqId));
@@ -374,7 +400,7 @@ export default function TourBooking() {
 
       const bookingPayload = {
         departureId: selectedDeparture.departureId,
-        numParticipants: numParticipants,
+        numParticipants: parseInt(numParticipants, 10) || 1,
         isJoinTour: isJoinTour,
         specialRequests: specialRequests,
         participantsInfo: participantsInfo,
@@ -568,16 +594,39 @@ export default function TourBooking() {
                     <button
                       type="button"
                       disabled={numParticipants <= 1}
-                      onClick={() => handleParticipantsCountChange(numParticipants - 1)}
+                      onClick={() => handleParticipantsCountChange(typeof numParticipants === "number" ? numParticipants - 1 : 1)}
                       className="w-8 h-8 rounded-full bg-white hover:bg-gray-100 flex items-center justify-center border border-gray-200 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
-                    <span className="font-extrabold text-[#012d1d] text-base px-2">{numParticipants}</span>
+                    <input
+                      type="number"
+                      value={numParticipants}
+                      min={1}
+                      max={selectedDeparture?.availableSlots || 10}
+                      onChange={(e) => {
+                        let val = parseInt(e.target.value, 10);
+                        if (isNaN(val) || val < 1) {
+                          handleParticipantsCountChange("");
+                        } else {
+                          const maxSlots = selectedDeparture?.availableSlots || 10;
+                          if (val > maxSlots) {
+                            val = maxSlots;
+                          }
+                          handleParticipantsCountChange(val);
+                        }
+                      }}
+                      onBlur={() => {
+                        if (numParticipants === "" || isNaN(numParticipants)) {
+                          handleParticipantsCountChange(1);
+                        }
+                      }}
+                      className="text-center font-extrabold text-[#012d1d] text-base border border-gray-200 rounded-xl py-0.5 w-12 outline-none focus:border-[#fea619] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
                     <button
                       type="button"
                       disabled={selectedDeparture && numParticipants >= selectedDeparture.availableSlots}
-                      onClick={() => handleParticipantsCountChange(numParticipants + 1)}
+                      onClick={() => handleParticipantsCountChange(typeof numParticipants === "number" ? numParticipants + 1 : 1)}
                       className="w-8 h-8 rounded-full bg-white hover:bg-gray-100 flex items-center justify-center border border-gray-200 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
                       <Plus className="w-4 h-4" />
@@ -857,7 +906,7 @@ export default function TourBooking() {
                 {/* Price Breakdown */}
                 <div className="space-y-3 pb-6 border-b border-gray-100 text-xs md:text-sm">
                   <div className="flex justify-between items-center py-0.5">
-                    <span className="text-gray-400">Tour price x {numParticipants} travelers</span>
+                    <span className="text-gray-400">Tour price x {numParticipants || 1} travelers</span>
                     <span className="font-bold text-gray-800">{new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(tourSubtotal)}</span>
                   </div>
 

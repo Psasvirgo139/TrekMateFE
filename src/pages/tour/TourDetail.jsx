@@ -189,17 +189,7 @@ const TourDetail = () => {
           >
             <span>←</span> Back to tours list
           </Link>
-          {tour?.status && (
-            <span
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${
-                tour.status.toLowerCase() === "active"
-                  ? "bg-emerald-100 text-emerald-800"
-                  : "bg-amber-100 text-amber-800"
-              }`}
-            >
-              Status: {tour.status}
-            </span>
-          )}
+
         </div>
 
         {/* Loading State */}
@@ -232,16 +222,7 @@ const TourDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Left Content Area (8 columns) */}
             <div className="lg:col-span-8 space-y-8">
-              {/* Detailed Description */}
-              <section className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm transition-all duration-300">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="w-1.5 h-6 bg-[#fea619] rounded-full"></span>
-                  <h2 className="font-montserrat font-bold text-xl md:text-2xl text-gray-800 m-0">Detailed Tour Description</h2>
-                </div>
-                <p className="text-gray-600 leading-relaxed text-sm md:text-base whitespace-pre-line">
-                  {tour.description || "No detailed description available for this tour."}
-                </p>
-              </section>
+
 
               {/* Timeline / Daily Itinerary */}
               <section className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm transition-all duration-300">
@@ -264,10 +245,10 @@ const TourDetail = () => {
                           <div className="bg-gray-50/75 hover:bg-gray-50 border border-gray-100 rounded-2xl p-5 transition-all duration-300">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-3">
                               <h3 className="font-montserrat font-bold text-base md:text-lg text-gray-800 m-0">
-                                Day {day.dayNumber}: {day.dayTitle}
+                                {day.dayTitle}
                               </h3>
                               {day.dayDifficulty && (
-                                <span className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded bg-white shadow-sm border border-gray-100 self-start md:self-auto ${getDifficultyColor(day.dayDifficulty)}`}>
+                                <span className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded shadow-sm border border-gray-100 self-start md:self-auto ${getDifficultyColor(day.dayDifficulty)}`}>
                                   {day.dayDifficulty}
                                 </span>
                               )}
@@ -443,16 +424,7 @@ const TourDetail = () => {
                   Booking Details
                 </h3>
 
-                {/* Rating */}
-                <div className="flex items-center gap-1.5 mb-6 bg-gray-50 p-3 rounded-2xl border border-gray-100">
-                  <RatingStars rating={tour.avgRating} className="text-base" />
-                  <span className="font-extrabold text-gray-800 text-sm ml-1">
-                    {tour.avgRating ? parseFloat(tour.avgRating).toFixed(1) : "0.0"}
-                  </span>
-                  <span className="text-gray-400 text-xs">
-                    ({tour.totalBookings || 0} bookings)
-                  </span>
-                </div>
+
 
                 {/* Stat details list */}
                 <div className="space-y-4 mb-6 pb-6 border-b border-gray-100 text-sm">
@@ -557,13 +529,36 @@ const TourDetail = () => {
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => setNumParticipants(p => Math.max(1, p - 1))}
+                          onClick={() => setNumParticipants(p => Math.max(1, typeof p === "number" ? p - 1 : 1))}
                           className="w-9 h-9 rounded-xl border border-gray-200 bg-white flex items-center justify-center font-bold text-lg text-gray-600 hover:bg-gray-50 transition-all"
                         >−</button>
-                        <span className="flex-1 text-center font-extrabold text-gray-800 text-lg">{numParticipants}</span>
+                        <input
+                          type="number"
+                          value={numParticipants}
+                          min={1}
+                          max={selectedDeparture?.availableSlots || 10}
+                          onChange={(e) => {
+                            let val = parseInt(e.target.value, 10);
+                            if (isNaN(val) || val < 1) {
+                              setNumParticipants("");
+                            } else {
+                              const maxSlots = selectedDeparture?.availableSlots || 10;
+                              if (val > maxSlots) {
+                                val = maxSlots;
+                              }
+                              setNumParticipants(val);
+                            }
+                          }}
+                          onBlur={() => {
+                            if (numParticipants === "" || isNaN(numParticipants)) {
+                              setNumParticipants(1);
+                            }
+                          }}
+                          className="flex-1 text-center font-extrabold text-gray-800 text-lg border border-gray-200 rounded-xl py-1 w-16 outline-none focus:border-[#fea619] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
                         <button
                           type="button"
-                          onClick={() => setNumParticipants(p => Math.min(selectedDeparture?.availableSlots || 10, p + 1))}
+                          onClick={() => setNumParticipants(p => Math.min(selectedDeparture?.availableSlots || 10, typeof p === "number" ? p + 1 : 1))}
                           className="w-9 h-9 rounded-xl border border-gray-200 bg-white flex items-center justify-center font-bold text-lg text-gray-600 hover:bg-gray-50 transition-all"
                         >+</button>
                       </div>
@@ -585,6 +580,7 @@ const TourDetail = () => {
                 {/* CTA Button */}
                 <Link
                   to={`/tours/${tour.slug}/book`}
+                  state={{ numParticipants: numParticipants || 1, selectedDepartureId: selectedDeparture?.id }}
                   className="w-full py-4 bg-[#fea619] hover:bg-[#ffb638] text-[#012d1d] font-extrabold text-xs rounded-2xl shadow-lg shadow-[#fea619]/25 hover:shadow-xl transition-all duration-300 block text-center uppercase tracking-widest hover:-translate-y-0.5 active:scale-95"
                 >
                   Book Tour Now
