@@ -63,7 +63,7 @@ export default function CustomerProfileForm({ formData, onChange }) {
 
       {/* Emergency Contact */}
       <div className="border-t border-slate-100 pt-4">
-        <h4 className="font-extrabold text-trek-primary text-xs uppercase tracking-wider mb-3">Emergency Contact (Khẩn Cấp)</h4>
+        <h4 className="font-extrabold text-trek-primary text-xs uppercase tracking-wider mb-3">Emergency Contact</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Field label="Contact Name">
             <input type="text" value={formData.emergencyContactName || ''} onChange={(e) => set('emergencyContactName', e.target.value)} className={inputCls} />
