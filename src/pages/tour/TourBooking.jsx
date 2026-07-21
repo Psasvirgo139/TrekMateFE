@@ -1,8 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { Calendar, User, Plus, Minus, Info, AlertCircle, Check, Shield, FileText, ChevronRight, HelpCircle } from "lucide-react";
+import React, { useEffect, useState, useCallback } from "react";
+import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
+import { Calendar, User, Plus, Minus, Info, AlertCircle, Check, Shield, FileText, ChevronRight, HelpCircle, Sparkles } from "lucide-react";
 import Header from "../../components/layout/Header";
-import api from "../../services/api";
+import { fetchAvailableEquipments } from "../../services/equipmentApi";
+import { fetchPublicTourDetail, fetchDeparturesByTour } from "../../services/tourApi";
+import { createBooking, fetchDepartureWeather, fetchAiGearRecommendation } from "../../services/bookingApi";
+import { createPayOSPayment } from "../../services/paymentApi";
+import WeatherForecast from "../../components/booking/WeatherForecast";
 import { useToast } from "../../context/ToastContext";
 
 // Same destination images as TourCard & TourDetail
@@ -29,6 +33,11 @@ export default function TourBooking() {
   const { idOrSlug } = useParams();
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const location = useLocation();
+
+  const passedNumParticipants = location.state?.numParticipants;
+  const initialNum = passedNumParticipants ? parseInt(passedNumParticipants, 10) : 1;
+  const initialSelectedDepartureId = location.state?.selectedDepartureId;
 
   const [tour, setTour] = useState(null);
   const [departures, setDepartures] = useState([]);
@@ -41,15 +50,26 @@ export default function TourBooking() {
   const [formErrors, setFormErrors] = useState({});
 
   // Booking states
-  const [numParticipants, setNumParticipants] = useState(1);
+  const [numParticipants, setNumParticipants] = useState(initialNum);
   const [isJoinTour, setIsJoinTour] = useState(true);
   const [specialRequests, setSpecialRequests] = useState("");
-  const [participantsInfo, setParticipantsInfo] = useState([
-    { name: "", dob: "", phone: "", emergency_contact: "" }
-  ]);
+  const [participantsInfo, setParticipantsInfo] = useState(() => {
+    return Array.from({ length: initialNum }, () => ({
+      name: "", dob: "", phone: "", emergency_contact: ""
+    }));
+  });
   
   // Selected rental quantities: { [equipmentId]: quantity }
   const [rentals, setRentals] = useState({});
+
+  // Weather forecast for selected departure
+  const [weatherForecast, setWeatherForecast] = useState([]);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+
+  // AI recommended equipment IDs to highlight
+  const [aiHighlightedIds, setAiHighlightedIds] = useState(new Set());
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiRan, setAiRan] = useState(false);
 
   useEffect(() => {
     const loadTourData = async () => {
@@ -57,15 +77,12 @@ export default function TourBooking() {
         setStatus("loading");
         
         // Fetch Tour Details
-        const tourRes = await api.get(`/tours/${idOrSlug}`);
-        if (!tourRes || tourRes.status !== 200 || !tourRes.data) {
-          throw new Error("Tour data not found.");
-        }
-        setTour(tourRes.data);
+        const tourData = await fetchPublicTourDetail(idOrSlug);
+        if (!tourData) throw new Error("Tour data not found.");
+        setTour(tourData);
 
         // Fetch Departures
-        const depRes = await api.get(`/tours/${idOrSlug}/departures`);
-        const deps = depRes?.data?.data || [];
+        const deps = await fetchDeparturesByTour(idOrSlug);
         
         // Filter OPEN/SCHEDULED departures that have slots and aren't past cutoff date
         const now = new Date();
@@ -79,12 +96,25 @@ export default function TourBooking() {
         setDepartures(activeDeps);
         
         if (activeDeps.length > 0) {
-          setSelectedDeparture(activeDeps[0]);
+          const found = initialSelectedDepartureId 
+            ? activeDeps.find(d => d.id === initialSelectedDepartureId || d.departureId === initialSelectedDepartureId) 
+            : null;
+          const targetDeparture = found || activeDeps[0];
+          setSelectedDeparture(targetDeparture);
+
+          // Safe bounds check against selected departure's available slots
+          const maxSlots = targetDeparture.availableSlots || 10;
+          if (initialNum > maxSlots) {
+            setNumParticipants(maxSlots);
+            setParticipantsInfo(Array.from({ length: maxSlots }, () => ({
+              name: "", dob: "", phone: "", emergency_contact: ""
+            })));
+          }
         }
 
         // Fetch Equipments
-        const equipRes = await api.get("/v1/equipments");
-        const equips = equipRes?.data?.data || [];
+        const equipRes = await fetchAvailableEquipments();
+        const equips = equipRes?.content || [];
         setEquipments(equips);
         
         setStatus("success");
@@ -98,26 +128,87 @@ export default function TourBooking() {
     loadTourData();
   }, [idOrSlug]);
 
+  // Fetch weather whenever selectedDeparture changes
+  useEffect(() => {
+    if (!selectedDeparture?.departureId) {
+      setWeatherForecast([]);
+      return;
+    }
+    setWeatherLoading(true);
+    fetchDepartureWeather(selectedDeparture.departureId)
+      .then((res) => {
+        // Axios interceptor tự động bóc tách trả về resData.data trực tiếp (là Array)
+        // Nếu không đi qua interceptor, fallback lấy res.data.data hoặc res.data
+        const forecast = Array.isArray(res) 
+          ? res 
+          : (res?.data?.data || res?.data || []);
+        setWeatherForecast(forecast);
+      })
+      .catch(() => setWeatherForecast([]))
+      .finally(() => setWeatherLoading(false));
+  }, [selectedDeparture?.departureId]);
+
+  // Auto-fetch AI recommendation once per departure (silent background)
+  const fetchAiHighlights = useCallback(async (departureId) => {
+    if (!departureId || aiLoading) return;
+    setAiLoading(true);
+    try {
+      const res = await fetchAiGearRecommendation(departureId);
+      // Axios interceptor tự động bóc tách trả về resData.data trực tiếp (là Object gợi ý)
+      const recommendation = (res && typeof res === 'object' && ('essentials' in res || 'recommended' in res))
+        ? res
+        : (res?.data?.data || res?.data || {});
+      const ids = new Set();
+      [...(recommendation?.essentials || []), ...(recommendation?.recommended || [])]
+        .filter((item) => item.isAvailableForRent && item.equipmentId)
+        .forEach((item) => ids.add(item.equipmentId));
+      setAiHighlightedIds(ids);
+      setAiRan(true);
+    } catch {
+      // Silently fail — AI highlight is non-critical
+    } finally {
+      setAiLoading(false);
+    }
+  }, [aiLoading]);
+
+
+
+  useEffect(() => {
+    if (selectedDeparture?.departureId && !aiRan) {
+      fetchAiHighlights(selectedDeparture.departureId);
+    }
+    // Reset AI highlights when departure changes
+    setAiHighlightedIds(new Set());
+    setAiRan(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDeparture?.departureId]);
+
   // Adjust participant details list when count changes
   const handleParticipantsCountChange = (count) => {
+    if (count === "" || isNaN(count)) {
+      setNumParticipants("");
+      return;
+    }
     if (count < 1) return;
-    setNumParticipants(count);
+    
+    const maxSlots = selectedDeparture?.availableSlots || 10;
+    const finalCount = count > maxSlots ? maxSlots : count;
+
+    setNumParticipants(finalCount);
     
     setParticipantsInfo(prev => {
       const copy = [...prev];
-      if (count > prev.length) {
+      if (finalCount > prev.length) {
         // Add new participant template
-        for (let i = prev.length; i < count; i++) {
+        for (let i = prev.length; i < finalCount; i++) {
           copy.push({ name: "", dob: "", phone: "", emergency_contact: "" });
         }
-      } else if (count < prev.length) {
+      } else if (finalCount < prev.length) {
         // Shrink
-        return copy.slice(0, count);
+        return copy.slice(0, finalCount);
       }
       return copy;
     });
-
-
 
     // Clean up formErrors for deleted indices
     setFormErrors(prev => {
@@ -125,7 +216,7 @@ export default function TourBooking() {
       Object.keys(nextErrors).forEach(key => {
         const parts = key.split("-");
         const idx = parseInt(parts[parts.length - 1]);
-        if (idx >= count) {
+        if (idx >= finalCount) {
           delete nextErrors[key];
         }
       });
@@ -213,7 +304,7 @@ export default function TourBooking() {
   // Pricing calculations
   const tourDurationDays = tour?.durationDays || 1;
   const pricePerPerson = selectedDeparture?.pricePerPerson || 0;
-  const tourSubtotal = numParticipants * pricePerPerson;
+  const tourSubtotal = (Number(numParticipants) || 0) * pricePerPerson;
   
   const rentalSubtotal = Object.keys(rentals).reduce((sum, eqId) => {
     const eq = equipments.find(e => e.id === parseInt(eqId));
@@ -311,7 +402,7 @@ export default function TourBooking() {
 
       const bookingPayload = {
         departureId: selectedDeparture.departureId,
-        numParticipants: numParticipants,
+        numParticipants: parseInt(numParticipants, 10) || 1,
         isJoinTour: isJoinTour,
         specialRequests: specialRequests,
         participantsInfo: participantsInfo,
@@ -319,26 +410,23 @@ export default function TourBooking() {
       };
 
       // 1. Create Booking (PENDING)
-      const bookingRes = await api.post("/v1/bookings", bookingPayload);
-      if (!bookingRes || bookingRes.status > 299 || !bookingRes.data) {
+      const bookingData = await createBooking(bookingPayload);
+      if (!bookingData) {
         throw new Error("No response from server while creating booking.");
       }
 
-      const bookingData = bookingRes.data.data;
       const createdBookingId = bookingData.id;
       const createdTotalPrice = bookingData.totalPrice;
 
       // 2. Create PayOS Payment Url
-      const paymentRes = await api.post("/v1/payments/payos/create", {
+      const paymentData = await createPayOSPayment({
         bookingId: createdBookingId,
         amount: createdTotalPrice
       });
 
-      if (!paymentRes || paymentRes.status !== 200 || !paymentRes.data?.data) {
+      if (!paymentData) {
         throw new Error("PayOS payment creation failed. You can retry payment from booking history.");
       }
-
-      const paymentData = paymentRes.data.data;
 
       if (paymentData.checkoutUrl) {
         // Redirect to PayOS checkout page
@@ -484,6 +572,16 @@ export default function TourBooking() {
                 )}
               </section>
 
+              {/* Weather forecast card — updates with selected departure */}
+              {selectedDeparture && (
+                <WeatherForecast
+                  weatherForecast={weatherForecast}
+                  departureDate={selectedDeparture?.departureDate}
+                  returnDate={selectedDeparture?.returnDate}
+                  loading={weatherLoading}
+                />
+              )}
+
               {/* Step 2: Participants input */}
               <section className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -498,16 +596,39 @@ export default function TourBooking() {
                     <button
                       type="button"
                       disabled={numParticipants <= 1}
-                      onClick={() => handleParticipantsCountChange(numParticipants - 1)}
+                      onClick={() => handleParticipantsCountChange(typeof numParticipants === "number" ? numParticipants - 1 : 1)}
                       className="w-8 h-8 rounded-full bg-white hover:bg-gray-100 flex items-center justify-center border border-gray-200 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
-                    <span className="font-extrabold text-[#012d1d] text-base px-2">{numParticipants}</span>
+                    <input
+                      type="number"
+                      value={numParticipants}
+                      min={1}
+                      max={selectedDeparture?.availableSlots || 10}
+                      onChange={(e) => {
+                        let val = parseInt(e.target.value, 10);
+                        if (isNaN(val) || val < 1) {
+                          handleParticipantsCountChange("");
+                        } else {
+                          const maxSlots = selectedDeparture?.availableSlots || 10;
+                          if (val > maxSlots) {
+                            val = maxSlots;
+                          }
+                          handleParticipantsCountChange(val);
+                        }
+                      }}
+                      onBlur={() => {
+                        if (numParticipants === "" || isNaN(numParticipants)) {
+                          handleParticipantsCountChange(1);
+                        }
+                      }}
+                      className="text-center font-extrabold text-[#012d1d] text-base border border-gray-200 rounded-xl py-0.5 w-12 outline-none focus:border-[#fea619] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
                     <button
                       type="button"
                       disabled={selectedDeparture && numParticipants >= selectedDeparture.availableSlots}
-                      onClick={() => handleParticipantsCountChange(numParticipants + 1)}
+                      onClick={() => handleParticipantsCountChange(typeof numParticipants === "number" ? numParticipants + 1 : 1)}
                       className="w-8 h-8 rounded-full bg-white hover:bg-gray-100 flex items-center justify-center border border-gray-200 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
                       <Plus className="w-4 h-4" />
@@ -659,9 +780,21 @@ export default function TourBooking() {
 
               {/* Step 3: Rental equipment selection */}
               <section className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="w-1.5 h-6 bg-[#fea619] rounded-full"></span>
-                  <h2 className="font-montserrat font-bold text-xl text-gray-800 m-0">Step 3: Rent optional trekking equipment</h2>
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <div className="flex items-center gap-3">
+                    <span className="w-1.5 h-6 bg-[#fea619] rounded-full"></span>
+                    <h2 className="font-montserrat font-bold text-xl text-gray-800 m-0">Step 3: Rent optional trekking equipment</h2>
+                  </div>
+                  {aiLoading && (
+                    <span className="flex items-center gap-1.5 text-[11px] text-emerald-600 font-semibold animate-pulse">
+                      <Sparkles className="w-3.5 h-3.5" /> AI đang phân tích...
+                    </span>
+                  )}
+                  {!aiLoading && aiHighlightedIds.size > 0 && (
+                    <span className="flex items-center gap-1.5 text-[11px] text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
+                      <Sparkles className="w-3.5 h-3.5" /> AI gợi ý {aiHighlightedIds.size} món
+                    </span>
+                  )}
                 </div>
                 <p className="text-xs text-gray-400 mb-6">
                   * Rental price is calculated based on tour duration ({tourDurationDays} days). Max quantity is limited by remaining stock.
@@ -671,10 +804,17 @@ export default function TourBooking() {
                   {equipments.map((eq) => {
                     const isSelected = Boolean(rentals[eq.id]);
                     const currentQty = rentals[eq.id] || 1;
+                    const isAiHighlighted = aiHighlightedIds.has(eq.id);
 
                     return (
-                      <div key={eq.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
-                        
+                      <div
+                        key={eq.id}
+                        className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 first:pt-0 last:pb-0 rounded-xl px-2 transition-all ${
+                          isAiHighlighted
+                            ? "bg-emerald-50/60 border border-emerald-200/70 -mx-2 px-4"
+                            : ""
+                        }`}
+                      >
                         {/* Checkbox and info */}
                         <div className="flex items-start gap-4 flex-grow min-w-0">
                           <input
@@ -685,7 +825,14 @@ export default function TourBooking() {
                           />
                           <div className="text-2xl shrink-0">{getEquipmentIcon(eq.categoryIcon)}</div>
                           <div className="min-w-0">
-                            <h4 className="font-bold text-[#012d1d] text-sm leading-snug">{eq.name}</h4>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h4 className="font-bold text-[#012d1d] text-sm leading-snug">{eq.name}</h4>
+                              {isAiHighlighted && (
+                                <span className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wide text-emerald-700 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-full">
+                                  <Sparkles className="w-2.5 h-2.5" /> AI recommend
+                                </span>
+                              )}
+                            </div>
                             <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{eq.description}</p>
                             <span className="inline-block text-[11px] text-[#fea619] font-bold mt-1 bg-amber-50 px-2 py-0.5 rounded border border-amber-100/50">
                               {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(eq.pricePerDay)}/day
@@ -761,7 +908,7 @@ export default function TourBooking() {
                 {/* Price Breakdown */}
                 <div className="space-y-3 pb-6 border-b border-gray-100 text-xs md:text-sm">
                   <div className="flex justify-between items-center py-0.5">
-                    <span className="text-gray-400">Tour price x {numParticipants} travelers</span>
+                    <span className="text-gray-400">Tour price x {numParticipants || 1} travelers</span>
                     <span className="font-bold text-gray-800">{new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(tourSubtotal)}</span>
                   </div>
 

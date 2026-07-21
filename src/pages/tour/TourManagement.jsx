@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getTours, createTour, deleteTour, getTourCloneSource, addWaypoint, saveItinerary, addTourImage } from '../../services/tourManagementApi';
+import { getTours, createTour, deleteTour, getTourCloneSource, addWaypoint, saveItinerary, addTourImage, getTourDepartures } from '../../services/tourManagementApi';
 import { ArrowLeft, Search, Edit2, Trash2, Plus, MapPin, Copy } from 'lucide-react';
 import CreateTourModal from '../../components/tour/CreateTourModal';
 import ConfirmDeleteModal from '../../components/tour/ConfirmDeleteModal';
 import Pagination from '../../components/common/Pagination';
+import Header from '../../components/layout/Header';
 
 const TourManagement = () => {
   const navigate = useNavigate();
@@ -27,6 +28,8 @@ const TourManagement = () => {
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [cloneSourceData, setCloneSourceData] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
+  const [selectedTourDepartures, setSelectedTourDepartures] = useState([]);
+  const [checkingDepartures, setCheckingDepartures] = useState(false);
 
   // Toast alert state
   const [toast, setToast] = useState({ message: '', type: 'success', visible: false });
@@ -67,16 +70,9 @@ const TourManagement = () => {
 
       const response = await getTours(params);
       
-      if (response.data) {
-        const json = response.data;
-        // Handle wrapped response: { code: 200, data: { content: [...] } }
-        if (json.code === 200 && json.data) {
-          const pageData = json.data;
-          setTours(pageData.content || []);
-          setTotalElements(pageData.page?.totalElements ?? pageData.totalElements ?? 0);
-          setTotalPages(pageData.page?.totalPages ?? pageData.totalPages ?? 0);
-        // Fallbacks for legacy/alternative formats
-        } else if (json.content !== undefined) {
+      if (response) {
+        const json = response;
+        if (json.content !== undefined) {
           setTours(json.content || []);
           setTotalElements(json.page?.totalElements ?? json.totalElements ?? 0);
           setTotalPages(json.page?.totalPages ?? json.totalPages ?? 0);
@@ -114,7 +110,7 @@ const TourManagement = () => {
   const handleCreate = async (formData) => {
     try {
       const response = await createTour(formData);
-      const newTour = response.data;
+      const newTour = response;
       const newTourId = newTour ? newTour.id : null;
 
       if (!newTourId) {
@@ -158,7 +154,7 @@ const TourManagement = () => {
             isActive: wp.isActive
           };
           const wpRes = await addWaypoint(newTourId, wpPayload);
-          const newWp = wpRes.data;
+          const newWp = wpRes;
           if (newWp && newWp.id) {
             oldToNewWpIdMap[wp.id] = newWp.id;
           }
@@ -229,8 +225,8 @@ const TourManagement = () => {
     try {
       showToast('Fetching clone data from server...', 'success');
       const response = await getTourCloneSource(id);
-      if (response.data) {
-        setCloneSourceData(response.data);
+      if (response) {
+        setCloneSourceData(response);
         setIsNewModalOpen(true);
       } else {
         showToast('Failed to fetch clone source details.', 'danger');
@@ -241,18 +237,34 @@ const TourManagement = () => {
     }
   };
 
-  // Handle tour archiving/deletion
   const handleDeleteConfirm = async () => {
     if (!deleteId) return;
     try {
       await deleteTour(deleteId);
       showToast('Tour archived successfully.');
       setDeleteId(null);
+      setSelectedTourDepartures([]);
       fetchToursData();
     } catch (error) {
       console.error(error);
       showToast('Failed to archive the tour!', 'danger');
       setDeleteId(null);
+      setSelectedTourDepartures([]);
+    }
+  };
+
+  const handleDeleteClick = async (tourId) => {
+    setDeleteId(tourId);
+    setSelectedTourDepartures([]);
+    setCheckingDepartures(true);
+    try {
+      const res = await getTourDepartures(tourId, { size: 100 });
+      const depList = res?.content || (Array.isArray(res) ? res : []);
+      setSelectedTourDepartures(depList);
+    } catch (error) {
+      console.error("Error checking departures for archiving:", error);
+    } finally {
+      setCheckingDepartures(false);
     }
   };
 
@@ -287,9 +299,18 @@ const TourManagement = () => {
     }
   };
 
+  const tourToDelete = tours.find(t => t.id === deleteId);
+  const tourTitleToDelete = tourToDelete?.title || '';
+  const hasActiveDepartures = selectedTourDepartures.some(d => 
+    d.status === 'OPEN' || d.status === 'SCHEDULED' || d.status === 'ONGOING'
+  );
+
   return (
-    <div className="bg-[#f8f9ff] min-h-screen py-10 px-4 md:px-12 font-sans text-gray-800">
-      {/* Toast Alert */}
+    <div className="bg-[#f8f9ff] min-h-screen pb-10 font-sans text-gray-800">
+      <Header hideHero={true} />
+      <div className="h-[80px] bg-[#012d1d] w-full" />
+      <div className="px-4 md:px-12 pt-6">
+        {/* Toast Alert */}
       {toast.visible && (
         <div 
           className="fixed top-5 right-5 z-[50000] p-4 rounded-xl shadow-xl flex items-center justify-between gap-4 text-white bg-opacity-95 transform transition-all duration-300 animate-slide-in"
@@ -510,7 +531,7 @@ const TourManagement = () => {
                         <Copy size={16} />
                       </button>
                       <button 
-                        onClick={() => setDeleteId(tour.id)}
+                        onClick={() => handleDeleteClick(tour.id)}
                         className="p-2 text-gray-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors focus:outline-none"
                         title="Archive Tour"
                       >
@@ -551,10 +572,17 @@ const TourManagement = () => {
       {/* Confirmation Modal */}
       <ConfirmDeleteModal 
         show={deleteId !== null}
-        onClose={() => setDeleteId(null)}
+        onClose={() => { setDeleteId(null); setSelectedTourDepartures([]); }}
         onConfirm={handleDeleteConfirm}
-        tourTitle={tours.find(t => t.id === deleteId)?.title || ''}
+        tourTitle={tourTitleToDelete}
+        message={checkingDepartures 
+          ? "Checking active departures..." 
+          : (hasActiveDepartures 
+              ? `This tour has open, scheduled, or ongoing departures. Cannot delete/archive.` 
+              : undefined)}
+        showConfirm={!checkingDepartures && !hasActiveDepartures}
       />
+      </div>
     </div>
   );
 };

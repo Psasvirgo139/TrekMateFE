@@ -26,8 +26,8 @@ export default function ReviewForm({ tourSlug, onClose, onSuccess }) {
       try {
         setLoadingBookings(true);
         const res = await bookingApi.fetchMyBookings({ page: 0, size: 100 });
-        if (res?.data?.content) {
-          const eligible = res.data.content.filter(
+        if (res?.content) {
+          const eligible = res.content.filter(
             (b) => b.tourSlug === tourSlug && b.status === 'COMPLETED'
           );
           setBookings(eligible);

@@ -5,12 +5,9 @@ import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Home from './pages/Home';
-import About from './pages/About';
 import Locations from './pages/tour/Locations';
-import Adventures from './pages/Adventures';
 import TourDetail from './pages/tour/TourDetail';
 import TourBooking from './pages/tour/TourBooking';
-import Contact from './pages/Contact';
 import FAQ from './pages/FAQ';
 import Payment from './pages/payment/Payment';
 import PaymentSuccess from './pages/payment/PaymentSuccess';
@@ -25,7 +22,8 @@ import GuideDashboardLayout from './layouts/GuideDashboardLayout';
 import UserManagement from './pages/guide/UserManagement';
 import GuidePlaceholder from './pages/guide/GuidePlaceholder';
 import EquipmentManagement from './pages/guide/EquipmentManagement';
-import UserProfileDemo from './pages/UserProfileDemo';
+import Profile from './pages/Profile';
+import TourLeading from './pages/guide/TourLeading';
 
 import BookingHistory from './pages/BookingHistory';
 import BookingDetail from './pages/BookingDetail';
@@ -91,9 +89,8 @@ function AppRoutes() {
           />
         </Route>
         <Route path="/" element={<Home />} />
-        <Route path='/about' element={<About />} />
-        <Route path='/locations' element={<ProtectedRoute><Locations /></ProtectedRoute>} />
-        <Route path='/adventures' element={<Adventures />} />
+        <Route path='/about' element={<Navigate to="/" state={{ scrollTo: "about-section" }} replace />} />
+        <Route path='/locations' element={<Locations />} />
         <Route path='/tours/:idOrSlug' element={<TourDetail />} />
         <Route
           path='/tours/:idOrSlug/book'
@@ -103,7 +100,7 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
-        <Route path='/contact' element={<Contact/>} />
+        <Route path='/contact' element={<Navigate to="/" state={{ scrollTo: "contact-section" }} replace />} />
         <Route path='/faq' element={<FAQ/>} />
         <Route
           path='/payment'
@@ -118,7 +115,7 @@ function AppRoutes() {
         <Route
           path='/admin/tours'
           element={
-            <ProtectedRoute roles={['GUIDE', 'ADMIN']}>
+            <ProtectedRoute roles={['ADMIN']}>
               <TourManagement />
             </ProtectedRoute>
           }
@@ -126,7 +123,7 @@ function AppRoutes() {
         <Route
           path='/admin/tours/:id'
           element={
-            <ProtectedRoute roles={['GUIDE', 'ADMIN']}>
+            <ProtectedRoute roles={['ADMIN']}>
               <TourEditPage />
             </ProtectedRoute>
           }
@@ -141,7 +138,16 @@ function AppRoutes() {
         />
         <Route path='/bookings' element={<BookingHistory />} />
         <Route path='/bookings/:id' element={<BookingDetail />} />
-        <Route path='/profile' element={<UserProfileDemo />} />
+        <Route path='/profile' element={<Profile />} />
+        <Route
+          path='/tour-leading'
+          element={
+            <ProtectedRoute roles={['GUIDE']}>
+              <TourLeading />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       {!isGuideArea && !isAuthPage && <Footer />}
     </>

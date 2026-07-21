@@ -6,8 +6,7 @@ import api from './api';
  * @param {Object} params - Query params (page, size, sortBy)
  */
 export const fetchReviewsByTour = async (tourId, params = {}) => {
-  const response = await api.get(`/reviews/tour/${tourId}`, { params });
-  return response.data;
+  return api.get(`/reviews/tour/${tourId}`, { params });
 };
 
 /**
@@ -15,8 +14,7 @@ export const fetchReviewsByTour = async (tourId, params = {}) => {
  * @param {string} tourId - Tour UUID
  */
 export const fetchReviewSummary = async (tourId) => {
-  const response = await api.get(`/reviews/tour/${tourId}/summary`);
-  return response.data;
+  return api.get(`/reviews/tour/${tourId}/summary`);
 };
 
 /**
@@ -24,8 +22,7 @@ export const fetchReviewSummary = async (tourId) => {
  * @param {Object} payload - Review data
  */
 export const createReview = async (payload) => {
-  const response = await api.post('/reviews', payload);
-  return response.data;
+  return api.post('/reviews', payload);
 };
 
 /**
@@ -33,8 +30,7 @@ export const createReview = async (payload) => {
  * @param {number|string} reviewId - Review ID
  */
 export const toggleHelpful = async (reviewId) => {
-  const response = await api.post(`/reviews/${reviewId}/helpful`);
-  return response.data;
+  return api.post(`/reviews/${reviewId}/helpful`);
 };
 
 /**
@@ -42,8 +38,7 @@ export const toggleHelpful = async (reviewId) => {
  * @param {number|string} reviewId - Review ID
  */
 export const deleteReview = async (reviewId) => {
-  const response = await api.delete(`/reviews/${reviewId}`);
-  return response.data;
+  return api.delete(`/reviews/${reviewId}`);
 };
 
 /**
@@ -52,6 +47,5 @@ export const deleteReview = async (reviewId) => {
  * @param {Object} payload - { guideReply }
  */
 export const replyToReview = async (reviewId, payload) => {
-  const response = await api.patch(`/reviews/${reviewId}/reply`, payload);
-  return response.data;
+  return api.patch(`/reviews/${reviewId}/reply`, payload);
 };

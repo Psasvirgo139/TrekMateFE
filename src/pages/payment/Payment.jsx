@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import PaymentMethodOption from "./components/PaymentMethodOption";
 import OrderSummary from "./components/OrderSummary";
-import api from "../../services/api";
+import { createPayOSPayment, makePayment } from "../../services/paymentApi";
 import { useToast } from "../../context/ToastContext";
 
 const Payment = () => {
@@ -30,23 +30,19 @@ const Payment = () => {
     setError("");
 
     try {
-      const endpoint = method === "PAYOS"
-        ? "/v1/payments/payos/create"
-        : "/v1/payments";
-
-      const response = await api.post(endpoint, {
+      const payload = {
         bookingId: parseInt(bookingId),
         amount: parseFloat(amount),
         paymentMethod: method,
-      });
+      };
 
-      const resData = response.data;
+      const data = method === "PAYOS"
+        ? await createPayOSPayment(payload)
+        : await makePayment(payload);
 
-      if (response.status !== 200 || resData.code !== 200) {
-        throw new Error(resData.message || "An error occurred while creating the payment");
+      if (!data) {
+        throw new Error("An error occurred while creating the payment");
       }
-
-      const data = resData.data;
 
       if (method === "PAYOS" && data.checkoutUrl) {
         window.location.href = data.checkoutUrl;

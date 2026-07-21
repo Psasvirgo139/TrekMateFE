@@ -123,8 +123,8 @@ const TourEditPage = () => {
     setErrorMsg('');
     try {
       const response = await getTourDetail(id);
-      if (response.data) {
-        const cleanedData = sanitizeTourData(response.data);
+      if (response) {
+        const cleanedData = sanitizeTourData(response);
         setTour(cleanedData);
         setWaypoints(cleanedData.waypoints || []);
         setItineraries(cleanedData.dailyItinerary || []);

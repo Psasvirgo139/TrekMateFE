@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import Header from "../../components/layout/Header";
-import api from "../../services/api";
+import { fetchPublicTours } from "../../services/tourApi";
 import TourCard from "../../components/tour/TourCard";
 import TourSkeleton from "../../components/tour/TourSkeleton";
-import Pagination from "../../../src/components/common/Pagination";
+import Pagination from "../../components/common/Pagination";
 
 const LOCATIONS_HERO = "https://i.pinimg.com/1200x/16/05/3e/16053eb88478eadf2042ed560fccf86b.jpg";
 
@@ -24,7 +24,7 @@ const Locations = () => {
     const qSearch = searchParams.get("search") || "";
     const qDifficulty = searchParams.get("difficulty") || "";
     const qDuration = searchParams.get("durationRange") || "";
-    
+
     setSearch(qSearch);
     setDifficulty(qDifficulty);
     setDurationRange(qDuration);
@@ -43,11 +43,9 @@ const Locations = () => {
     setLoading(true);
     setError(null);
     try {
-      // Build API query parameters object
       const queryParams = {
         page: page,
         size: size,
-        status: "ACTIVE", // Default to ACTIVE tours for public view
       };
 
       if (search.trim()) queryParams.search = search;
@@ -65,24 +63,17 @@ const Locations = () => {
       }
 
       // Axios call
-      const response = await api.get("/tours", { params: queryParams });
-      
-      if (response && response.status === 200 && response.data) {
-        const json = response.data;
-        // Handle standard API response layout from backend (code: 200 & data)
-        if (json.code === 200 && json.data) {
-          setTours(json.data.content || []);
-          setTotalPages(json.data.totalPages || 0);
-          setTotalElements(json.data.totalElements || 0);
-        // Fallbacks for legacy/alternative formats
-        } else if ((json.status === 200 || json.status === "200" || json.statusCode === 200) && json.data) {
-          setTours(json.data.content || []);
-          setTotalPages(json.data.totalPages || 0);
-          setTotalElements(json.data.totalElements || 0);
-        } else if (json.content !== undefined) {
+      const json = await fetchPublicTours(queryParams);
+
+      if (json) {
+        if (json.content !== undefined) {
           setTours(json.content || []);
-          setTotalPages(json.totalPages || 0);
-          setTotalElements(json.totalElements || 0);
+
+          // Spring Boot 3: pagination metadata is in nested `page` object
+          // Spring Boot 2: pagination metadata is at top-level
+          const pageInfo = json.page ?? json;
+          setTotalPages(pageInfo.totalPages || 0);
+          setTotalElements(pageInfo.totalElements || 0);
         } else if (Array.isArray(json)) {
           setTours(json);
           setTotalPages(1);
@@ -103,7 +94,7 @@ const Locations = () => {
   useEffect(() => {
     fetchTours();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, size, difficulty, durationRange, sort]);
+  }, [page, size, search, difficulty, durationRange, sort]);
 
   // Handle Search submit/enter
   const handleSearchKeyPress = (e) => {
@@ -158,24 +149,10 @@ const Locations = () => {
       />
 
       <main className="max-w-7xl mx-auto px-6 py-12">
-        
-        {/* Controls Card: Search, Filter, Sort (Glassmorphism layout) */}
+
+        {/* Controls Card: Filter, Sort (Glassmorphism layout) */}
         <section className="backdrop-blur-md bg-white/75 rounded-3xl shadow-xl shadow-[#012d1d]/5 border border-white/40 p-6 md:p-8 mb-8 transition-all duration-300">
           <div className="flex flex-col gap-6">
-
-            {/* Search Input */}
-            <div className="relative w-full">
-              <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-lg">🔍</span>
-              <input
-                type="text"
-                placeholder="Search tours by name, starting point, or ending point... (Press Enter)"
-                className="w-full pl-12 pr-5 py-4 rounded-full border border-gray-200/80 bg-white/50 focus:bg-white text-brand-dark focus:outline-none focus:ring-4 focus:ring-brand-orange/20 focus:border-brand-orange transition-all duration-300 placeholder:text-gray-400 shadow-inner"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onKeyDown={handleSearchKeyPress}
-                onBlur={handleSearchBlur}
-              />
-            </div>
 
             {/* Filters */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -264,19 +241,46 @@ const Locations = () => {
             {search && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-sky-50 text-sky-900 border border-sky-200 text-xs font-semibold">
                 Keyword: "{search}"
-                <button className="text-sky-600 hover:text-sky-800 font-bold" onClick={() => { setSearch(""); setPage(0); setTimeout(fetchTours, 50); }}>×</button>
+                <button 
+                  className="text-sky-600 hover:text-sky-800 font-bold" 
+                  onClick={() => { 
+                    const newParams = new URLSearchParams(searchParams);
+                    newParams.delete("search");
+                    setSearchParams(newParams);
+                  }}
+                >
+                  ×
+                </button>
               </span>
             )}
             {difficulty && (
               <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold ${getDifficultyColor(difficulty)}`}>
                 Difficulty: {difficulty}
-                <button className="hover:text-red-200 font-bold" onClick={() => { setDifficulty(""); setPage(0); }}>×</button>
+                <button 
+                  className="hover:text-red-200 font-bold" 
+                  onClick={() => { 
+                    const newParams = new URLSearchParams(searchParams);
+                    newParams.delete("difficulty");
+                    setSearchParams(newParams);
+                  }}
+                >
+                  ×
+                </button>
               </span>
             )}
             {durationRange && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-slate-100 text-slate-800 border border-slate-200 text-xs font-semibold">
                 Duration: {durationRange === "short" ? "< 3 days" : durationRange === "medium" ? "3 - 5 days" : "> 5 days"}
-                <button className="text-slate-600 hover:text-slate-900 font-bold" onClick={() => { setDurationRange(""); setPage(0); }}>×</button>
+                <button 
+                  className="text-slate-600 hover:text-slate-900 font-bold" 
+                  onClick={() => { 
+                    const newParams = new URLSearchParams(searchParams);
+                    newParams.delete("durationRange");
+                    setSearchParams(newParams);
+                  }}
+                >
+                  ×
+                </button>
               </span>
             )}
           </div>
@@ -330,14 +334,16 @@ const Locations = () => {
               ))}
             </div>
 
-            {/* Reusable Pagination */}
+            {/* Pagination */}
             <Pagination
               page={page}
               totalPages={totalPages}
               onPageChange={setPage}
               locale="en"
+              showSummary={true}
               totalElements={totalElements}
-              variant="round"
+              pageSize={size}
+              itemsCount={tours.length}
             />
           </>
         )}

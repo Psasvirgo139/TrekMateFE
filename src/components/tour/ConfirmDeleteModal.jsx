@@ -8,7 +8,8 @@ const ConfirmDeleteModal = ({
   message, 
   confirmText = "Delete", 
   cancelText = "Cancel",
-  tourTitle // fallback for legacy compatibility
+  tourTitle,
+  showConfirm = true
 }) => {
   if (!show) return null;
 
@@ -39,13 +40,15 @@ const ConfirmDeleteModal = ({
           >
             {cancelText}
           </button>
-          <button 
-            type="button"
-            onClick={onConfirm} 
-            className="px-5 py-2.5 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors duration-150 shadow-sm"
-          >
-            {displayConfirmText}
-          </button>
+          {showConfirm && (
+            <button 
+              type="button"
+              onClick={onConfirm} 
+              className="px-5 py-2.5 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors duration-150 shadow-sm"
+            >
+              {displayConfirmText}
+            </button>
+          )}
         </div>
       </div>
     </div>

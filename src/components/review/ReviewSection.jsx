@@ -24,7 +24,7 @@ export default function ReviewSection({ tourId, tourSlug }) {
       if (res?.content) {
         setReviews((prev) => resetPage ? res.content : [...prev, ...res.content]);
         if (resetPage) setPage(0);
-        setTotalPages(res.totalPages);
+        setTotalPages((res.page ?? res).totalPages ?? 0);
       }
     } catch (err) {
       console.error('Lỗi khi tải review:', err);

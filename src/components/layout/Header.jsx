@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth, useHasRole } from "../../context/AuthContext";
 import AuthNav from "./AuthNav";
 import Sidebar from "./Sidebar";
 
@@ -12,12 +12,18 @@ const Header = ({
   mainHeading,
   description,
   showDescription = true,
-  hideMenuButton = false
+  hideMenuButton = false,
+  hideHero = false
 }) => {
   const [openSidebar, setOpenSidebar] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user } = useAuth();
-  
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isGuide = useHasRole('GUIDE');
+  const isAdmin = useHasRole('ADMIN');
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 18);
@@ -28,6 +34,75 @@ const Header = ({
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Smart navigation: scroll on homepage, navigate with state from other pages
+  const handleScrollNavigation = (sectionId) => {
+    if (location.pathname === "/") {
+      const el = document.getElementById(sectionId);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      navigate("/", { state: { scrollTo: sectionId } });
+    }
+  };
+
+  if (hideHero) {
+    return (
+      <>
+        <header className={`site-header ${scrolled ? "scrolled" : ""}`} style={{ position: 'fixed', width: '100%', top: 0, left: 0, zIndex: 3000 }}>
+          <div className="header-inner">
+            <Link to='/'><h1 className="logo">TrekMate Danang</h1></Link>
+
+            <nav className="home-nav">
+              <Link to="/" className="home-nav-link">
+                Home
+              </Link>
+              <Link to="/locations" className="home-nav-link">
+                Tours
+              </Link>
+              <a
+                href="#about-section"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleScrollNavigation("about-section");
+                }}
+                className="home-nav-link"
+              >
+                About Us
+              </a>
+              <a
+                href="#contact-section"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleScrollNavigation("contact-section");
+                }}
+                className="home-nav-link"
+              >
+                Contact
+              </a>
+            </nav>
+
+            <div className="header-right-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <AuthNav />
+              {user && (
+                <div className="menu-btn" onClick={() => setOpenSidebar((previous) => !previous)}>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {openSidebar && (
+          <div className="sidebar-backdrop" onClick={() => setOpenSidebar(false)} />
+        )}
+        <Sidebar open={openSidebar} setOpen={setOpenSidebar} />
+      </>
+    );
+  }
 
   return (
     <>
@@ -41,30 +116,34 @@ const Header = ({
               <Link to="/" className="home-nav-link">
                 Home
               </Link>
-              <Link to="/locations" className="home-nav-link active">
+              <Link to="/locations" className="home-nav-link">
                 Tours
               </Link>
-              <Link to="/about" className="home-nav-link">
+              <a
+                href="#about-section"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleScrollNavigation("about-section");
+                }}
+                className="home-nav-link"
+              >
                 About Us
-              </Link>
-              <Link to="/contact" className="home-nav-link">
+              </a>
+              <a
+                href="#contact-section"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleScrollNavigation("contact-section");
+                }}
+                className="home-nav-link"
+              >
                 Contact
-              </Link>
-              {user && (
-                <Link to="/admin/tours" className="home-nav-link">
-                  Tour Management
-                </Link>
-              )}
-              {user && (
-              <Link to="/admin/guide-calendar" className="home-nav-link">
-                 Guide Schedule
-              </Link>
-              )}
+              </a>
             </nav>
 
             <div className="header-right-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <AuthNav />
-              {!hideMenuButton && (
+              {user && (
                 <div className="menu-btn" onClick={() => setOpenSidebar((previous) => !previous)}>
                   <div></div>
                   <div></div>
@@ -105,7 +184,7 @@ const Header = ({
                   {subheading}
                 </span>
               )}
-              
+
               {mainHeading && (
                 <h1 className="font-montserrat font-extrabold text-3xl md:text-5xl lg:text-6xl tracking-tight leading-tight mt-2 text-white">
                   {mainHeading}
@@ -131,3 +210,4 @@ const Header = ({
 };
 
 export default Header;
+

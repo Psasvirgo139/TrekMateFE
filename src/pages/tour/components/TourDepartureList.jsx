@@ -34,8 +34,8 @@ export default function TourDepartureList({ tourId, durationDays = 1, showToast,
         size, 
         sort: 'departureDate,asc'
       });
-      if (res.data && res.data.code === 200) {
-        const pageData = res.data.data;
+      if (res) {
+        const pageData = res;
         setDepartures(pageData.content || []);
         setTotalElements(pageData.page?.totalElements ?? pageData.totalElements ?? 0);
         setTotalPages(pageData.page?.totalPages ?? pageData.totalPages ?? 0);
@@ -134,6 +134,9 @@ export default function TourDepartureList({ tourId, durationDays = 1, showToast,
     if (!price) return '0 đ';
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
+
+  const selectedDepObj = departures.find(d => d.departureId === deleteConfirm.depId);
+  const hasBookings = !!(selectedDepObj && selectedDepObj.bookedSlots > 0);
 
   return (
     <div className="bg-white p-6 border border-gray-200 rounded-xl shadow-sm w-full">
@@ -276,9 +279,12 @@ export default function TourDepartureList({ tourId, durationDays = 1, showToast,
         onClose={() => setDeleteConfirm({ show: false, depId: null })}
         onConfirm={confirmDelete}
         title="Confirm Departure Deletion"
-        message="Are you sure you want to delete/cancel this departure? This action cannot be undone."
+        message={hasBookings 
+          ? "There are bookings for this departure already. Cannot delete/cancel."
+          : "Are you sure you want to delete/cancel this departure? This action cannot be undone."}
         confirmText="Confirm Delete"
         cancelText="Cancel"
+        showConfirm={!hasBookings}
       />
     </div>
   );

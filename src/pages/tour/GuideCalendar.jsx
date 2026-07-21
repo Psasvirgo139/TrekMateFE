@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getGuideSchedules, getAvailableGuides } from '../../services/tourManagementApi';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Phone, Award, User, RefreshCw, ArrowLeft } from 'lucide-react';
+import Header from '../../components/layout/Header';
 
 export default function GuideCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date(2026, 6, 1)); // Default to July 2026 as per workspace data
@@ -35,18 +36,12 @@ export default function GuideCalendar() {
     try {
       // 1. Fetch schedules (occupied guides)
       const schedRes = await getGuideSchedules(firstDayStr, lastDayStr);
-      let schedData = [];
-      if (schedRes.data && schedRes.data.code === 200) {
-        schedData = schedRes.data.data || [];
-      }
+      const schedData = Array.isArray(schedRes) ? schedRes : [];
       setSchedules(schedData);
 
       // 2. Fetch available guides (non-occupied guides)
       const availRes = await getAvailableGuides(firstDayStr, lastDayStr);
-      let availData = [];
-      if (availRes.data && availRes.data.code === 200) {
-        availData = availRes.data.data || [];
-      }
+      const availData = Array.isArray(availRes) ? availRes : [];
 
       // 3. Combine unique guides list
       const guideMap = new Map();
@@ -108,8 +103,11 @@ export default function GuideCalendar() {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen text-xs">
-      {/* Toast Notification */}
+    <div className="bg-gray-50 min-h-screen text-xs">
+      <Header hideHero={true} />
+      <div className="h-[80px] bg-[#012d1d] w-full" />
+      <div className="p-6">
+        {/* Toast Notification */}
       {toast.visible && (
         <div className={`fixed top-4 right-4 z-[9999] px-4 py-2.5 rounded-lg shadow-lg text-white font-semibold transition-all duration-300 ${
           toast.type === 'danger' ? 'bg-red-600' : 'bg-[#012d1d]'
@@ -305,6 +303,7 @@ export default function GuideCalendar() {
         <div className="text-gray-400 italic">
           💡 Hover over a busy tour cell to see the detailed travel date range.
         </div>
+      </div>
       </div>
     </div>
   );

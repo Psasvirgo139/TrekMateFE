@@ -40,20 +40,20 @@ const CertificateList = ({ certifications }) => {
               <div className="p-2 bg-emerald-50 text-trek-primary rounded-xl border border-emerald-100 group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
                 <Award className="w-5 h-5" />
               </div>
-              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border tracking-wide ${getStatusBadge(cert.status)}`}>
-                {cert.status}
+              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border tracking-wide ${getStatusBadge(cert.status || 'Verified')}`}>
+                {cert.status || 'Verified'}
               </span>
             </div>
 
             <h4 className="font-extrabold text-sm text-slate-800 mt-3 font-montserrat group-hover:text-trek-primary transition-colors duration-200">
-              {cert.certificationName}
+              {cert.certificationName || cert.name}
             </h4>
             <p className="text-xs font-semibold text-slate-400 mt-1 uppercase tracking-wide">
-              {cert.issuingOrganization}
+              {cert.issuingOrganization || cert.issuedBy}
             </p>
 
             <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-slate-500">
-              <span>Issued: {cert.issueDate || 'N/A'}</span>
+              <span>Issued: {cert.issueDate || cert.year || 'N/A'}</span>
               {cert.expiryDate && (
                 <span className={new Date(cert.expiryDate) < new Date() ? 'text-red-500 font-bold' : ''}>
                   Expires: {cert.expiryDate}

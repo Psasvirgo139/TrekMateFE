@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import PaymentStatusCard from "./components/PaymentStatusCard";
 import ReceiptBox from "./components/ReceiptBox";
-import api from "../../services/api";
+import { confirmPayOSPayment } from "../../services/paymentApi";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -21,14 +21,13 @@ const PaymentSuccess = () => {
       }
 
       try {
-        const response = await api.get(`/v1/payments/payos/confirm/${orderCode}`);
-        const resData = response.data;
+        const data = await confirmPayOSPayment(orderCode);
 
-        if (response.status === 200 && resData.code === 200) {
-          setPaymentDetails(resData.data);
+        if (data) {
+          setPaymentDetails(data);
           setStatus("success");
         } else {
-          throw new Error(resData.message || "Xác thực giao dịch thất bại");
+          throw new Error("Xác thực giao dịch thất bại");
         }
       } catch (err) {
         console.error(err);

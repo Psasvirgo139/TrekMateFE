@@ -86,7 +86,7 @@ export default function AuthPage() {
       await googleLogin(credentialResponse.credential, rememberMe);
       navigate(resolveReturnUrl(), { replace: true });
     } catch (err) {
-      setError(err.message || 'Google sign-in failed.');
+      setError(err.response?.data?.message || err.message || 'Google sign-in failed.');
     } finally {
       setSubmitting(false);
     }
@@ -100,7 +100,7 @@ export default function AuthPage() {
       await login(loginForm.email.trim(), loginForm.password, loginForm.rememberMe);
       navigate(resolveReturnUrl(), { replace: true });
     } catch (err) {
-      setError(err.message || 'Login failed. Please try again.');
+      setError(err.response?.data?.message || err.message || 'Login failed. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -129,7 +129,7 @@ export default function AuthPage() {
       setSignupStep('otp');
       setInfo(`A 6-digit code was sent to ${response.email}. It expires in ${response.expiresInMinutes} minutes.`);
     } catch (err) {
-      setError(err.message || 'Could not send verification code. Please try again.');
+      setError(err.response?.data?.message || err.message || 'Could not send verification code. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -144,7 +144,7 @@ export default function AuthPage() {
       await verifyRegistration(pendingEmail, otpValue.trim());
       navigate(resolveReturnUrl(), { replace: true });
     } catch (err) {
-      setError(err.message || 'Invalid verification code. Please try again.');
+      setError(err.response?.data?.message || err.message || 'Invalid verification code. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -165,7 +165,7 @@ export default function AuthPage() {
       setPendingEmail(response.email);
       setInfo(`A new code was sent to ${response.email}.`);
     } catch (err) {
-      setError(err.message || 'Could not resend verification code.');
+      setError(err.response?.data?.message || err.message || 'Could not resend verification code.');
     } finally {
       setSubmitting(false);
     }
@@ -182,7 +182,7 @@ export default function AuthPage() {
       setForgotStep('reset');
       setInfo(response.message);
     } catch (err) {
-      setError(err.message || 'Could not send reset code.');
+      setError(err.response?.data?.message || err.message || 'Could not send reset code.');
     } finally {
       setSubmitting(false);
     }
@@ -206,7 +206,7 @@ export default function AuthPage() {
       setInfo(response.message);
       setTimeout(() => switchTab('login'), 1500);
     } catch (err) {
-      setError(err.message || 'Could not reset password.');
+      setError(err.response?.data?.message || err.message || 'Could not reset password.');
     } finally {
       setSubmitting(false);
     }
