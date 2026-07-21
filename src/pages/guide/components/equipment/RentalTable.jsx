@@ -22,13 +22,13 @@ const RentalTable = ({
             <ArrowLeft size={16} />
           </button>
           <span className="text-sm font-medium text-gray-700">
-            Lượt thuê: <span className="text-trek-primary font-semibold">{equipmentName}</span>
+            Rentals for: <span className="text-trek-primary font-semibold">{equipmentName}</span>
           </span>
         </div>
       )}
 
       {loading ? (
-        <div className="flex-1 flex items-center justify-center py-12 text-gray-400 text-sm">Đang tải...</div>
+        <div className="flex-1 flex items-center justify-center py-12 text-gray-400 text-sm">Loading...</div>
       ) : error ? (
         <div className="flex-1 flex items-center justify-center py-12 text-red-500 text-sm">{error}</div>
       ) : (
@@ -38,7 +38,7 @@ const RentalTable = ({
               <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr>
-                    {['Khách hàng', 'Mã booking', 'Thiết bị', 'SL', 'Số ngày', 'Thành tiền', 'Phí hỏng', 'Trạng thái', 'Thao tác'].map(h => (
+                    {['Customer', 'Booking Code', 'Equipment', 'Qty', 'Days', 'Subtotal', 'Damage Fee', 'Status', 'Actions'].map(h => (
                       <th key={h}
                         className="sticky top-0 z-10 text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-50 border-b border-gray-200">
                         {h}
@@ -49,7 +49,7 @@ const RentalTable = ({
                 <tbody>
                   {rentals.length === 0 ? (
                     <tr>
-                      <td colSpan={9} className="text-center py-10 text-gray-400">Không có lượt thuê nào</td>
+                      <td colSpan={9} className="text-center py-10 text-gray-400">No rentals found</td>
                     </tr>
                   ) : rentals.map(r => (
                     <tr key={r.id} className="hover:bg-gray-50 border-b border-gray-100 last:border-0">
@@ -57,7 +57,7 @@ const RentalTable = ({
                       <td className="px-4 py-3 font-mono text-xs text-gray-500">{r.bookingCode ?? '—'}</td>
                       <td className="px-4 py-3 text-gray-700">{r.equipmentName ?? '—'}</td>
                       <td className="px-4 py-3 text-center">{r.quantity}</td>
-                      <td className="px-4 py-3 text-center">{r.rentalDays} ngày</td>
+                      <td className="px-4 py-3 text-center">{r.rentalDays} days</td>
                       <td className="px-4 py-3 font-medium">
                         {Number(r.subtotal).toLocaleString('vi-VN')}₫
                       </td>
@@ -69,11 +69,11 @@ const RentalTable = ({
                       <td className="px-4 py-3">
                         {r.returned ? (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-600">
-                            Đã trả
+                            Returned
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-amber-100 text-amber-700">
-                            Đang thuê
+                            Renting
                           </span>
                         )}
                       </td>
@@ -84,7 +84,7 @@ const RentalTable = ({
                             className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-trek-primary text-white text-xs font-medium hover:bg-trek-tertiary transition-colors"
                           >
                             <RotateCcw size={12} />
-                            Trả đồ
+                            Return Item
                           </button>
                         )}
                       </td>
@@ -96,7 +96,7 @@ const RentalTable = ({
           </div>
 
           <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-t border-gray-200 text-xs text-gray-500">
-            <span>{totalElements ?? 0} lượt thuê</span>
+            <span>{totalElements ?? 0} rentals</span>
             <div className="flex gap-1">
               <button disabled={page === 0} onClick={() => onPageChange(page - 1)}
                 className="px-2.5 py-1 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50">‹</button>

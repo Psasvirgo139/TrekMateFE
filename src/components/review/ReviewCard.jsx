@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import * as reviewApi from '../../services/reviewApi';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import ReviewHeader from './components/ReviewHeader';
 import ReviewDetailRatings from './components/ReviewDetailRatings';
 import ReviewPhotoGrid from './components/ReviewPhotoGrid';
@@ -17,6 +18,7 @@ const formatDate = (dateString) => {
 
 export default function ReviewCard({ review, currentUserId, onReviewDeleted, onReplyAdded }) {
   const { user } = useAuth();
+  const { showToast, showConfirm, showAuthModal } = useToast();
   const [isHelpful, setIsHelpful] = useState(review.isHelpfulByCurrentUser || false);
   const [helpfulCount, setHelpfulCount] = useState(review.helpfulCount || 0);
   const [isReplying, setIsReplying] = useState(false);
@@ -29,27 +31,42 @@ export default function ReviewCard({ review, currentUserId, onReviewDeleted, onR
 
   const handleHelpfulClick = async () => {
     if (!currentUserId) {
-      alert('Vui lòng đăng nhập để đánh giá tính hữu ích!');
+      showAuthModal({
+        title: 'Authentication Required',
+        message: 'Please log in to your TrekMate account to mark this review as helpful!',
+      });
       return;
     }
     try {
       await reviewApi.toggleHelpful(review.id);
-      setIsHelpful(!isHelpful);
-      setHelpfulCount(isHelpful ? helpfulCount - 1 : helpfulCount + 1);
+      const nextState = !isHelpful;
+      setIsHelpful(nextState);
+      setHelpfulCount(nextState ? helpfulCount + 1 : helpfulCount - 1);
+      showToast(nextState ? 'Thank you for your helpful feedback!' : 'Removed helpful mark.', 'success');
     } catch (err) {
-      console.error('Lỗi khi vote hữu ích:', err);
+      console.error('Error voting helpful:', err);
+      showToast('Failed to update helpful feedback.', 'error');
     }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm('Bạn có chắc chắn muốn xóa đánh giá này không?')) return;
-    try {
-      await reviewApi.deleteReview(review.id);
-      if (onReviewDeleted) onReviewDeleted(review.id);
-    } catch (err) {
-      console.error('Lỗi khi xóa đánh giá:', err);
-      alert('Không thể xóa đánh giá này.');
-    }
+  const handleDelete = () => {
+    showConfirm({
+      title: 'Delete Review',
+      message: 'Are you sure you want to delete this review? This action cannot be undone.',
+      confirmText: 'Delete Now',
+      cancelText: 'Cancel',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          await reviewApi.deleteReview(review.id);
+          showToast('Review deleted successfully!', 'success');
+          if (onReviewDeleted) onReviewDeleted(review.id);
+        } catch (err) {
+          console.error('Error deleting review:', err);
+          showToast(err.response?.data?.message || 'Failed to delete this review.', 'error');
+        }
+      },
+    });
   };
 
   const handleReplySubmit = async (e) => {
@@ -60,10 +77,11 @@ export default function ReviewCard({ review, currentUserId, onReviewDeleted, onR
       const updatedReview = await reviewApi.replyToReview(review.id, { guideReply: replyText });
       setIsReplying(false);
       setReplyText('');
+      showToast('Reply submitted successfully!', 'success');
       if (onReplyAdded) onReplyAdded(updatedReview);
     } catch (err) {
-      console.error('Lỗi khi phản hồi đánh giá:', err);
-      alert('Không thể gửi phản hồi.');
+      console.error('Error replying to review:', err);
+      showToast(err.response?.data?.message || 'Failed to submit reply.', 'error');
     } finally {
       setSubmittingReply(false);
     }

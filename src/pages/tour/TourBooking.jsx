@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { Calendar, User, Plus, Minus, Info, AlertCircle, Check, Shield, FileText, ChevronRight, HelpCircle } from "lucide-react";
 import Header from "../../components/layout/Header";
 import api from "../../services/api";
+import { useToast } from "../../context/ToastContext";
 
 // Same destination images as TourCard & TourDetail
 const TOUR_IMAGES = {
@@ -27,6 +28,7 @@ const getEquipmentIcon = (iconName) => {
 export default function TourBooking() {
   const { idOrSlug } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [tour, setTour] = useState(null);
   const [departures, setDepartures] = useState([]);
@@ -57,7 +59,7 @@ export default function TourBooking() {
         // Fetch Tour Details
         const tourRes = await api.get(`/tours/${idOrSlug}`);
         if (!tourRes || tourRes.status !== 200 || !tourRes.data) {
-          throw new Error("Không tìm thấy dữ liệu tour.");
+          throw new Error("Tour data not found.");
         }
         setTour(tourRes.data);
 
@@ -247,7 +249,7 @@ export default function TourBooking() {
   const handleSubmitBooking = async (e) => {
     e.preventDefault();
     if (!selectedDeparture) {
-      alert("Please select a departure date!");
+      showToast("Please select a departure date!", "warning");
       return;
     }
 

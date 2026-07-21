@@ -12,6 +12,7 @@ import {
   deleteTourImage
 } from '../services/tourManagementApi';
 import WaypointModal from '../Components/WaypointModal';
+import ConfirmDeleteModal from '../components/tour/ConfirmDeleteModal';
 
 const ArrowLeft = ({ size = 16, className = "" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
@@ -67,6 +68,7 @@ const TourEditPage = () => {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
   const [toast, setToast] = useState({ message: '', type: 'success', visible: false });
+  const [confirmModal, setConfirmModal] = useState({ show: false, title: '', message: '', onConfirm: null });
 
   // Main data states
   const [tour, setTour] = useState(null);
@@ -225,16 +227,22 @@ const TourEditPage = () => {
     }
   };
 
-  const handleDeleteWp = async (wpId) => {
-    if (!window.confirm('Are you sure you want to delete this waypoint?')) return;
-    try {
-      await deleteWaypoint(id, wpId);
-      showToast('Waypoint deleted successfully.');
-      fetchDetail();
-    } catch (error) {
-      console.error(error);
-      showToast('Failed to delete waypoint!', 'danger');
-    }
+  const handleDeleteWp = (wpId) => {
+    setConfirmModal({
+      show: true,
+      title: 'Confirm Deletion',
+      message: 'Are you sure you want to delete this waypoint? This action cannot be undone.',
+      onConfirm: async () => {
+        try {
+          await deleteWaypoint(id, wpId);
+          showToast('Waypoint deleted successfully.');
+          fetchDetail();
+        } catch (error) {
+          console.error(error);
+          showToast('Failed to delete waypoint!', 'danger');
+        }
+      }
+    });
   };
 
   // --- TAB 3: DAILY ITINERARY ACTION ---
@@ -306,22 +314,26 @@ const TourEditPage = () => {
     }
   };
 
-  const handleDeleteItinerary = async (itId) => {
-    if (!window.confirm('Are you sure you want to delete this itinerary day?')) return;
-    
-    if (itId.startsWith('it-new-')) {
-      setItineraries(prev => prev.filter(it => it.id !== itId));
-      return;
-    }
-
-    try {
-      await deleteItinerary(id, itId);
-      showToast('Itinerary day deleted successfully.');
-      fetchDetail();
-    } catch (error) {
-      console.error(error);
-      showToast('Failed to delete itinerary day on the backend!', 'danger');
-    }
+  const handleDeleteItinerary = (itId) => {
+    setConfirmModal({
+      show: true,
+      title: 'Confirm Deletion',
+      message: 'Are you sure you want to delete this itinerary day? This action cannot be undone.',
+      onConfirm: async () => {
+        if (itId.startsWith('it-new-')) {
+          setItineraries(prev => prev.filter(it => it.id !== itId));
+          return;
+        }
+        try {
+          await deleteItinerary(id, itId);
+          showToast('Itinerary day deleted successfully.');
+          fetchDetail();
+        } catch (error) {
+          console.error(error);
+          showToast('Failed to delete itinerary day on the backend!', 'danger');
+        }
+      }
+    });
   };
 
   const toggleWaypointInDay = (itId, wpId) => {
@@ -376,16 +388,24 @@ const TourEditPage = () => {
     }
   };
 
-  const handleDeleteImage = async (imgId) => {
-    if (!window.confirm('Are you sure you want to delete this image?')) return;
-    try {
-      await deleteTourImage(id, imgId);
-      showToast('Deleted image successfully!');
-      fetchDetail();
-    } catch (error) {
-      console.error(error);
-      showToast('Failed to delete image on the backend!', 'danger');
-    }
+  const handleDeleteImage = (imgId) => {
+    setConfirmModal({
+      show: true,
+      title: 'Confirm photo Delete',
+      message: 'Are you sure you want to delete this image from the tour?',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      onConfirm: async () => {
+        try {
+          await deleteTourImage(id, imgId);
+          showToast('Deleted image successfully!');
+          fetchDetail();
+        } catch (error) {
+          console.error(error);
+          showToast('Failed to delete image on the backend!', 'danger');
+        }
+      }
+    });
   };
 
   if (loading) {
@@ -1391,6 +1411,20 @@ const TourEditPage = () => {
         onSave={handleWpSubmit}
         waypoint={currentWp}
         totalWaypoints={waypoints.length}
+      />
+
+      {/* Custom Confirmation Modal */}
+      <ConfirmDeleteModal 
+        show={confirmModal.show}
+        onClose={() => setConfirmModal({ show: false, title: '', message: '', onConfirm: null })}
+        onConfirm={() => {
+          if (confirmModal.onConfirm) confirmModal.onConfirm();
+          setConfirmModal({ show: false, title: '', message: '', onConfirm: null });
+        }}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText}
+        cancelText={confirmModal.cancelText}
       />
     </div>
   );

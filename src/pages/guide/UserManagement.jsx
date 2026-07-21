@@ -9,6 +9,7 @@ import {
   unbanUser,
   updateUser,
 } from '../../services/adminUserApi';
+import { useToast } from '../../context/ToastContext';
 import './UserManagement.css';
 
 // Import subcomponents
@@ -25,6 +26,7 @@ const ROLE_TABS = [
 ];
 
 const UserManagement = () => {
+  const { showToast } = useToast();
   const [role, setRole] = useState('ALL');
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search);
@@ -76,27 +78,30 @@ const UserManagement = () => {
       await banUser(banTarget.id, banReason);
       setBanTarget(null);
       setBanReason('');
+      showToast('Account banned successfully!', 'success');
       loadData();
     } catch (err) {
-      alert(err.message);
+      showToast(err.message || 'Failed to ban account', 'error');
     }
   };
 
   const handleUnban = async (id) => {
     try {
       await unbanUser(id);
+      showToast('Account unbanned successfully!', 'success');
       loadData();
     } catch (err) {
-      alert(err.message);
+      showToast(err.message || 'Failed to unban account', 'error');
     }
   };
 
   const handleApprove = async (id) => {
     try {
       await approveUser(id);
+      showToast('Account approved successfully!', 'success');
       loadData();
     } catch (err) {
-      alert(err.message);
+      showToast(err.message || 'Failed to approve account', 'error');
     }
   };
 
@@ -105,9 +110,10 @@ const UserManagement = () => {
     if (displayName === null) return;
     try {
       await updateUser(user.id, { displayName });
+      showToast('Display name updated successfully!', 'success');
       loadData();
     } catch (err) {
-      alert(err.message);
+      showToast(err.message || 'Failed to update display name', 'error');
     }
   };
 
@@ -123,9 +129,10 @@ const UserManagement = () => {
         displayName: '',
         role: 'GUIDE',
       });
+      showToast('New account created successfully!', 'success');
       loadData();
     } catch (err) {
-      alert(err.message);
+      showToast(err.message || 'Failed to create account', 'error');
     }
   };
 

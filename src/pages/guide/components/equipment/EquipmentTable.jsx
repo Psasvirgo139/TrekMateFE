@@ -2,10 +2,10 @@ import React from 'react';
 import { Pencil, Trash2, ToggleLeft, ToggleRight, Eye } from 'lucide-react';
 
 const CONDITION_LABEL = {
-  EXCELLENT: { label: 'Xuất sắc', cls: 'bg-emerald-100 text-emerald-700' },
-  GOOD:      { label: 'Tốt',      cls: 'bg-blue-100 text-blue-700' },
-  FAIR:      { label: 'Khá',      cls: 'bg-amber-100 text-amber-700' },
-  RETIRED:   { label: 'Nghỉ hưu', cls: 'bg-red-100 text-red-700' },
+  EXCELLENT: { label: 'Excellent', cls: 'bg-emerald-100 text-emerald-700' },
+  GOOD:      { label: 'Good',      cls: 'bg-blue-100 text-blue-700' },
+  FAIR:      { label: 'Fair',      cls: 'bg-amber-100 text-amber-700' },
+  RETIRED:   { label: 'Retired',   cls: 'bg-red-100 text-red-700' },
 };
 
 const EquipmentTable = ({
@@ -23,7 +23,7 @@ const EquipmentTable = ({
 }) => {
   if (loading) return (
     <div className="flex-1 flex items-center justify-center py-12 text-gray-400 text-sm">
-      Đang tải...
+      Loading...
     </div>
   );
   if (error) return (
@@ -39,7 +39,7 @@ const EquipmentTable = ({
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
-                {['Tên thiết bị', 'Danh mục', 'Giá/ngày', 'Tồn kho', 'Tình trạng', 'Trạng thái', 'Thao tác'].map(h => (
+                {['Equipment Name', 'Category', 'Daily Rate', 'Stock', 'Condition', 'Status', 'Actions'].map(h => (
                   <th
                     key={h}
                     className="sticky top-0 z-10 text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-50 border-b border-gray-200"
@@ -52,7 +52,7 @@ const EquipmentTable = ({
             <tbody>
               {equipments.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-10 text-gray-400">Không có thiết bị nào</td>
+                  <td colSpan={7} className="text-center py-10 text-gray-400">No equipment found</td>
                 </tr>
               ) : equipments.map(eq => {
                 const cond = CONDITION_LABEL[eq.condition] || { label: eq.condition, cls: 'bg-gray-100 text-gray-600' };
@@ -93,12 +93,12 @@ const EquipmentTable = ({
                       {eq.isActive ? (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-100 text-emerald-700">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
-                          Hoạt động
+                          Active
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-red-100 text-red-600">
                           <span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block" />
-                          Ngừng
+                          Inactive
                         </span>
                       )}
                     </td>
@@ -107,28 +107,28 @@ const EquipmentTable = ({
                         <button
                           onClick={() => onViewRentals(eq)}
                           className="p-1.5 rounded-lg text-gray-400 hover:text-trek-primary hover:bg-emerald-50 transition-colors"
-                          title="Xem lượt thuê"
+                          title="View Rentals"
                         >
                           <Eye size={15} />
                         </button>
                         <button
                           onClick={() => onEdit(eq)}
                           className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                          title="Chỉnh sửa"
+                          title="Edit"
                         >
                           <Pencil size={15} />
                         </button>
                         <button
                           onClick={() => onToggle(eq.id)}
                           className="p-1.5 rounded-lg text-gray-400 hover:text-amber-600 hover:bg-amber-50 transition-colors"
-                          title={eq.isActive ? 'Ngừng hoạt động' : 'Kích hoạt'}
+                          title={eq.isActive ? 'Deactivate' : 'Activate'}
                         >
                           {eq.isActive ? <ToggleRight size={15} /> : <ToggleLeft size={15} />}
                         </button>
                         <button
                           onClick={() => onDelete(eq)}
                           className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                          title="Xóa"
+                          title="Delete"
                         >
                           <Trash2 size={15} />
                         </button>
@@ -144,7 +144,7 @@ const EquipmentTable = ({
 
       {/* Pagination */}
       <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-t border-gray-200 text-xs text-gray-500">
-        <span>{totalElements ?? 0} thiết bị</span>
+        <span>{totalElements ?? 0} items</span>
         <div className="flex gap-1">
           <button
             disabled={page === 0}

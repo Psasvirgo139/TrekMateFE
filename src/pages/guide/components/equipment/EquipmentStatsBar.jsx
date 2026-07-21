@@ -4,28 +4,28 @@ import { Package, CheckCircle, XCircle, ShoppingBag } from 'lucide-react';
 const EquipmentStatsBar = ({ stats }) => {
   const cards = [
     {
-      label: 'Tổng thiết bị',
+      label: 'Total Equipment',
       value: stats?.total ?? '—',
       icon: Package,
       color: 'text-trek-primary',
       bg: 'bg-emerald-50',
     },
     {
-      label: 'Đang hoạt động',
+      label: 'Active Items',
       value: stats?.active ?? '—',
       icon: CheckCircle,
       color: 'text-emerald-600',
       bg: 'bg-emerald-50',
     },
     {
-      label: 'Ngừng hoạt động',
+      label: 'Inactive Items',
       value: stats?.inactive ?? '—',
       icon: XCircle,
       color: 'text-red-500',
       bg: 'bg-red-50',
     },
     {
-      label: 'Đang cho thuê',
+      label: 'Currently Rented',
       value: stats?.renting ?? '—',
       icon: ShoppingBag,
       color: 'text-amber-600',

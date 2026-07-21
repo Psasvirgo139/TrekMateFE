@@ -1,8 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Payment.css";
-//http://localhost:8080/api/v1/payments/payos/create
-//http://localhost:3000/payment
+import { useToast } from "../context/ToastContext";
+
 const Payment = () => {
+  const navigate = useNavigate();
+  const { showToast } = useToast();
   const [bookingId, setBookingId] = useState("1");
   const [amount, setAmount] = useState("250000");
   const [method, setMethod] = useState("PAYOS");
@@ -34,7 +37,7 @@ const Payment = () => {
       const resData = await response.json();
 
       if (!response.ok || resData.code !== 200) {
-        throw new Error(resData.message || "Đã xảy ra lỗi khi tạo thanh toán");
+        throw new Error(resData.message || "An error occurred while creating the payment");
       }
 
       const data = resData.data;
@@ -44,12 +47,12 @@ const Payment = () => {
         window.location.href = data.checkoutUrl;
       } else {
         // Manual payment success redirect
-        alert("Yêu cầu thanh toán thủ công đã được gửi thành công!");
-        window.location.href = "/";
+        showToast("Payment request submitted successfully!", "success");
+        setTimeout(() => navigate('/bookings'), 1500);
       }
     } catch (err) {
       console.error(err);
-      setError(err.message || "Không thể kết nối đến máy chủ. Vui lòng thử lại!");
+      setError(err.message || "Unable to connect to the server. Please try again!");
     } finally {
       setLoading(false);
     }
