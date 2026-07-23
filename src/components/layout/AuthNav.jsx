@@ -102,7 +102,7 @@ export default function AuthNav({ className = '' }) {
             {/* Admin Only Links */}
             {isAdmin && (
               <Link
-                to="/guide"
+                to="/guide/dashboard"
                 className="auth-dropdown-item"
                 onClick={() => setDropdownOpen(false)}
               >

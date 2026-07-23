@@ -20,6 +20,7 @@ import Footer from './components/layout/Footer';
 import GuideDashboardLayout from './layouts/GuideDashboardLayout';
 import UserManagement from './pages/guide/UserManagement';
 import GuidePlaceholder from './pages/guide/GuidePlaceholder';
+import AdminDashboard from './pages/guide/AdminDashboard';
 import EquipmentManagement from './pages/guide/EquipmentManagement';
 import Profile from './pages/Profile';
 import TourLeading from './pages/guide/TourLeading';
@@ -52,12 +53,7 @@ function AppRoutes() {
           <Route path="equipment" element={<EquipmentManagement />} />
           <Route
             path="dashboard"
-            element={
-              <GuidePlaceholder
-                title="Dashboard"
-                description="Participant Management will be developed here."
-              />
-            }
+            element={<AdminDashboard />}
           />
           <Route
             path="tours"
