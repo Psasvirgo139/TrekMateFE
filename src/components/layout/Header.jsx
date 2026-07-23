@@ -52,7 +52,7 @@ const Header = ({
       <>
         <header className={`site-header ${scrolled ? "scrolled" : ""}`} style={{ position: 'fixed', width: '100%', top: 0, left: 0, zIndex: 3000 }}>
           <div className="header-inner">
-            <Link to='/'><h1 className="logo">TrekMate Danang</h1></Link>
+            <Link to='/'><h1 className="logo">TrekMate</h1></Link>
 
             <nav className="home-nav">
               <Link to="/" className="home-nav-link">
@@ -110,7 +110,7 @@ const Header = ({
         {/* NAVBAR BUTTON */}
         <header className={`site-header ${scrolled ? "scrolled" : ""}`}>
           <div className="header-inner">
-            <Link to='/'><h1 className="logo">TrekMate Danang</h1></Link>
+            <Link to='/'><h1 className="logo">TrekMate</h1></Link>
 
             <nav className="home-nav">
               <Link to="/" className="home-nav-link">

@@ -7,13 +7,28 @@ import TourCard from "../components/tour/TourCard";
 import { fetchPublicTours } from "../services/tourApi";
 import "./Home.css";
 
-const HERO_BG = "https://i.pinimg.com/1200x/16/05/3e/16053eb88478eadf2042ed560fccf86b.jpg";
+const HERO_BGS = [
+  "https://images.unsplash.com/photo-1528164344705-47542687000d?auto=format&fit=crop&w=1920&q=80", // Sa Pa terraced fields, Vietnam
+  "https://images.unsplash.com/photo-1501555088652-021faa106b9b?auto=format&fit=crop&w=1920&q=80", // Trekking on mountain ridge
+  "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80", // Majestic mountain peaks
+  "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1920&q=80", // Misty forest valley
+  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80"  // River valley and mountains
+];
 const ABOUT_IMG = "https://i.pinimg.com/1200x/5e/a5/da/5ea5da76c4d2b0ff9b59033c5d2623b1.jpg";
 
 export default function Home() {
   const navigate = useNavigate();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
+  const [currentBgIndex, setCurrentBgIndex] = useState(0);
+
+  // Hero background carousel auto-advance
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentBgIndex((prev) => (prev + 1) % HERO_BGS.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [currentBgIndex]);
 
   // Hero search state
   const [search, setSearch] = useState("");
@@ -109,7 +124,18 @@ export default function Home() {
       />
 
       {/* ──────────── HERO + HEADER ──────────── */}
-      <section className="home-hero-section" style={{ backgroundImage: `url(${HERO_BG})` }}>
+      <section className="home-hero-section">
+        {/* Background Carousel Slider */}
+        <div className="hero-bg-slider">
+          {HERO_BGS.map((bg, idx) => (
+            <div
+              key={bg}
+              className={`hero-bg-slide ${idx === currentBgIndex ? "active" : ""}`}
+              style={{ backgroundImage: `url(${bg})` }}
+            />
+          ))}
+        </div>
+
         {/* Dark Overlay */}
         <div className="home-hero-overlay" />
 
@@ -236,6 +262,18 @@ export default function Home() {
             ))}
           </motion.div>
         </div>
+
+        {/* Carousel Navigation Indicators */}
+        <div className="hero-carousel-indicators">
+          {HERO_BGS.map((_, idx) => (
+            <button
+              key={idx}
+              className={`hero-carousel-dot ${idx === currentBgIndex ? "active" : ""}`}
+              onClick={() => setCurrentBgIndex(idx)}
+              aria-label={`Go to slide ${idx + 1}`}
+            />
+          ))}
+        </div>
       </section>
 
       {/* ──────────── STATS BAR ──────────── */}
@@ -273,7 +311,7 @@ export default function Home() {
         </div>
         <div style={{ textAlign: "center", marginTop: "3rem" }}>
           <Link to="/locations" className="about-btn">
-            View All Tours →
+            View All Tours
           </Link>
         </div>
       </section>

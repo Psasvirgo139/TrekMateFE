@@ -2,10 +2,10 @@ import React, { useMemo } from "react";
 import "./WeatherForecast.css";
 
 const WARNING_LABELS = {
-  DANGER:  { emoji: "🔴", label: "Nguy hiểm" },
-  WARNING: { emoji: "🟠", label: "Cảnh báo" },
-  CAUTION: { emoji: "🟡", label: "Lưu ý" },
-  INFO:    { emoji: "🟢", label: "Bình thường" },
+  DANGER:  { emoji: "🔴", label: "Danger" },
+  WARNING: { emoji: "🟠", label: "Warning" },
+  CAUTION: { emoji: "🟡", label: "Caution" },
+  INFO:    { emoji: "🟢", label: "Normal" },
 };
 
 // Map icon slug từ backend sang emoji
@@ -64,11 +64,11 @@ const WeatherForecast = ({ weatherForecast, departureDate, returnDate, loading }
         <div className="weather-header-left">
           <span className="weather-header-icon">🌤️</span>
           <div>
-            <div className="weather-header-title">Dự báo thời tiết hành trình</div>
+            <div className="weather-header-title">Weather forecast</div>
             <div className="weather-header-subtitle">
               {departureDate && returnDate
                 ? `${formatShortDate(departureDate)} – ${formatShortDate(returnDate)}`
-                : "Theo ngày khởi hành"
+                : "According to departure date"
               }
               &nbsp;· Open-Meteo
             </div>
@@ -77,7 +77,7 @@ const WeatherForecast = ({ weatherForecast, departureDate, returnDate, loading }
         {isOutOfRange && (
           <div className="weather-out-of-range">
             <span>📅</span>
-            <span>Ngoài 16 ngày dự báo</span>
+            <span>Beyond 16 days forecast</span>
           </div>
         )}
       </div>
@@ -86,7 +86,7 @@ const WeatherForecast = ({ weatherForecast, departureDate, returnDate, loading }
       {loading && (
         <div className="weather-loading">
           <div className="weather-spinner" />
-          <span>Đang tải dự báo thời tiết...</span>
+          <span>Loading weather forecast...</span>
         </div>
       )}
 
@@ -94,9 +94,9 @@ const WeatherForecast = ({ weatherForecast, departureDate, returnDate, loading }
       {!loading && isOutOfRange && (
         <div className="weather-empty">
           <span className="weather-empty-icon">🌡️</span>
-          <span className="weather-empty-text">Chưa có dữ liệu thời tiết</span>
+          <span className="weather-empty-text">No weather data</span>
           <span className="weather-empty-sub">
-            Dự báo được cập nhật tự động mỗi đêm. Chuyến đi trong vòng 16 ngày sẽ có dữ liệu sau lần cập nhật tiếp theo.
+            Forecasts are updated automatically every night. Trips within 16 days will have data after the next update.
           </span>
         </div>
       )}
@@ -116,7 +116,7 @@ const WeatherForecast = ({ weatherForecast, departureDate, returnDate, loading }
                   <span className={`weather-warning-dot warn-${warnLevel}`} />
                 )}
 
-                <span className="weather-day-label">Ngày {day.dayNumber}</span>
+                <span className="weather-day-label">Day {day.dayNumber}</span>
                 <span className="weather-day-date">{formatShortDate(day.forecastDate)}</span>
 
                 <span className="weather-day-icon">{getWeatherEmoji(day.weatherIcon)}</span>
