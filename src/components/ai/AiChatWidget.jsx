@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import aiChatApi from '../../Services/aiChatApi';
+import aiChatApi from '../../services/aiChatApi';
 import './AiChatWidget.css';
 
 const AiChatWidget = () => {
