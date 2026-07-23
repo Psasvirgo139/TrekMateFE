@@ -1,0 +1,402 @@
+/* ══════════════════════════════════════════════════
+   AiGearRecommendation Component Styles
+   ══════════════════════════════════════════════════ */
+
+/* ── Trigger card (pre-click state) ─────────────────── */
+.ai-gear-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.ai-trigger-card {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1.5px solid #bbf7d0;
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  transition: box-shadow 0.2s;
+}
+.ai-trigger-card:hover {
+  box-shadow: 0 4px 20px rgba(1, 45, 29, 0.1);
+}
+
+.ai-trigger-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ai-trigger-icon {
+  font-size: 32px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.08));
+}
+
+.ai-trigger-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #012d1d;
+}
+
+.ai-trigger-sub {
+  font-size: 11px;
+  color: #4a7c63;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+.ai-trigger-btn {
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #012d1d, #0c432d);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(1, 45, 29, 0.3);
+}
+.ai-trigger-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(1, 45, 29, 0.4);
+}
+.ai-trigger-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Loading dots animation */
+.ai-trigger-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ai-dots {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+.ai-dots span {
+  width: 5px;
+  height: 5px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 50%;
+  animation: aiDotBounce 1.2s ease-in-out infinite;
+}
+.ai-dots span:nth-child(2) { animation-delay: 0.2s; }
+.ai-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes aiDotBounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+  40%           { transform: scale(1);   opacity: 1; }
+}
+
+/* ── Error box ───────────────────────────────────────── */
+.ai-error-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 12px;
+  color: #b91c1c;
+  font-weight: 600;
+}
+.ai-retry-btn {
+  margin-left: auto;
+  background: #012d1d;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+}
+
+/* ── Result panel ────────────────────────────────────── */
+.ai-result-panel {
+  background: #ffffff;
+  border: 1.5px solid #d1fae5;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(1, 45, 29, 0.08);
+}
+
+.ai-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 14px;
+  background: linear-gradient(135deg, #012d1d, #0c432d);
+  border-bottom: 1px solid #d1fae5;
+}
+
+.ai-result-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ai-result-icon { font-size: 22px; }
+
+.ai-result-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.ai-result-weather-ctx {
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  margin-top: 2px;
+}
+
+.ai-result-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ai-avail-count {
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(74, 222, 128, 0.2);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+
+.ai-collapse-btn {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #ffffff;
+  font-size: 11px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.ai-collapse-btn:hover { background: rgba(255,255,255,0.18); }
+
+/* ── Overall advice ──────────────────────────────────── */
+.ai-overall-advice {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 16px 20px 4px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 12.5px;
+  color: #065f46;
+  line-height: 1.5;
+}
+.ai-overall-advice p { margin: 0; }
+
+/* ── Gear section ────────────────────────────────────── */
+.ai-gear-section {
+  padding: 14px 20px 6px;
+}
+
+.ai-section-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  letter-spacing: 0.3px;
+}
+
+.ai-section-label--essential { color: #012d1d; }
+.ai-section-label--recommended { color: #374151; }
+
+.ai-section-count {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 600;
+  color: #6b7280;
+  background: #f3f4f6;
+  border-radius: 10px;
+  padding: 2px 8px;
+}
+
+/* Grid: 2 columns on sm+ */
+.ai-gear-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+/* ── Gear item card ──────────────────────────────────── */
+.gear-item-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+.gear-item-card:hover {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  transform: translateY(-1px);
+}
+
+/* Available for rent — green highlight */
+.gear-item-card.gear-item--available {
+  background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+  border-color: #6ee7b7;
+  box-shadow: 0 0 0 1px rgba(110, 231, 183, 0.3);
+}
+
+.gear-avail-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #065f46;
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+  border-radius: 10px;
+  padding: 2px 8px;
+  margin-bottom: 8px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.gear-item-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.gear-category-icon {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.gear-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gear-item-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.3;
+}
+
+.gear-item-category {
+  font-size: 10px;
+  font-weight: 600;
+  color: #6b7280;
+  background: #f3f4f6;
+  border-radius: 6px;
+  padding: 1px 6px;
+  display: inline-block;
+}
+
+.gear-item-reason {
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0 0 8px;
+}
+
+/* Rental info shown when available */
+.gear-rental-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #d1fae5;
+  margin-top: 4px;
+}
+
+.gear-rental-thumb {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #a7f3d0;
+  flex-shrink: 0;
+}
+
+.gear-rental-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.gear-rental-price {
+  font-size: 11px;
+  font-weight: 700;
+  color: #065f46;
+}
+
+.gear-rental-link {
+  font-size: 10px;
+  font-weight: 700;
+  color: #059669;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.gear-rental-link:hover { color: #047857; text-decoration: underline; }
+
+/* ── Disclaimer ──────────────────────────────────────── */
+.ai-disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 8px 20px 14px;
+  font-size: 10.5px;
+  color: #9ca3af;
+  line-height: 1.5;
+}
+
+/* ── Refresh row ─────────────────────────────────────── */
+.ai-refresh-row {
+  display: flex;
+  justify-content: center;
+  padding: 10px 20px 18px;
+}
+
+.ai-refresh-btn {
+  background: transparent;
+  border: 1.5px solid #d1d5db;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ai-refresh-btn:hover:not(:disabled) {
+  border-color: #012d1d;
+  color: #012d1d;
+}
+.ai-refresh-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -61,16 +61,16 @@ export default function TourWaypointList({
                   {wp.description && <p className="text-gray-500 text-xs leading-relaxed">{wp.description}</p>}
                   
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-gray-50 rounded-lg p-3 text-xs text-gray-600 border border-gray-100">
-                    {wp.elevationM && <div>📐 Elevation: <strong className="text-gray-800">{wp.elevationM}m</strong></div>}
-                    {(wp.lat && wp.lng) && <div>🌐 Coordinates: <strong className="text-gray-800">{wp.lat}, {wp.lng}</strong></div>}
-                    {wp.waterSource && <div>💧 Water Source: <strong className="text-gray-800">{wp.waterSource}</strong></div>}
+                    {wp.elevationM && <div>Elevation: <strong className="text-gray-800">{wp.elevationM}m</strong></div>}
+                    {(wp.lat && wp.lng) && <div>Coordinates: <strong className="text-gray-800">{wp.lat}, {wp.lng}</strong></div>}
+                    {wp.waterSource && <div>Water Source: <strong className="text-gray-800">{wp.waterSource}</strong></div>}
                   </div>
 
                   <div className="flex flex-wrap gap-2 pt-1">
-                    <span className={`px-2 py-1 text-[10px] font-semibold border rounded-md ${wp.hasToilet ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-gray-400 bg-gray-50 border-gray-200'}`}>🚽 Toilet</span>
-                    <span className={`px-2 py-1 text-[10px] font-semibold border rounded-md ${wp.hasShelter ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-gray-400 bg-gray-50 border-gray-200'}`}>🛖 Shelter</span>
-                    <span className={`px-2 py-1 text-[10px] font-semibold border rounded-md ${wp.hasPhoneSignal ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-gray-400 bg-gray-50 border-gray-200'}`}>📶 Phone Signal</span>
-                    <span className={`px-2 py-1 text-[10px] font-semibold border rounded-md ${wp.hasFirstAid ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-gray-400 bg-gray-50 border-gray-200'}`}>🩺 First Aid</span>
+                    <span className={`px-2 py-1 text-[10px] font-semibold border rounded-md ${wp.hasToilet ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-gray-400 bg-gray-50 border-gray-200'}`}>Toilet</span>
+                    <span className={`px-2 py-1 text-[10px] font-semibold border rounded-md ${wp.hasShelter ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-gray-400 bg-gray-50 border-gray-200'}`}>Shelter</span>
+                    <span className={`px-2 py-1 text-[10px] font-semibold border rounded-md ${wp.hasPhoneSignal ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-gray-400 bg-gray-50 border-gray-200'}`}>Phone Signal</span>
+                    <span className={`px-2 py-1 text-[10px] font-semibold border rounded-md ${wp.hasFirstAid ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-gray-400 bg-gray-50 border-gray-200'}`}>First Aid</span>
                   </div>
                 </div>
               </div>

@@ -8,6 +8,14 @@ const TripHistoryList = ({ trips }) => {
         return 'bg-emerald-500';
       case 'upcoming':
         return 'bg-amber-500';
+      case 'ongoing':
+        return 'bg-blue-500';
+      case 'missing':
+        return 'bg-rose-400';
+      case 'missed':
+        return 'bg-[#dc2626]';
+      case 'cancelled':
+        return 'bg-slate-400';
       default:
         return 'bg-slate-400';
     }

@@ -1,21 +1,35 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Header from "../../components/layout/Header";
-import api from "../../services/api";
+import { fetchPublicTours } from "../../services/tourApi";
 import TourCard from "../../components/tour/TourCard";
 import TourSkeleton from "../../components/tour/TourSkeleton";
-import Pagination from "../../../src/components/common/Pagination";
+import Pagination from "../../components/common/Pagination";
 
-// Import local images for page header
-import LocationsHeroBg from "../../images/hero-slider-3.webp";
+const LOCATIONS_HERO = "https://i.pinimg.com/1200x/16/05/3e/16053eb88478eadf2042ed560fccf86b.jpg";
 
 const Locations = () => {
-  // Query parameters state
-  const [search, setSearch] = useState("");
-  const [difficulty, setDifficulty] = useState("");
-  const [durationRange, setDurationRange] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Query parameters state initialized directly from URL
+  const [search, setSearch] = useState(() => searchParams.get("search") || "");
+  const [difficulty, setDifficulty] = useState(() => searchParams.get("difficulty") || "");
+  const [durationRange, setDurationRange] = useState(() => searchParams.get("durationRange") || "");
   const [sort, setSort] = useState("avgRating,desc");
   const [page, setPage] = useState(0);
   const [size] = useState(6);
+
+  // Sync URL query params to state
+  useEffect(() => {
+    const qSearch = searchParams.get("search") || "";
+    const qDifficulty = searchParams.get("difficulty") || "";
+    const qDuration = searchParams.get("durationRange") || "";
+
+    setSearch(qSearch);
+    setDifficulty(qDifficulty);
+    setDurationRange(qDuration);
+    setPage(0);
+  }, [searchParams]);
 
   // API response state
   const [tours, setTours] = useState([]);
@@ -29,11 +43,9 @@ const Locations = () => {
     setLoading(true);
     setError(null);
     try {
-      // Build API query parameters object
       const queryParams = {
         page: page,
         size: size,
-        status: "ACTIVE", // Default to ACTIVE tours for public view
       };
 
       if (search.trim()) queryParams.search = search;
@@ -51,24 +63,17 @@ const Locations = () => {
       }
 
       // Axios call
-      const response = await api.get("/tours", { params: queryParams });
-      
-      if (response && response.status === 200 && response.data) {
-        const json = response.data;
-        // Handle standard API response layout from backend (code: 200 & data)
-        if (json.code === 200 && json.data) {
-          setTours(json.data.content || []);
-          setTotalPages(json.data.totalPages || 0);
-          setTotalElements(json.data.totalElements || 0);
-        // Fallbacks for legacy/alternative formats
-        } else if ((json.status === 200 || json.status === "200" || json.statusCode === 200) && json.data) {
-          setTours(json.data.content || []);
-          setTotalPages(json.data.totalPages || 0);
-          setTotalElements(json.data.totalElements || 0);
-        } else if (json.content !== undefined) {
+      const json = await fetchPublicTours(queryParams);
+
+      if (json) {
+        if (json.content !== undefined) {
           setTours(json.content || []);
-          setTotalPages(json.totalPages || 0);
-          setTotalElements(json.totalElements || 0);
+
+          // Spring Boot 3: pagination metadata is in nested `page` object
+          // Spring Boot 2: pagination metadata is at top-level
+          const pageInfo = json.page ?? json;
+          setTotalPages(pageInfo.totalPages || 0);
+          setTotalElements(pageInfo.totalElements || 0);
         } else if (Array.isArray(json)) {
           setTours(json);
           setTotalPages(1);
@@ -89,28 +94,34 @@ const Locations = () => {
   useEffect(() => {
     fetchTours();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, size, difficulty, durationRange, sort]);
+  }, [page, size, search, difficulty, durationRange, sort]);
 
   // Handle Search submit/enter
   const handleSearchKeyPress = (e) => {
     if (e.key === "Enter") {
-      setPage(0);
-      fetchTours();
+      const newParams = new URLSearchParams(searchParams);
+      if (search.trim()) {
+        newParams.set("search", search.trim());
+      } else {
+        newParams.delete("search");
+      }
+      setSearchParams(newParams);
     }
   };
 
   const handleSearchBlur = () => {
-    setPage(0);
-    fetchTours();
+    const newParams = new URLSearchParams(searchParams);
+    if (search.trim()) {
+      newParams.set("search", search.trim());
+    } else {
+      newParams.delete("search");
+    }
+    setSearchParams(newParams);
   };
 
   // Reset all filters
   const handleResetFilters = () => {
-    setSearch("");
-    setDifficulty("");
-    setDurationRange("");
-    setSort("avgRating,desc");
-    setPage(0);
+    setSearchParams({});
   };
 
   // Difficulty badge background styling mapping
@@ -129,76 +140,72 @@ const Locations = () => {
     <div className="min-h-screen bg-brand-light font-sans">
       {/* Shared Header Component */}
       <Header
-        bgImage={LocationsHeroBg}
+        bgImage={LOCATIONS_HERO}
         pageTitle="TrekMate Tours"
-        subheading="CHINH PHỤC THỬ THÁCH — AN TOÀN TUYỆT ĐỐI"
-        mainHeading="Danh Sách Các Tuyến Đường Trekking"
-        description="Khám phá bộ sưu tập các cung đường trekking được thiết kế tỉ mỉ, đầy đủ lộ trình, dự báo thời tiết và hướng dẫn viên bản địa giàu kinh nghiệm."
+        subheading="CONQUER CHALLENGES — ABSOLUTE SAFETY"
+        mainHeading="Explore Trekking Routes"
+        description="Discover our collection of meticulously crafted trekking routes, complete with detailed itineraries, weather forecasts, and experienced local guides."
         showDescription={true}
       />
 
       <main className="max-w-7xl mx-auto px-6 py-12">
-        
-        {/* Controls Card: Search, Filter, Sort (Glassmorphism layout) */}
+
+        {/* Controls Card: Filter, Sort (Glassmorphism layout) */}
         <section className="backdrop-blur-md bg-white/75 rounded-3xl shadow-xl shadow-[#012d1d]/5 border border-white/40 p-6 md:p-8 mb-8 transition-all duration-300">
           <div className="flex flex-col gap-6">
-
-            {/* Search Input */}
-            <div className="relative w-full">
-              <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-lg">🔍</span>
-              <input
-                type="text"
-                placeholder="Tìm kiếm tour theo tên, điểm xuất phát hoặc điểm kết thúc... (Nhấn Enter)"
-                className="w-full pl-12 pr-5 py-4 rounded-full border border-gray-200/80 bg-white/50 focus:bg-white text-brand-dark focus:outline-none focus:ring-4 focus:ring-brand-orange/20 focus:border-brand-orange transition-all duration-300 placeholder:text-gray-400 shadow-inner"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onKeyDown={handleSearchKeyPress}
-                onBlur={handleSearchBlur}
-              />
-            </div>
 
             {/* Filters */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Difficulty Filter */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-[#855300] ml-1">Mức Độ Khó</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-[#855300] ml-1">Difficulty Level</label>
                 <select
                   className="px-4 py-3.5 rounded-xl border border-gray-200/80 bg-white/50 focus:bg-white text-brand-dark cursor-pointer focus:outline-none focus:ring-4 focus:ring-brand-orange/20 focus:border-brand-orange transition-all duration-300"
                   value={difficulty}
                   onChange={(e) => {
-                    setDifficulty(e.target.value);
-                    setPage(0);
+                    const newParams = new URLSearchParams(searchParams);
+                    if (e.target.value) {
+                      newParams.set("difficulty", e.target.value);
+                    } else {
+                      newParams.delete("difficulty");
+                    }
+                    setSearchParams(newParams);
                   }}
                 >
-                  <option value="">Tất cả độ khó</option>
-                  <option value="EASY">Easy (Dễ)</option>
-                  <option value="MODERATE">Moderate (Vừa phải)</option>
-                  <option value="HARD">Hard (Khó)</option>
-                  <option value="EXTREME">Extreme (Mạo hiểm)</option>
+                  <option value="">All difficulties</option>
+                  <option value="EASY">Easy</option>
+                  <option value="MODERATE">Moderate</option>
+                  <option value="HARD">Hard</option>
+                  <option value="EXTREME">Extreme</option>
                 </select>
               </div>
 
               {/* Duration Filter */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-[#855300] ml-1">Thời Gian Đi</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-[#855300] ml-1">Duration</label>
                 <select
                   className="px-4 py-3.5 rounded-xl border border-gray-200/80 bg-white/50 focus:bg-white text-brand-dark cursor-pointer focus:outline-none focus:ring-4 focus:ring-brand-orange/20 focus:border-brand-orange transition-all duration-300"
                   value={durationRange}
                   onChange={(e) => {
-                    setDurationRange(e.target.value);
-                    setPage(0);
+                    const newParams = new URLSearchParams(searchParams);
+                    if (e.target.value) {
+                      newParams.set("durationRange", e.target.value);
+                    } else {
+                      newParams.delete("durationRange");
+                    }
+                    setSearchParams(newParams);
                   }}
                 >
-                  <option value="">Tất cả thời gian</option>
-                  <option value="short">Dưới 3 ngày</option>
-                  <option value="medium">Từ 3 đến 5 ngày</option>
-                  <option value="long">Trên 5 ngày</option>
+                  <option value="">All durations</option>
+                  <option value="short">Under 3 days</option>
+                  <option value="medium">3 to 5 days</option>
+                  <option value="long">Over 5 days</option>
                 </select>
               </div>
 
               {/* Sort Filter */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-[#855300] ml-1">Sắp Xếp Theo</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-[#855300] ml-1">Sort By</label>
                 <select
                   className="px-4 py-3.5 rounded-xl border border-gray-200/80 bg-white/50 focus:bg-white text-brand-dark cursor-pointer focus:outline-none focus:ring-4 focus:ring-brand-orange/20 focus:border-brand-orange transition-all duration-300"
                   value={sort}
@@ -207,9 +214,9 @@ const Locations = () => {
                     setPage(0);
                   }}
                 >
-                  <option value="avgRating,desc">Đánh giá cao nhất</option>
-                  <option value="durationDays,asc">Thời gian ngắn nhất</option>
-                  <option value="durationDays,desc">Thời gian dài nhất</option>
+                  <option value="avgRating,desc">Highest Rated</option>
+                  <option value="durationDays,asc">Shortest Duration</option>
+                  <option value="durationDays,desc">Longest Duration</option>
                 </select>
               </div>
             </div>
@@ -221,7 +228,7 @@ const Locations = () => {
                   className="px-5 py-2.5 border-2 border-rose-500/20 text-rose-600 rounded-full text-xs font-bold hover:bg-rose-50 hover:border-rose-500 hover:text-rose-700 transition-all duration-200 shadow-sm"
                   onClick={handleResetFilters}
                 >
-                  🔄 Xóa bộ lọc
+                  🔄 Clear filters
                 </button>
               </div>
             )}
@@ -233,20 +240,47 @@ const Locations = () => {
           <div className="flex flex-wrap gap-2 mb-6">
             {search && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-sky-50 text-sky-900 border border-sky-200 text-xs font-semibold">
-                Từ khóa: "{search}"
-                <button className="text-sky-600 hover:text-sky-800 font-bold" onClick={() => { setSearch(""); setPage(0); setTimeout(fetchTours, 50); }}>×</button>
+                Keyword: "{search}"
+                <button 
+                  className="text-sky-600 hover:text-sky-800 font-bold" 
+                  onClick={() => { 
+                    const newParams = new URLSearchParams(searchParams);
+                    newParams.delete("search");
+                    setSearchParams(newParams);
+                  }}
+                >
+                  ×
+                </button>
               </span>
             )}
             {difficulty && (
               <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold ${getDifficultyColor(difficulty)}`}>
-                Độ khó: {difficulty}
-                <button className="hover:text-red-200 font-bold" onClick={() => { setDifficulty(""); setPage(0); }}>×</button>
+                Difficulty: {difficulty}
+                <button 
+                  className="hover:text-red-200 font-bold" 
+                  onClick={() => { 
+                    const newParams = new URLSearchParams(searchParams);
+                    newParams.delete("difficulty");
+                    setSearchParams(newParams);
+                  }}
+                >
+                  ×
+                </button>
               </span>
             )}
             {durationRange && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-slate-100 text-slate-800 border border-slate-200 text-xs font-semibold">
-                Thời gian: {durationRange === "short" ? "< 3 ngày" : durationRange === "medium" ? "3 - 5 ngày" : "> 5 ngày"}
-                <button className="text-slate-600 hover:text-slate-900 font-bold" onClick={() => { setDurationRange(""); setPage(0); }}>×</button>
+                Duration: {durationRange === "short" ? "< 3 days" : durationRange === "medium" ? "3 - 5 days" : "> 5 days"}
+                <button 
+                  className="text-slate-600 hover:text-slate-900 font-bold" 
+                  onClick={() => { 
+                    const newParams = new URLSearchParams(searchParams);
+                    newParams.delete("durationRange");
+                    setSearchParams(newParams);
+                  }}
+                >
+                  ×
+                </button>
               </span>
             )}
           </div>
@@ -256,13 +290,13 @@ const Locations = () => {
         {error && (
           <div className="text-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm">
             <div className="text-5xl mb-4">⚠️</div>
-            <h3 className="text-red-600 text-2xl font-bold mb-2">Không thể kết nối máy chủ</h3>
+            <h3 className="text-red-600 text-2xl font-bold mb-2">Failed to connect to server</h3>
             <p className="text-gray-500 mb-6">{error}</p>
             <button
               className="px-6 py-2.5 bg-brand-orange text-brand-dark font-bold rounded-full shadow-lg hover:shadow-xl transition-all"
               onClick={fetchTours}
             >
-              Thử lại
+              Retry
             </button>
           </div>
         )}
@@ -280,13 +314,13 @@ const Locations = () => {
         {!loading && !error && tours.length === 0 && (
           <div className="text-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm">
             <div className="text-5xl mb-4">🔍</div>
-            <h3 className="text-gray-800 text-2xl font-bold mb-2">Không tìm thấy tour phù hợp</h3>
-            <p className="text-gray-500 mb-6">Hãy thử thay đổi từ khóa tìm kiếm hoặc các cài đặt lọc hiện tại của bạn.</p>
+            <h3 className="text-gray-800 text-2xl font-bold mb-2">No matching tours found</h3>
+            <p className="text-gray-500 mb-6">Please try changing your search query or adjusting your filters.</p>
             <button
               className="px-6 py-2.5 bg-[#fea619] text-[#012d1d] font-bold rounded-full shadow-lg hover:shadow-xl transition-all"
               onClick={handleResetFilters}
             >
-              Xóa tất cả bộ lọc
+              Clear all filters
             </button>
           </div>
         )}
@@ -300,14 +334,16 @@ const Locations = () => {
               ))}
             </div>
 
-            {/* Reusable Pagination */}
+            {/* Pagination */}
             <Pagination
               page={page}
               totalPages={totalPages}
               onPageChange={setPage}
-              locale="vi"
+              locale="en"
+              showSummary={true}
               totalElements={totalElements}
-              variant="round"
+              pageSize={size}
+              itemsCount={tours.length}
             />
           </>
         )}

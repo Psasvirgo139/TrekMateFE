@@ -9,6 +9,7 @@ import ParticipantsTable from "../components/booking/ParticipantsTable";
 import RentalsList from "../components/booking/RentalsList";
 import PaymentsList from "../components/booking/PaymentsList";
 import CancelBookingModal from "../components/booking/CancelBookingModal";
+import WeatherForecast from "../components/booking/WeatherForecast";
 
 const STATUS_CONFIG = {
   PENDING:   { text: "Chờ thanh toán", bg: "bg-amber-50",   text_color: "text-amber-700",   border: "border-amber-200",  step: 1 },
@@ -34,10 +35,10 @@ const BookingDetail = () => {
     setError(null);
     try {
       const res = await fetchBookingDetail(id);
-      if (res.code === 200 && res.data) {
-        setBooking(res.data);
+      if (res) {
+        setBooking(res);
       } else {
-        throw new Error(res.message || "Failed to load booking details");
+        throw new Error("Failed to load booking details");
       }
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Không thể tải thông tin đặt tour.");
@@ -58,12 +59,12 @@ const BookingDetail = () => {
     setCancelError("");
     try {
       const res = await cancelBooking(id, cancelReason);
-      if (res.code === 200 && res.data) {
-        setBooking(res.data);
+      if (res) {
+        setBooking(res);
         setShowCancelModal(false);
         setCancelReason("");
       } else {
-        throw new Error(res.message || "Hủy đặt tour thất bại");
+        throw new Error("Hủy đặt tour thất bại");
       }
     } catch (err) {
       setCancelError(err.response?.data?.message || err.message || "Lỗi khi hủy tour.");
@@ -224,6 +225,14 @@ const BookingDetail = () => {
                 </div>
               </div>
             </Card>
+
+            {/* Weather Forecast */}
+            <WeatherForecast
+              weatherForecast={booking.weatherForecast}
+              departureDate={booking.departureDate}
+              returnDate={booking.returnDate}
+              loading={false}
+            />
 
             {/* Travelers list component */}
             <ParticipantsTable
