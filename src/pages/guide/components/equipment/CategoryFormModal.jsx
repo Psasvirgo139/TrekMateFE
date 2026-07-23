@@ -44,7 +44,7 @@ const CategoryFormModal = ({ open, onClose, onSubmit, initialData }) => {
       });
       onClose();
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Đã xảy ra lỗi');
+      setError(err.response?.data?.message || err.message || 'An error occurred');
     } finally {
       setSubmitting(false);
     }
@@ -55,7 +55,7 @@ const CategoryFormModal = ({ open, onClose, onSubmit, initialData }) => {
       <div className="bg-white rounded-2xl border border-gray-200 w-full max-w-md shadow-2xl">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h3 className="text-base font-bold text-gray-900">
-            {initialData ? 'Sửa danh mục' : 'Thêm danh mục'}
+            {initialData ? 'Edit Category' : 'Add Category'}
           </h3>
           <button onClick={onClose} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100">
             <X size={18} />
@@ -66,11 +66,11 @@ const CategoryFormModal = ({ open, onClose, onSubmit, initialData }) => {
           {error && <div className="bg-red-50 border border-red-200 text-red-600 rounded-lg px-3 py-2 text-sm">{error}</div>}
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Tên danh mục *</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Category Name *</label>
             <input
               required type="text" value={form.name}
               onChange={e => handleNameChange(e.target.value)}
-              placeholder="VD: Lều trại"
+              placeholder="e.g., Tents & Shelters"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-trek-primary/30 focus:border-trek-primary"
             />
           </div>
@@ -80,7 +80,7 @@ const CategoryFormModal = ({ open, onClose, onSubmit, initialData }) => {
             <input
               required type="text" value={form.slug}
               onChange={e => set('slug', e.target.value)}
-              placeholder="camping-tent"
+              placeholder="tents-shelters"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-trek-primary/30 focus:border-trek-primary"
             />
           </div>
@@ -96,7 +96,7 @@ const CategoryFormModal = ({ open, onClose, onSubmit, initialData }) => {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Thứ tự</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Sort Order</label>
               <input
                 type="number" min="0" value={form.sortOrder}
                 onChange={e => set('sortOrder', e.target.value)}
@@ -112,18 +112,18 @@ const CategoryFormModal = ({ open, onClose, onSubmit, initialData }) => {
               onChange={e => set('isActive', e.target.checked)}
               className="w-4 h-4 accent-trek-primary"
             />
-            <span className="text-sm text-gray-700">Đang hoạt động</span>
+            <span className="text-sm text-gray-700">Is Active</span>
           </label>
         </form>
 
         <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-100">
           <button type="button" onClick={onClose}
             className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-600 hover:bg-gray-50">
-            Hủy
+            Cancel
           </button>
           <button onClick={handleSubmit} disabled={submitting}
             className="px-4 py-2 rounded-lg bg-trek-primary text-white text-sm font-medium hover:bg-trek-tertiary disabled:opacity-60">
-            {submitting ? 'Đang lưu...' : initialData ? 'Lưu thay đổi' : 'Thêm danh mục'}
+            {submitting ? 'Saving...' : initialData ? 'Save Changes' : 'Add Category'}
           </button>
         </div>
       </div>

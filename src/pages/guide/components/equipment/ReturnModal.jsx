@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X } from 'lucide-react';
 
 const CONDITIONS = ['EXCELLENT', 'GOOD', 'FAIR', 'RETIRED'];
-const CONDITION_VN = { EXCELLENT: 'Xuất sắc', GOOD: 'Tốt', FAIR: 'Khá', RETIRED: 'Nghỉ hưu' };
+const CONDITION_LABEL = { EXCELLENT: 'Excellent', GOOD: 'Good', FAIR: 'Fair', RETIRED: 'Retired' };
 
 const ReturnModal = ({ open, onClose, onSubmit, rental }) => {
   const [returnCondition, setReturnCondition] = useState('GOOD');
@@ -28,7 +28,7 @@ const ReturnModal = ({ open, onClose, onSubmit, rental }) => {
       setNotes('');
       onClose();
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Đã xảy ra lỗi');
+      setError(err.response?.data?.message || err.message || 'An error occurred');
     } finally {
       setSubmitting(false);
     }
@@ -39,7 +39,7 @@ const ReturnModal = ({ open, onClose, onSubmit, rental }) => {
       <div className="bg-white rounded-2xl border border-gray-200 w-full max-w-md shadow-2xl">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <div>
-            <h3 className="text-base font-bold text-gray-900">Xác nhận trả thiết bị</h3>
+            <h3 className="text-base font-bold text-gray-900">Confirm Equipment Return</h3>
             <p className="text-xs text-gray-500 mt-0.5">{rental.equipmentName} × {rental.quantity}</p>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100">
@@ -51,42 +51,42 @@ const ReturnModal = ({ open, onClose, onSubmit, rental }) => {
           {error && <div className="bg-red-50 border border-red-200 text-red-600 rounded-lg px-3 py-2 text-sm">{error}</div>}
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Tình trạng khi trả</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Return Condition</label>
             <select
               value={returnCondition}
               onChange={e => setReturnCondition(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-trek-primary/30 focus:border-trek-primary"
             >
               {CONDITIONS.map(c => (
-                <option key={c} value={c}>{CONDITION_VN[c]}</option>
+                <option key={c} value={c}>{CONDITION_LABEL[c]}</option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Phí hư hỏng (₫)</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Damage Fee (₫)</label>
             <input
               type="number" min="0" value={damageFee}
               onChange={e => setDamageFee(e.target.value)}
-              placeholder="0 nếu không có"
+              placeholder="0 if none"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-trek-primary/30"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Ghi chú</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Notes</label>
             <textarea
               rows={3}
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              placeholder="Trình trạng thiết bị khi trả, ghi chú thêm..."
+              placeholder="Condition at return, additional notes..."
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-trek-primary/30 resize-none"
             />
           </div>
 
           {damageFee && Number(damageFee) > 0 && (
             <div className="bg-amber-50 border border-amber-200 text-amber-700 rounded-lg px-3 py-2 text-sm">
-              ⚠️ Phí hư hỏng: <strong>{Number(damageFee).toLocaleString('vi-VN')}₫</strong> sẽ được ghi nhận
+              ⚠️ Damage fee: <strong>{Number(damageFee).toLocaleString('vi-VN')}₫</strong> will be recorded
             </div>
           )}
         </form>
@@ -94,11 +94,11 @@ const ReturnModal = ({ open, onClose, onSubmit, rental }) => {
         <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-100">
           <button type="button" onClick={onClose}
             className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-600 hover:bg-gray-50">
-            Hủy
+            Cancel
           </button>
           <button onClick={handleSubmit} disabled={submitting}
             className="px-4 py-2 rounded-lg bg-trek-primary text-white text-sm font-medium hover:bg-trek-tertiary disabled:opacity-60">
-            {submitting ? 'Đang xử lý...' : 'Xác nhận trả đồ'}
+            {submitting ? 'Processing...' : 'Confirm Return'}
           </button>
         </div>
       </div>

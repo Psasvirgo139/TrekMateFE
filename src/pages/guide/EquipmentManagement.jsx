@@ -14,6 +14,7 @@ import {
   deleteCategory,
   returnRental,
 } from '../../services/equipmentApi';
+import { useToast } from '../../context/ToastContext';
 
 import EquipmentStatsBar from './components/equipment/EquipmentStatsBar';
 import EquipmentTable from './components/equipment/EquipmentTable';
@@ -23,12 +24,13 @@ import RentalTable from './components/equipment/RentalTable';
 import ReturnModal from './components/equipment/ReturnModal';
 
 const TABS = [
-  { key: 'equipment', label: '🎒 Thiết bị' },
-  { key: 'categories', label: '📂 Danh mục' },
-  { key: 'rentals', label: '🔄 Lượt thuê' },
+  { key: 'equipment', label: '🎒 Equipment' },
+  { key: 'categories', label: '📂 Categories' },
+  { key: 'rentals', label: '🔄 Rentals' },
 ];
 
 const EquipmentManagement = () => {
+  const { showToast, showConfirm } = useToast();
   const [tab, setTab] = useState('equipment');
 
   // ─── Categories state ─────────────────────────────────────────────────────
@@ -139,32 +141,52 @@ const EquipmentManagement = () => {
 
   // ─── Equipment handlers ───────────────────────────────────────────────────
   const handleCreateEq = async (form) => {
-    await createEquipment(form);
-    loadEquipments();
-    loadCategories();
+    try {
+      await createEquipment(form);
+      showToast('Equipment added successfully!', 'success');
+      loadEquipments();
+      loadCategories();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Failed to create equipment.', 'error');
+    }
   };
 
   const handleUpdateEq = async (form) => {
-    await updateEquipment(editEq.id, form);
-    loadEquipments();
-  };
-
-  const handleDeleteEq = async (eq) => {
-    if (!window.confirm(`Xóa thiết bị "${eq.name}"?`)) return;
     try {
-      await deleteEquipment(eq.id);
+      await updateEquipment(editEq.id, form);
+      showToast('Equipment updated successfully!', 'success');
       loadEquipments();
     } catch (err) {
-      alert(err.response?.data?.message || err.message);
+      showToast(err.response?.data?.message || 'Failed to update equipment.', 'error');
     }
+  };
+
+  const handleDeleteEq = (eq) => {
+    showConfirm({
+      title: 'Delete Equipment',
+      message: `Are you sure you want to delete equipment "${eq.name}"? This action cannot be undone.`,
+      confirmText: 'Delete Now',
+      cancelText: 'Cancel',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteEquipment(eq.id);
+          showToast(`Equipment "${eq.name}" deleted successfully!`, 'success');
+          loadEquipments();
+        } catch (err) {
+          showToast(err.response?.data?.message || err.message, 'error');
+        }
+      },
+    });
   };
 
   const handleToggle = async (id) => {
     try {
       await toggleEquipmentActive(id);
+      showToast('Equipment status updated!', 'success');
       loadEquipments();
     } catch (err) {
-      alert(err.response?.data?.message || err.message);
+      showToast(err.response?.data?.message || err.message, 'error');
     }
   };
 
@@ -176,31 +198,55 @@ const EquipmentManagement = () => {
 
   // ─── Category handlers ────────────────────────────────────────────────────
   const handleCreateCat = async (form) => {
-    await createCategory(form);
-    loadCategories();
+    try {
+      await createCategory(form);
+      showToast('New category created!', 'success');
+      loadCategories();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Failed to create category.', 'error');
+    }
   };
 
   const handleUpdateCat = async (form) => {
-    await updateCategory(editCat.id, form);
-    loadCategories();
-  };
-
-  const handleDeleteCat = async (cat) => {
-    if (!window.confirm(`Xóa danh mục "${cat.name}"?`)) return;
     try {
-      await deleteCategory(cat.id);
+      await updateCategory(editCat.id, form);
+      showToast('Category updated successfully!', 'success');
       loadCategories();
     } catch (err) {
-      alert(err.response?.data?.message || err.message);
+      showToast(err.response?.data?.message || 'Failed to update category.', 'error');
     }
+  };
+
+  const handleDeleteCat = (cat) => {
+    showConfirm({
+      title: 'Delete Category',
+      message: `Are you sure you want to delete category "${cat.name}"?`,
+      confirmText: 'Delete Category',
+      cancelText: 'Cancel',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteCategory(cat.id);
+          showToast(`Category "${cat.name}" deleted!`, 'success');
+          loadCategories();
+        } catch (err) {
+          showToast(err.response?.data?.message || err.message, 'error');
+        }
+      },
+    });
   };
 
   // ─── Rental handlers ──────────────────────────────────────────────────────
   const handleReturn = async (rentalId, data) => {
-    await returnRental(rentalId, data);
-    setReturnTarget(null);
-    loadRentals();
-    loadEquipments();
+    try {
+      await returnRental(rentalId, data);
+      setReturnTarget(null);
+      showToast('Equipment returned successfully!', 'success');
+      loadRentals();
+      loadEquipments();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Failed to process equipment return.', 'error');
+    }
   };
 
   // ─── Filtered equipment (client-side search) ──────────────────────────────
@@ -217,7 +263,7 @@ const EquipmentManagement = () => {
       <div className="flex-shrink-0 flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
           <h2 className="text-xl font-bold text-gray-900 mb-0.5">Equipment Management</h2>
-          <p className="text-sm text-gray-500">Quản lý trang thiết bị cho thuê phục vụ trekking.</p>
+          <p className="text-sm text-gray-500">Manage rental equipment and inventory for trekking tours.</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -226,7 +272,7 @@ const EquipmentManagement = () => {
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
           >
             <RefreshCw size={14} />
-            Tải lại
+            Refresh
           </button>
           {tab === 'equipment' && (
             <button
@@ -235,7 +281,7 @@ const EquipmentManagement = () => {
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-trek-primary text-white text-sm font-medium hover:bg-trek-tertiary transition-colors"
             >
               <Plus size={14} />
-              Thêm thiết bị
+              Add Equipment
             </button>
           )}
           {tab === 'categories' && (
@@ -245,7 +291,7 @@ const EquipmentManagement = () => {
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-trek-primary text-white text-sm font-medium hover:bg-trek-tertiary transition-colors"
             >
               <Plus size={14} />
-              Thêm danh mục
+              Add Category
             </button>
           )}
         </div>
@@ -283,7 +329,7 @@ const EquipmentManagement = () => {
                 <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="search"
-                  placeholder="Tìm thiết bị..."
+                  placeholder="Search equipment..."
                   value={eqSearch}
                   onChange={e => setEqSearch(e.target.value)}
                   className="pl-8 pr-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-trek-primary/30 focus:border-trek-primary w-44"
@@ -294,7 +340,7 @@ const EquipmentManagement = () => {
                 onChange={e => setFilterCat(e.target.value)}
                 className="border border-gray-300 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-trek-primary/30"
               >
-                <option value="">Tất cả danh mục</option>
+                <option value="">All Categories</option>
                 {categories.map(c => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
@@ -304,9 +350,9 @@ const EquipmentManagement = () => {
                 onChange={e => setFilterActive(e.target.value)}
                 className="border border-gray-300 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-trek-primary/30"
               >
-                <option value="">Tất cả trạng thái</option>
-                <option value="true">Hoạt động</option>
-                <option value="false">Ngừng</option>
+                <option value="">All Statuses</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
               </select>
             </div>
           )}
@@ -335,7 +381,7 @@ const EquipmentManagement = () => {
               <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr>
-                    {['Tên danh mục', 'Slug', 'Icon', 'Thứ tự', 'Số thiết bị', 'Trạng thái', 'Thao tác'].map(h => (
+                    {['Category Name', 'Slug', 'Icon', 'Sort Order', 'Equipment Count', 'Status', 'Actions'].map(h => (
                       <th key={h}
                         className="sticky top-0 z-10 text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-50 border-b border-gray-200">
                         {h}
@@ -346,7 +392,7 @@ const EquipmentManagement = () => {
                 <tbody>
                   {categories.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="text-center py-10 text-gray-400">Chưa có danh mục</td>
+                      <td colSpan={7} className="text-center py-10 text-gray-400">No categories found</td>
                     </tr>
                   ) : categories.map(cat => (
                     <tr key={cat.id} className="hover:bg-gray-50 border-b border-gray-100 last:border-0">
@@ -359,8 +405,8 @@ const EquipmentManagement = () => {
                       </td>
                       <td className="px-4 py-3">
                         {cat.isActive
-                          ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-100 text-emerald-700">Hoạt động</span>
-                          : <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-red-100 text-red-600">Ngừng</span>}
+                          ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-100 text-emerald-700">Active</span>
+                          : <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-red-100 text-red-600">Inactive</span>}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex gap-1 justify-end">
@@ -368,13 +414,13 @@ const EquipmentManagement = () => {
                             onClick={() => { setEditCat(cat); setShowCatForm(true); }}
                             className="px-2.5 py-1 rounded-lg text-xs font-medium border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
                           >
-                            Sửa
+                            Edit
                           </button>
                           <button
                             onClick={() => handleDeleteCat(cat)}
                             className="px-2.5 py-1 rounded-lg text-xs font-medium bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-colors"
                           >
-                            Xóa
+                            Delete
                           </button>
                         </div>
                       </td>

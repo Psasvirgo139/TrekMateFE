@@ -7,6 +7,7 @@ import { fetchPublicTourDetail, fetchDeparturesByTour } from "../../services/tou
 import { createBooking, fetchDepartureWeather, fetchAiGearRecommendation } from "../../services/bookingApi";
 import { createPayOSPayment } from "../../services/paymentApi";
 import WeatherForecast from "../../components/booking/WeatherForecast";
+import { useToast } from "../../context/ToastContext";
 
 // Same destination images as TourCard & TourDetail
 const TOUR_IMAGES = {
@@ -31,6 +32,7 @@ const getEquipmentIcon = (iconName) => {
 export default function TourBooking() {
   const { idOrSlug } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const location = useLocation();
 
   const passedNumParticipants = location.state?.numParticipants;
@@ -76,7 +78,7 @@ export default function TourBooking() {
         
         // Fetch Tour Details
         const tourData = await fetchPublicTourDetail(idOrSlug);
-        if (!tourData) throw new Error("Điều kiện tour không hợp lệ.");
+        if (!tourData) throw new Error("Tour data not found.");
         setTour(tourData);
 
         // Fetch Departures
@@ -338,7 +340,7 @@ export default function TourBooking() {
   const handleSubmitBooking = async (e) => {
     e.preventDefault();
     if (!selectedDeparture) {
-      alert("Please select a departure date!");
+      showToast("Please select a departure date!", "warning");
       return;
     }
 

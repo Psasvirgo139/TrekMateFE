@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import PaymentMethodOption from "./components/PaymentMethodOption";
 import OrderSummary from "./components/OrderSummary";
 import { createPayOSPayment, makePayment } from "../../services/paymentApi";
+import { useToast } from "../../context/ToastContext";
 
 const Payment = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { showToast } = useToast();
   const [bookingId, setBookingId] = useState("");
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("PAYOS");
@@ -38,18 +41,18 @@ const Payment = () => {
         : await makePayment(payload);
 
       if (!data) {
-        throw new Error("Đã xảy ra lỗi khi tạo thanh toán");
+        throw new Error("An error occurred while creating the payment");
       }
 
       if (method === "PAYOS" && data.checkoutUrl) {
         window.location.href = data.checkoutUrl;
       } else {
-        alert("Yêu cầu thanh toán thủ công đã được gửi thành công!");
-        window.location.href = "/";
+        showToast("Payment request has been sent successfully!", "success");
+        setTimeout(() => navigate('/bookings'), 1500);
       }
     } catch (err) {
       console.error(err);
-      const msg = err.response?.data?.message || err.message || "Không thể kết nối đến máy chủ. Vui lòng thử lại!";
+      const msg = err.response?.data?.message || err.message || "Unable to connect to the server. Please try again!";
       setError(msg);
     } finally {
       setLoading(false);
