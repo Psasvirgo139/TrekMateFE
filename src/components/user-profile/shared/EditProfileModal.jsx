@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { X, RefreshCw, Save, User } from 'lucide-react';
 import { updateCustomerProfile, updateGuideProfile } from '../../../services/userProfileApi';
+import { useToast } from '../../../context/ToastContext';
 
 const EditProfileModal = ({ isOpen, onClose, role, profileData, userId, onSaveSuccess, addLog }) => {
+  const { showToast } = useToast();
   const [editFormData, setEditFormData] = useState({});
   const [saving, setSaving] = useState(false);
 
@@ -91,11 +93,12 @@ const EditProfileModal = ({ isOpen, onClose, role, profileData, userId, onSaveSu
         await updateGuideProfile(userId, payload);
         if (addLog) addLog(`Successfully updated Guide Profile!`);
       }
+      showToast('Profile updated successfully!', 'success');
       onSaveSuccess();
       onClose();
     } catch (err) {
       if (addLog) addLog(`Failed to update profile: ${err.message}`);
-      alert(`Error updating profile: ${err.message}`);
+      showToast(`Error updating profile: ${err.message}`, 'error');
     } finally {
       setSaving(false);
     }

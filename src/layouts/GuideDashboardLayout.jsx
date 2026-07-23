@@ -6,11 +6,8 @@ import './GuideDashboard.css';
 
 const NAV_ITEMS = [
   { to: '/guide/dashboard', label: 'Dashboard', end: false },
-  { to: '/guide/tours', label: 'Tours', end: false },
   { to: '/guide/equipment', label: 'Equipment', end: false },
   { to: '/guide/users', label: 'Guides', end: false },
-  { to: '/guide/analytics', label: 'Analytics', end: false },
-  { to: '/guide/settings', label: 'Settings', end: false },
 ];
 
 const GuideDashboardLayout = () => {

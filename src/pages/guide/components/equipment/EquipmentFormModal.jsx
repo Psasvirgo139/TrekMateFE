@@ -18,7 +18,7 @@ const EMPTY_FORM = {
 };
 
 const CONDITIONS = ['EXCELLENT', 'GOOD', 'FAIR', 'RETIRED'];
-const CONDITION_VN = { EXCELLENT: 'Xuất sắc', GOOD: 'Tốt', FAIR: 'Khá', RETIRED: 'Nghỉ hưu' };
+const CONDITION_LABEL = { EXCELLENT: 'Excellent', GOOD: 'Good', FAIR: 'Fair', RETIRED: 'Retired' };
 
 const EquipmentFormModal = ({ open, onClose, onSubmit, initialData, categories }) => {
   const [form, setForm] = useState(EMPTY_FORM);
@@ -70,7 +70,7 @@ const EquipmentFormModal = ({ open, onClose, onSubmit, initialData, categories }
       });
       onClose();
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Đã xảy ra lỗi');
+      setError(err.response?.data?.message || err.message || 'An error occurred');
     } finally {
       setSubmitting(false);
     }
@@ -82,7 +82,7 @@ const EquipmentFormModal = ({ open, onClose, onSubmit, initialData, categories }
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h3 className="text-base font-bold text-gray-900">
-            {initialData ? 'Chỉnh sửa thiết bị' : 'Thêm thiết bị mới'}
+            {initialData ? 'Edit Equipment' : 'Add New Equipment'}
           </h3>
           <button onClick={onClose} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100">
             <X size={18} />
@@ -97,14 +97,14 @@ const EquipmentFormModal = ({ open, onClose, onSubmit, initialData, categories }
 
           {/* Category */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Danh mục *</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Category *</label>
             <select
               required
               value={form.categoryId}
               onChange={e => set('categoryId', e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-trek-primary/30 focus:border-trek-primary"
             >
-              <option value="">Chọn danh mục...</option>
+              <option value="">Select category...</option>
               {categories.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
@@ -113,13 +113,13 @@ const EquipmentFormModal = ({ open, onClose, onSubmit, initialData, categories }
 
           {/* Name */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Tên thiết bị *</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Equipment Name *</label>
             <input
               required
               type="text"
               value={form.name}
               onChange={e => set('name', e.target.value)}
-              placeholder="VD: Lều 2 người Naturehike..."
+              placeholder="e.g. Naturehike 2-Person Tent..."
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-trek-primary/30 focus:border-trek-primary"
             />
           </div>
@@ -127,7 +127,7 @@ const EquipmentFormModal = ({ open, onClose, onSubmit, initialData, categories }
           {/* Brand + Model */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Thương hiệu</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Brand</label>
               <input
                 type="text"
                 value={form.brand}
@@ -151,7 +151,7 @@ const EquipmentFormModal = ({ open, onClose, onSubmit, initialData, categories }
           {/* Price + Deposit */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Giá/ngày (₫) *</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Daily Rate (₫) *</label>
               <input
                 required
                 type="number"
@@ -163,7 +163,7 @@ const EquipmentFormModal = ({ open, onClose, onSubmit, initialData, categories }
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Đặt cọc (₫)</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Deposit (₫)</label>
               <input
                 type="number"
                 min="0"
@@ -178,7 +178,7 @@ const EquipmentFormModal = ({ open, onClose, onSubmit, initialData, categories }
           {/* Stock */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Tổng số lượng *</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Total Stock *</label>
               <input
                 required
                 type="number"
@@ -189,13 +189,13 @@ const EquipmentFormModal = ({ open, onClose, onSubmit, initialData, categories }
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Sẵn sàng cho thuê</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Available Stock</label>
               <input
                 type="number"
                 min="0"
                 value={form.availableStock}
                 onChange={e => set('availableStock', e.target.value)}
-                placeholder="= Tổng nếu để trống"
+                placeholder="= Total if blank"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-trek-primary/30"
               />
             </div>
@@ -204,19 +204,19 @@ const EquipmentFormModal = ({ open, onClose, onSubmit, initialData, categories }
           {/* Condition + Weight */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Tình trạng</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Condition</label>
               <select
                 value={form.condition}
                 onChange={e => set('condition', e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-trek-primary/30"
               >
                 {CONDITIONS.map(c => (
-                  <option key={c} value={c}>{CONDITION_VN[c]}</option>
+                  <option key={c} value={c}>{CONDITION_LABEL[c]}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Trọng lượng (kg)</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Weight (kg)</label>
               <input
                 type="number"
                 min="0"
@@ -231,7 +231,7 @@ const EquipmentFormModal = ({ open, onClose, onSubmit, initialData, categories }
 
           {/* Image URL */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">URL hình ảnh</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Image URL</label>
             <input
               type="url"
               value={form.imageUrl}
@@ -243,12 +243,12 @@ const EquipmentFormModal = ({ open, onClose, onSubmit, initialData, categories }
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Mô tả</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
             <textarea
               rows={3}
               value={form.description}
               onChange={e => set('description', e.target.value)}
-              placeholder="Mô tả chi tiết thiết bị..."
+              placeholder="Detailed equipment description..."
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-trek-primary/30 resize-none"
             />
           </div>
@@ -261,7 +261,7 @@ const EquipmentFormModal = ({ open, onClose, onSubmit, initialData, categories }
               onChange={e => set('isActive', e.target.checked)}
               className="w-4 h-4 accent-trek-primary"
             />
-            <span className="text-sm text-gray-700">Cho phép cho thuê (đang hoạt động)</span>
+            <span className="text-sm text-gray-700">Available for rental (Active)</span>
           </label>
         </form>
 
@@ -272,14 +272,14 @@ const EquipmentFormModal = ({ open, onClose, onSubmit, initialData, categories }
             onClick={onClose}
             className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-600 hover:bg-gray-50"
           >
-            Hủy
+            Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={submitting}
             className="px-4 py-2 rounded-lg bg-trek-primary text-white text-sm font-medium hover:bg-trek-tertiary disabled:opacity-60"
           >
-            {submitting ? 'Đang lưu...' : initialData ? 'Lưu thay đổi' : 'Thêm thiết bị'}
+            {submitting ? 'Saving...' : initialData ? 'Save Changes' : 'Add Equipment'}
           </button>
         </div>
       </div>
