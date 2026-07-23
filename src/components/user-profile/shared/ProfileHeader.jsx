@@ -75,6 +75,18 @@ const ProfileHeader = ({ role, data, isOwnProfile, onAction }) => {
             </p>
           </div>
         </div>
+
+        {/* Action Buttons */}
+        {!isGuide && (
+          <div className="flex items-center justify-center gap-3 z-10 w-full md:w-auto">
+            <button
+              onClick={() => onAction && onAction('edit', data)}
+              className="w-full md:w-auto px-6 py-3 rounded-xl font-bold text-white bg-trek-primary hover:bg-trek-primary/95 shadow-lg shadow-emerald-950/20 transition-all duration-300 flex items-center justify-center gap-2 active:scale-95"
+            >
+              {isOwnProfile ? 'Edit Profile' : 'Book a Tour'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
