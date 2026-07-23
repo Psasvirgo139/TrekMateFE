@@ -11,16 +11,24 @@
 export const validateTourData = (data) => {
   const errors = {};
 
+  // Validate title
+  if (data.hasOwnProperty('title')) {
+    const val = data.title;
+    if (val === undefined || val === null || (typeof val === 'string' && !val.trim())) {
+      errors.title = 'The tour name cannot be left blank..';
+    }
+  }
+
   // Validate startLocation
   if (data.hasOwnProperty('startLocation')) {
     const val = data.startLocation;
     if (val === undefined || val === null || (typeof val === 'string' && !val.trim())) {
-      errors.startLocation = 'Điểm xuất phát không được để trống.';
+      errors.startLocation = 'The departure location cannot be left blank..';
     } else {
       // Regex matches letters (including accents), spaces, commas, periods, and hyphens.
       const locationRegex = /^[\p{L}\s,.-]+$/u;
       if (!locationRegex.test(val)) {
-        errors.startLocation = 'Điểm xuất phát chỉ được chứa chữ cái, khoảng trắng và các ký tự (, . -).';
+        errors.startLocation = 'The departure location can only contain letters, spaces, and punctuation marks (, . -).';
       }
     }
   }
@@ -29,11 +37,11 @@ export const validateTourData = (data) => {
   if (data.hasOwnProperty('endLocation')) {
     const val = data.endLocation;
     if (val === undefined || val === null || (typeof val === 'string' && !val.trim())) {
-      errors.endLocation = 'Điểm kết thúc không được để trống.';
+      errors.endLocation = 'The end location cannot be left blank..';
     } else {
       const locationRegex = /^[\p{L}\s,.-]+$/u;
       if (!locationRegex.test(val)) {
-        errors.endLocation = 'Điểm kết thúc chỉ được chứa chữ cái, khoảng trắng và các ký tự (, . -).';
+        errors.endLocation = 'The end location can only contain letters, spaces, and punctuation marks (, . -).';
       }
     }
   }
@@ -47,23 +55,23 @@ export const validateTourData = (data) => {
     const nights = (nightsVal === '' || nightsVal === undefined || nightsVal === null) ? NaN : Number(nightsVal);
 
     if (isNaN(days)) {
-      errors.durationDays = 'Số ngày không hợp lệ.';
+      errors.durationDays = 'The number of days is invalid.';
     } else if (days < 0) {
-      errors.durationDays = 'Số ngày không được nhỏ hơn 0.';
+      errors.durationDays = 'The number of days cannot be less than 0.';
     }
 
     if (isNaN(nights)) {
-      errors.durationNights = 'Số đêm không hợp lệ.';
+      errors.durationNights = 'The number of nights is invalid.';
     } else if (nights < 0) {
-      errors.durationNights = 'Số đêm không được nhỏ hơn 0.';
+      errors.durationNights = 'The number of nights cannot be less than 0.';
     }
 
     if (!isNaN(days) && days >= 0 && !isNaN(nights) && nights >= 0) {
       if (days === 0 && nights === 0) {
-        errors.durationDays = 'Số ngày và số đêm không thể đồng thời bằng 0.';
-        errors.durationNights = 'Số ngày và số đêm không thể đồng thời bằng 0.';
+        errors.durationDays = 'The number of days and the number of nights cannot be zero at the same time.';
+        errors.durationNights = 'The number of days and the number of nights cannot be zero at the same time.';
       } else if (Math.abs(days - nights) > 1) {
-        const errorMsg = 'Chênh lệch giữa số ngày và số đêm chỉ được phép là 0 hoặc 1 (Ví dụ: 3 ngày 2 đêm, 2 ngày 2 đêm, 2 ngày 3 đêm).';
+        const errorMsg = 'The difference between the number of days and the number of nights is only allowed to be 0 or 1 (Example: 3 days 2 nights, 2 days 2 nights, 2 days 3 nights).';
         errors.durationDays = errorMsg;
         errors.durationNights = errorMsg;
       }

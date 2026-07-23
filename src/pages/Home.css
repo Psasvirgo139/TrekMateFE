@@ -51,9 +51,68 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0 1.5rem;
+  overflow: hidden; /* Prevent zoomed backgrounds from overflowing */
+}
+
+/* Background Carousel Slider */
+.hero-bg-slider {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-bg-slide {
+  position: absolute;
+  inset: 0;
   background-size: cover;
   background-position: center;
-  padding: 0 1.5rem;
+  opacity: 0;
+  transform: scale(1.08); /* Starting state of Ken Burns effect */
+  transition: opacity 1.8s ease-in-out, transform 5s ease-out;
+  z-index: -1;
+}
+
+.hero-bg-slide.active {
+  opacity: 1;
+  transform: scale(1); /* Slow zoom out to natural scale */
+  z-index: 0;
+}
+
+/* Carousel Navigation Indicators */
+.hero-carousel-indicators {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3; /* Render above the overlay (z-index 1) and contents */
+  display: flex;
+  gap: 0.75rem;
+}
+
+.hero-carousel-dot {
+  width: 45px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-carousel-dot:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.hero-carousel-dot.active {
+  background: var(--hp-accent);
+  width: 60px;
+  box-shadow: 0 0 12px rgba(254, 166, 25, 0.5);
 }
 
 .home-hero-overlay {

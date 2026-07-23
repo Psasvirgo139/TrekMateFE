@@ -50,7 +50,7 @@ export default function TourCard({ tour }) {
           {tour.difficulty}
         </span>
         <span className="absolute bottom-4 right-4 bg-[#fea619] hover:bg-[#ffb638] text-[#012d1d] px-4 py-1.5 rounded-xl font-extrabold text-sm shadow-lg transform group-hover:scale-105 transition-all duration-300">
-          {tour.priceFrom ? formatPrice(tour.priceFrom) : "Liên hệ"}
+          {tour.priceFrom ? formatPrice(tour.priceFrom) : "Contact"}
         </span>
       </div>
 
@@ -62,7 +62,7 @@ export default function TourCard({ tour }) {
           <span className="font-extrabold text-gray-800 text-xs ml-1">
             {tour.avgRating ? parseFloat(tour.avgRating).toFixed(1) : "0.0"}
           </span>
-          <span className="text-gray-400 text-xs">({tour.totalReviews || 0} đánh giá)</span>
+          <span className="text-gray-400 text-xs">({tour.totalReviews || 0} reviews)</span>
         </div>
 
         {/* Title */}
@@ -89,7 +89,7 @@ export default function TourCard({ tour }) {
         {/* Highlights */}
         {tour.highlights && tour.highlights.length > 0 && (
           <div className="mb-5">
-            <div className="text-[10px] uppercase text-gray-400 font-extrabold tracking-wider mb-2">Điểm Nổi Bật</div>
+            <div className="text-[10px] uppercase text-gray-400 font-extrabold tracking-wider mb-2">Highlights</div>
             <ul className="flex flex-col gap-1.5 p-0 list-none">
               {tour.highlights.slice(0, 2).map((hl, idx) => (
                 <li key={idx} className="text-xs text-gray-700 flex items-start gap-2">
@@ -117,8 +117,8 @@ export default function TourCard({ tour }) {
             </span>
             <span className="text-xs font-bold text-gray-500">
               {tour.upcomingDeparturesCount > 0
-                ? `${tour.upcomingDeparturesCount} chuyến sắp đi`
-                : "Chưa có lịch"}
+                ? `${tour.upcomingDeparturesCount} departures soon`
+                : "No schedule"}
             </span>
           </div>
 
@@ -127,7 +127,7 @@ export default function TourCard({ tour }) {
             to={`/tours/${tour.slug || tour.id}`}
             className="px-5 py-2 text-xs font-extrabold bg-[#012d1d] hover:bg-[#fea619] text-white hover:text-[#012d1d] rounded-full transition-all duration-300 shadow hover:shadow-lg active:scale-95 inline-block text-center"
           >
-            Xem chi tiết
+            View Details
           </Link>
         </div>
       </div>

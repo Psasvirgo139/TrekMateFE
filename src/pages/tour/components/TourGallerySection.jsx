@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function TourGallerySection({
   images,
@@ -7,6 +7,41 @@ export default function TourGallerySection({
   onAddImage,
   onDeleteImage
 }) {
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (!newImgData.imageUrl) {
+      setErrors({});
+    }
+  }, [newImgData.imageUrl]);
+
+  const handleUrlChange = (e) => {
+    onChangeNewImgData({ ...newImgData, imageUrl: e.target.value });
+    if (errors.imageUrl) {
+      setErrors({ ...errors, imageUrl: null });
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newErrors = {};
+    if (!newImgData.imageUrl || !newImgData.imageUrl.trim()) {
+      newErrors.imageUrl = "Image URL is required";
+    } else {
+      const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$/i;
+      if (!urlPattern.test(newImgData.imageUrl.trim())) {
+        newErrors.imageUrl = "Please enter a valid URL";
+      }
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
+    onAddImage(e);
+  };
   return (
     <div className="bg-white p-6 border border-gray-200 rounded-xl shadow-sm w-full">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -58,17 +93,23 @@ export default function TourGallerySection({
         {/* Add image form */}
         <div className="lg:col-span-4 lg:pl-4 space-y-4">
           <h3 className="font-montserrat font-bold text-lg text-[#012d1d]">Add New Image</h3>
-          <form onSubmit={onAddImage} className="bg-gray-50 border border-gray-200 p-5 rounded-xl space-y-3 shadow-sm">
+          <form onSubmit={handleSubmit} className="bg-gray-50 border border-gray-200 p-5 rounded-xl space-y-3 shadow-sm">
             <div>
               <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Image URL *</label>
               <input 
-                type="url" 
-                required 
+                type="text" 
                 placeholder="https://example.com/trekking-photo.webp"
                 value={newImgData.imageUrl}
-                onChange={(e) => onChangeNewImgData({...newImgData, imageUrl: e.target.value})}
-                className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all bg-white"
+                onChange={handleUrlChange}
+                className={`w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#012d1d]/20 transition-all bg-white ${
+                  errors.imageUrl 
+                    ? 'border-red-500 focus:border-red-500' 
+                    : 'border-gray-300 focus:border-[#012d1d]'
+                }`}
               />
+              {errors.imageUrl && (
+                <p className="text-red-500 text-[10px] mt-1 font-semibold">{errors.imageUrl}</p>
+              )}
             </div>
 
             <div>

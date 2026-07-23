@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function TourDailyItineraryList({
   itineraries,
@@ -11,6 +11,70 @@ export default function TourDailyItineraryList({
   onDeleteDayClick,
   onToggleWaypointInDay
 }) {
+  const [errors, setErrors] = useState({});
+
+  const handleFieldChange = (itId, field, value) => {
+    onItineraryFieldChange(itId, field, value);
+    if (errors[itId] && errors[itId][field]) {
+      setErrors((prev) => ({
+        ...prev,
+        [itId]: {
+          ...prev[itId],
+          [field]: null
+        }
+      }));
+    }
+    if (field === 'walkingHoursMin' || field === 'walkingHoursMax') {
+      setErrors((prev) => ({
+        ...prev,
+        [itId]: {
+          ...prev[itId],
+          walkingHoursMin: null,
+          walkingHoursMax: null
+        }
+      }));
+    }
+  };
+
+  const validateDay = (it) => {
+    const dayErrors = {};
+    if (!it.dayTitle || !it.dayTitle.trim()) {
+      dayErrors.dayTitle = "Day title is required";
+    }
+    if (!it.dayDescription || !it.dayDescription.trim()) {
+      dayErrors.dayDescription = "Day description is required";
+    }
+    if (it.distanceKm !== undefined && it.distanceKm !== null && it.distanceKm !== '') {
+      if (parseFloat(it.distanceKm) < 0) {
+        dayErrors.distanceKm = "Distance cannot be negative";
+      }
+    }
+    if (it.elevationGainM !== undefined && it.elevationGainM !== null && it.elevationGainM !== '') {
+      if (parseInt(it.elevationGainM) < 0) {
+        dayErrors.elevationGainM = "Elevation gain cannot be negative";
+      }
+    }
+    if (it.elevationLossM !== undefined && it.elevationLossM !== null && it.elevationLossM !== '') {
+      if (parseInt(it.elevationLossM) < 0) {
+        dayErrors.elevationLossM = "Elevation loss cannot be negative";
+      }
+    }
+    if (it.walkingHoursMin !== undefined && it.walkingHoursMin !== null && it.walkingHoursMin !== '') {
+      if (parseInt(it.walkingHoursMin) < 0) {
+        dayErrors.walkingHoursMin = "Min walking hours cannot be negative";
+      }
+    }
+    if (it.walkingHoursMax !== undefined && it.walkingHoursMax !== null && it.walkingHoursMax !== '') {
+      if (parseInt(it.walkingHoursMax) < 0) {
+        dayErrors.walkingHoursMax = "Max walking hours cannot be negative";
+      } else if (it.walkingHoursMin && parseInt(it.walkingHoursMax) < parseInt(it.walkingHoursMin)) {
+        dayErrors.walkingHoursMax = "Max hours must be at least min hours";
+      }
+    }
+
+    setErrors((prev) => ({ ...prev, [it.id]: dayErrors }));
+    return Object.keys(dayErrors).length === 0;
+  };
   return (
     <div className="bg-white p-6 border border-gray-200 rounded-xl shadow-sm w-full">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 pb-4 border-b border-gray-200 gap-4">
@@ -67,9 +131,16 @@ export default function TourDailyItineraryList({
                           <input 
                             type="text" 
                             value={it.dayTitle || ''} 
-                            onChange={(e) => onItineraryFieldChange(it.id, 'dayTitle', e.target.value)}
-                            className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all font-medium"
+                            onChange={(e) => handleFieldChange(it.id, 'dayTitle', e.target.value)}
+                            className={`w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#012d1d]/20 transition-all font-medium ${
+                              errors[it.id]?.dayTitle 
+                                ? 'border-red-500 focus:border-red-500' 
+                                : 'border-gray-300 focus:border-[#012d1d]'
+                            }`}
                           />
+                          {errors[it.id]?.dayTitle && (
+                            <p className="text-red-500 text-[10px] mt-1 font-semibold">{errors[it.id].dayTitle}</p>
+                          )}
                         </div>
                         
                         <div>
@@ -77,9 +148,16 @@ export default function TourDailyItineraryList({
                           <textarea 
                             rows={3}
                             value={it.dayDescription || ''}
-                            onChange={(e) => onItineraryFieldChange(it.id, 'dayDescription', e.target.value)}
-                            className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all leading-relaxed"
+                            onChange={(e) => handleFieldChange(it.id, 'dayDescription', e.target.value)}
+                            className={`w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#012d1d]/20 transition-all leading-relaxed ${
+                              errors[it.id]?.dayDescription 
+                                ? 'border-red-500 focus:border-red-500' 
+                                : 'border-gray-300 focus:border-[#012d1d]'
+                            }`}
                           />
+                          {errors[it.id]?.dayDescription && (
+                            <p className="text-red-500 text-[10px] mt-1 font-semibold">{errors[it.id].dayDescription}</p>
+                          )}
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -131,27 +209,48 @@ export default function TourDailyItineraryList({
                               type="number" 
                               step="0.1"
                               value={it.distanceKm || ''} 
-                              onChange={(e) => onItineraryFieldChange(it.id, 'distanceKm', e.target.value)}
-                              className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                              onChange={(e) => handleFieldChange(it.id, 'distanceKm', e.target.value)}
+                              className={`w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#012d1d]/20 transition-all ${
+                                errors[it.id]?.distanceKm 
+                                  ? 'border-red-500 focus:border-red-500' 
+                                  : 'border-gray-300 focus:border-[#012d1d]'
+                              }`}
                             />
+                            {errors[it.id]?.distanceKm && (
+                              <p className="text-red-500 text-[10px] mt-1 font-semibold">{errors[it.id].distanceKm}</p>
+                            )}
                           </div>
                           <div>
                             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Elevation Gain (m)</label>
                             <input 
                               type="number" 
                               value={it.elevationGainM || ''} 
-                              onChange={(e) => onItineraryFieldChange(it.id, 'elevationGainM', e.target.value)}
-                              className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                              onChange={(e) => handleFieldChange(it.id, 'elevationGainM', e.target.value)}
+                              className={`w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#012d1d]/20 transition-all ${
+                                errors[it.id]?.elevationGainM 
+                                  ? 'border-red-500 focus:border-red-500' 
+                                  : 'border-gray-300 focus:border-[#012d1d]'
+                              }`}
                             />
+                            {errors[it.id]?.elevationGainM && (
+                              <p className="text-red-500 text-[10px] mt-1 font-semibold">{errors[it.id].elevationGainM}</p>
+                            )}
                           </div>
                           <div>
                             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Elevation Loss (m)</label>
                             <input 
                               type="number" 
                               value={it.elevationLossM || ''} 
-                              onChange={(e) => onItineraryFieldChange(it.id, 'elevationLossM', e.target.value)}
-                              className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                              onChange={(e) => handleFieldChange(it.id, 'elevationLossM', e.target.value)}
+                              className={`w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#012d1d]/20 transition-all ${
+                                errors[it.id]?.elevationLossM 
+                                  ? 'border-red-500 focus:border-red-500' 
+                                  : 'border-gray-300 focus:border-[#012d1d]'
+                              }`}
                             />
+                            {errors[it.id]?.elevationLossM && (
+                              <p className="text-red-500 text-[10px] mt-1 font-semibold">{errors[it.id].elevationLossM}</p>
+                            )}
                           </div>
                         </div>
 
@@ -174,18 +273,32 @@ export default function TourDailyItineraryList({
                             <input 
                               type="number" 
                               value={it.walkingHoursMin || ''} 
-                              onChange={(e) => onItineraryFieldChange(it.id, 'walkingHoursMin', e.target.value)}
-                              className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                              onChange={(e) => handleFieldChange(it.id, 'walkingHoursMin', e.target.value)}
+                              className={`w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#012d1d]/20 transition-all ${
+                                errors[it.id]?.walkingHoursMin 
+                                  ? 'border-red-500 focus:border-red-500' 
+                                  : 'border-gray-300 focus:border-[#012d1d]'
+                              }`}
                             />
+                            {errors[it.id]?.walkingHoursMin && (
+                              <p className="text-red-500 text-[10px] mt-1 font-semibold">{errors[it.id].walkingHoursMin}</p>
+                            )}
                           </div>
                           <div>
                             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Max Walking Hours</label>
                             <input 
                               type="number" 
                               value={it.walkingHoursMax || ''} 
-                              onChange={(e) => onItineraryFieldChange(it.id, 'walkingHoursMax', e.target.value)}
-                              className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                              onChange={(e) => handleFieldChange(it.id, 'walkingHoursMax', e.target.value)}
+                              className={`w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#012d1d]/20 transition-all ${
+                                errors[it.id]?.walkingHoursMax 
+                                  ? 'border-red-500 focus:border-red-500' 
+                                  : 'border-gray-300 focus:border-[#012d1d]'
+                              }`}
                             />
+                            {errors[it.id]?.walkingHoursMax && (
+                              <p className="text-red-500 text-[10px] mt-1 font-semibold">{errors[it.id].walkingHoursMax}</p>
+                            )}
                           </div>
                         </div>
 
@@ -291,7 +404,11 @@ export default function TourDailyItineraryList({
                       </button>
                       <button 
                         type="button" 
-                        onClick={() => onSaveDayClick(it)}
+                        onClick={() => {
+                          if (validateDay(it)) {
+                            onSaveDayClick(it);
+                          }
+                        }}
                         className="bg-[#012d1d] hover:bg-[#0c432d] text-white px-5 py-2 font-bold rounded-lg text-xs transition-all shadow-sm"
                       >
                         Save Day Details

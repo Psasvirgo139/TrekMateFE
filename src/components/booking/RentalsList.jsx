@@ -4,7 +4,7 @@ export default function RentalsList({ rentals, formatPrice }) {
   return (
     <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
       <h4 className="font-extrabold text-[#012d1d] text-base mb-4 pb-3 border-b border-gray-100">
-        Thiết bị leo núi đã thuê
+        Rental climbing equipment
       </h4>
       {rentals && rentals.length > 0 ? (
         <div className="flex flex-col divide-y divide-gray-50">
@@ -21,12 +21,12 @@ export default function RentalsList({ rentals, formatPrice }) {
                 <h5 className="font-bold text-[#012d1d] text-sm">{rental.equipmentName}</h5>
                 <p className="text-xs text-gray-500 mt-0.5">{rental.brand} {rental.model}</p>
                 <p className="text-xs text-gray-400 mt-1">
-                  {formatPrice(rental.pricePerDay)}/ngày × {rental.rentalDays} ngày
+                  {formatPrice(rental.pricePerDay)}/day × {rental.rentalDays} days
                 </p>
               </div>
               <div className="text-right shrink-0">
                 <span className="block text-xs text-gray-400">
-                  Số lượng: <strong className="text-gray-700">{rental.quantity}</strong>
+                  Quantity: <strong className="text-gray-700">{rental.quantity}</strong>
                 </span>
                 <span className="block font-bold text-[#012d1d] text-sm mt-1">
                   {formatPrice(rental.subtotal)}
@@ -36,7 +36,7 @@ export default function RentalsList({ rentals, formatPrice }) {
           ))}
         </div>
       ) : (
-        <p className="text-sm text-gray-400 italic">Không thuê thiết bị leo núi nào cho chuyến đi này.</p>
+        <p className="text-sm text-gray-400 italic">No rental climbing equipment for this trip.</p>
       )}
     </div>
   );

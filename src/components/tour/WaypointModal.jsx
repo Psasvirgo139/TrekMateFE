@@ -17,7 +17,7 @@ const WaypointModal = ({ show, onClose, onSave, waypoint = null, totalWaypoints 
     waterNotes: ''
   });
 
-  const [validated, setValidated] = useState(false);
+  const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -55,15 +55,45 @@ const WaypointModal = ({ show, onClose, onSave, waypoint = null, totalWaypoints 
           waterNotes: ''
         });
       }
-      setValidated(false);
+      setErrors({});
       setSaving(false);
     }
   }, [show, waypoint, totalWaypoints]);
 
+  const handleFieldChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: null }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.name || !formData.name.trim()) {
+      newErrors.name = "Waypoint name is required";
+    }
+    if (formData.sequenceOrder === undefined || formData.sequenceOrder === null || formData.sequenceOrder === '') {
+      newErrors.sequenceOrder = "Sequence order is required";
+    } else if (parseInt(formData.sequenceOrder) < 1) {
+      newErrors.sequenceOrder = "Sequence order must be at least 1";
+    }
+    if (formData.elevationM && parseInt(formData.elevationM) < 0) {
+      newErrors.elevationM = "Elevation cannot be negative";
+    }
+    if (formData.lat && (parseFloat(formData.lat) < -90 || parseFloat(formData.lat) > 90)) {
+      newErrors.lat = "Latitude must be between -90 and 90";
+    }
+    if (formData.lng && (parseFloat(formData.lng) < -180 || parseFloat(formData.lng) > 180)) {
+      newErrors.lng = "Longitude must be between -180 and 180";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name.trim() || formData.sequenceOrder === '') {
-      setValidated(true);
+    if (!validateForm()) {
       return;
     }
 
@@ -117,18 +147,17 @@ const WaypointModal = ({ show, onClose, onSave, waypoint = null, totalWaypoints 
               </label>
               <input 
                 type="text" 
-                required 
                 placeholder="e.g., Camp Site Black Stone"
                 value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                onChange={(e) => handleFieldChange('name', e.target.value)}
                 className={`w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#012d1d]/20 transition-all ${
-                  validated && !formData.name.trim() 
+                  errors.name 
                     ? 'border-red-500 focus:border-red-500' 
                     : 'border-gray-300 focus:border-[#012d1d]'
                 }`}
               />
-              {validated && !formData.name.trim() && (
-                <p className="mt-1 text-xs text-red-500">Please enter a waypoint name.</p>
+              {errors.name && (
+                <p className="mt-1 text-xs text-red-500 font-semibold">{errors.name}</p>
               )}
             </div>
 
@@ -141,11 +170,17 @@ const WaypointModal = ({ show, onClose, onSave, waypoint = null, totalWaypoints 
                 <input 
                   type="number" 
                   min="1" 
-                  required
                   value={formData.sequenceOrder}
-                  onChange={(e) => setFormData({...formData, sequenceOrder: e.target.value})}
-                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                  onChange={(e) => handleFieldChange('sequenceOrder', e.target.value)}
+                  className={`w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#012d1d]/20 transition-all ${
+                    errors.sequenceOrder 
+                      ? 'border-red-500 focus:border-red-500' 
+                      : 'border-gray-300 focus:border-[#012d1d]'
+                  }`}
                 />
+                {errors.sequenceOrder && (
+                  <p className="mt-1 text-xs text-red-500 font-semibold">{errors.sequenceOrder}</p>
+                )}
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
@@ -195,9 +230,16 @@ const WaypointModal = ({ show, onClose, onSave, waypoint = null, totalWaypoints 
                   type="number" 
                   placeholder="e.g., 350"
                   value={formData.elevationM}
-                  onChange={(e) => setFormData({...formData, elevationM: e.target.value})}
-                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                  onChange={(e) => handleFieldChange('elevationM', e.target.value)}
+                  className={`w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#012d1d]/20 transition-all ${
+                    errors.elevationM 
+                      ? 'border-red-500 focus:border-red-500' 
+                      : 'border-gray-300 focus:border-[#012d1d]'
+                  }`}
                 />
+                {errors.elevationM && (
+                  <p className="mt-1 text-xs text-red-500 font-semibold">{errors.elevationM}</p>
+                )}
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
@@ -208,9 +250,16 @@ const WaypointModal = ({ show, onClose, onSave, waypoint = null, totalWaypoints 
                   step="0.000001"
                   placeholder="e.g., 16.0245"
                   value={formData.lat}
-                  onChange={(e) => setFormData({...formData, lat: e.target.value})}
-                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                  onChange={(e) => handleFieldChange('lat', e.target.value)}
+                  className={`w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#012d1d]/20 transition-all ${
+                    errors.lat 
+                      ? 'border-red-500 focus:border-red-500' 
+                      : 'border-gray-300 focus:border-[#012d1d]'
+                  }`}
                 />
+                {errors.lat && (
+                  <p className="mt-1 text-xs text-red-500 font-semibold">{errors.lat}</p>
+                )}
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
@@ -221,9 +270,16 @@ const WaypointModal = ({ show, onClose, onSave, waypoint = null, totalWaypoints 
                   step="0.000001"
                   placeholder="e.g., 108.0125"
                   value={formData.lng}
-                  onChange={(e) => setFormData({...formData, lng: e.target.value})}
-                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                  onChange={(e) => handleFieldChange('lng', e.target.value)}
+                  className={`w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#012d1d]/20 transition-all ${
+                    errors.lng 
+                      ? 'border-red-500 focus:border-red-500' 
+                      : 'border-gray-300 focus:border-[#012d1d]'
+                  }`}
                 />
+                {errors.lng && (
+                  <p className="mt-1 text-xs text-red-500 font-semibold">{errors.lng}</p>
+                )}
               </div>
             </div>
 
