@@ -29,6 +29,7 @@ export default function SingleDepartureModal({
   const [availableGuides, setAvailableGuides] = useState([]);
   const [loadingGuides, setLoadingGuides] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const calculateReturnDate = (depDate) => {
     if (!depDate) return '';
@@ -40,6 +41,7 @@ export default function SingleDepartureModal({
   // Populate data when editingDeparture changes or modal opens for creation
   useEffect(() => {
     if (!isOpen) return;
+    setErrors({});
 
     if (editingDeparture) {
       const loadEditingData = async () => {
@@ -127,10 +129,45 @@ export default function SingleDepartureModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, form.departureDate, form.returnDate, durationDays, editingDeparture]);
 
+  const handleFieldChange = (field, value) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: null }));
+    }
+    if (field === 'minGroupSize' || field === 'maxGroupSize') {
+      setErrors((prev) => ({ ...prev, minGroupSize: null, maxGroupSize: null }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!form.departureDate) {
+      newErrors.departureDate = "Departure date is required";
+    }
+    if (form.returnDate && !form.departureDate) {
+      newErrors.returnDate = "Return date is required";
+    }
+    if (!form.pricePerPerson) {
+      newErrors.pricePerPerson = "Price per person is required";
+    } else if (parseFloat(form.pricePerPerson) < 0) {
+      newErrors.pricePerPerson = "Price cannot be negative";
+    }
+    if (!form.maxGroupSize) {
+      newErrors.maxGroupSize = "Maximum group size is required";
+    } else if (parseInt(form.maxGroupSize) < 1) {
+      newErrors.maxGroupSize = "Maximum group size must be at least 1";
+    }
+    if (form.minGroupSize && form.maxGroupSize && parseInt(form.minGroupSize) > parseInt(form.maxGroupSize)) {
+      newErrors.minGroupSize = "Min group size cannot exceed max group size";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.departureDate || !form.pricePerPerson || !form.maxGroupSize) {
-      showToast("Please fill in all required fields!", "danger");
+    if (!validateForm()) {
+      showToast("Please fill in all required fields correctly!", "danger");
       return;
     }
     setSaving(true);
@@ -188,11 +225,17 @@ export default function SingleDepartureModal({
                 <label className="block text-gray-500 font-semibold uppercase tracking-wider mb-1">Departure Date *</label>
                 <input
                   type="date"
-                  required
                   value={form.departureDate}
-                  onChange={(e) => setForm({ ...form, departureDate: e.target.value })}
-                  className="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d]"
+                  onChange={(e) => handleFieldChange('departureDate', e.target.value)}
+                  className={`w-full px-3 py-2 text-xs border rounded-lg focus:outline-none ${
+                    errors.departureDate 
+                      ? 'border-red-500 focus:border-red-500' 
+                      : 'border-gray-300 focus:border-[#012d1d]'
+                  }`}
                 />
+                {errors.departureDate && (
+                  <p className="text-red-500 text-[10px] mt-1 font-semibold">{errors.departureDate}</p>
+                )}
               </div>
               <div>
                 <label className="block text-gray-500 font-semibold uppercase tracking-wider mb-1">Return Date</label>
@@ -200,7 +243,7 @@ export default function SingleDepartureModal({
                   type="date"
                   placeholder="Auto-calculate"
                   value={form.returnDate}
-                  onChange={(e) => setForm({ ...form, returnDate: e.target.value })}
+                  onChange={(e) => handleFieldChange('returnDate', e.target.value)}
                   className="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d]"
                 />
                 <p className="text-[10px] text-gray-400 mt-0.5">Leave empty to auto-calculate based on tour duration.</p>
@@ -213,24 +256,36 @@ export default function SingleDepartureModal({
                 <label className="block text-gray-500 font-semibold uppercase tracking-wider mb-1">Price / Person (VND) *</label>
                 <input
                   type="number"
-                  required
                   min="0"
                   placeholder="e.g. 1500000"
                   value={form.pricePerPerson}
-                  onChange={(e) => setForm({ ...form, pricePerPerson: e.target.value })}
-                  className="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d]"
+                  onChange={(e) => handleFieldChange('pricePerPerson', e.target.value)}
+                  className={`w-full px-3 py-2 text-xs border rounded-lg focus:outline-none ${
+                    errors.pricePerPerson 
+                      ? 'border-red-500 focus:border-red-500' 
+                      : 'border-gray-300 focus:border-[#012d1d]'
+                  }`}
                 />
+                {errors.pricePerPerson && (
+                  <p className="text-red-500 text-[10px] mt-1 font-semibold">{errors.pricePerPerson}</p>
+                )}
               </div>
               <div>
                 <label className="block text-gray-500 font-semibold uppercase tracking-wider mb-1">Max Group Size *</label>
                 <input
                   type="number"
-                  required
                   min="1"
                   value={form.maxGroupSize}
-                  onChange={(e) => setForm({ ...form, maxGroupSize: e.target.value })}
-                  className="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d]"
+                  onChange={(e) => handleFieldChange('maxGroupSize', e.target.value)}
+                  className={`w-full px-3 py-2 text-xs border rounded-lg focus:outline-none ${
+                    errors.maxGroupSize 
+                      ? 'border-red-500 focus:border-red-500' 
+                      : 'border-gray-300 focus:border-[#012d1d]'
+                  }`}
                 />
+                {errors.maxGroupSize && (
+                  <p className="text-red-500 text-[10px] mt-1 font-semibold">{errors.maxGroupSize}</p>
+                )}
               </div>
             </div>
 
@@ -241,9 +296,16 @@ export default function SingleDepartureModal({
                   type="number"
                   min="1"
                   value={form.minGroupSize}
-                  onChange={(e) => setForm({ ...form, minGroupSize: e.target.value })}
-                  className="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d]"
+                  onChange={(e) => handleFieldChange('minGroupSize', e.target.value)}
+                  className={`w-full px-3 py-2 text-xs border rounded-lg focus:outline-none ${
+                    errors.minGroupSize 
+                      ? 'border-red-500 focus:border-red-500' 
+                      : 'border-gray-300 focus:border-[#012d1d]'
+                  }`}
                 />
+                {errors.minGroupSize && (
+                  <p className="text-red-500 text-[10px] mt-1 font-semibold">{errors.minGroupSize}</p>
+                )}
               </div>
               <div className="flex flex-col gap-2 pt-2">
                 <label className="flex items-center gap-2 cursor-pointer select-none">

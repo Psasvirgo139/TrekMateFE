@@ -7,18 +7,18 @@ import BookingHistoryBg from "../images/hero-slider-3.webp";
 import Pagination from "../components/common/Pagination";
 
 const STATUS_CONFIG = {
-  PENDING:   { text: "Chờ thanh toán", bg: "bg-amber-50",   text_color: "text-amber-700",   border: "border-amber-200"  },
-  CONFIRMED: { text: "Đã xác nhận",    bg: "bg-emerald-50", text_color: "text-emerald-700", border: "border-emerald-200" },
-  COMPLETED: { text: "Đã hoàn thành",  bg: "bg-blue-50",    text_color: "text-blue-700",    border: "border-blue-200"   },
-  CANCELLED: { text: "Đã hủy",         bg: "bg-red-50",     text_color: "text-red-700",     border: "border-red-200"    },
+  PENDING:   { text: "Pending Payment", bg: "bg-amber-50",   text_color: "text-amber-700",   border: "border-amber-200"  },
+  CONFIRMED: { text: "Confirmed",    bg: "bg-emerald-50", text_color: "text-emerald-700", border: "border-emerald-200" },
+  COMPLETED: { text: "Completed",  bg: "bg-blue-50",    text_color: "text-blue-700",    border: "border-blue-200"   },
+  CANCELLED: { text: "Cancelled",         bg: "bg-red-50",     text_color: "text-red-700",     border: "border-red-200"    },
 };
 
 const TAB_LABELS = {
-  ALL: "Tất cả",
-  PENDING: "Chờ thanh toán",
-  CONFIRMED: "Đã xác nhận",
-  COMPLETED: "Đã hoàn thành",
-  CANCELLED: "Đã hủy",
+  ALL: "All",
+  PENDING: "Pending",
+  CONFIRMED: "Confirmed",
+  COMPLETED: "Completed",
+  CANCELLED: "Cancelled",
 };
 
 const BookingHistory = () => {
@@ -77,7 +77,7 @@ const BookingHistory = () => {
           throw new Error("Failed to load bookings");
         }
       } catch (err) {
-        setError(err.response?.data?.message || err.message || "Không thể kết nối đến máy chủ.");
+        setError(err.response?.data?.message || err.message || "Failed to load bookings");
       } finally {
         setFetching(false);
         setRefreshing(false);
@@ -115,10 +115,10 @@ const BookingHistory = () => {
     <div className="bg-[#f7f9f6] min-h-screen">
       <Header
         bgImage={BookingHistoryBg}
-        pageTitle="Lịch Sử Đặt Tour"
-        subheading="HÀNH TRÌNH CỦA BẠN"
-        mainHeading="Quản Lý Lịch Sử & Giao Dịch"
-        description="Xem lại các tour leo núi bạn đã tham gia, kiểm tra tình trạng thanh toán hóa đơn hoặc cập nhật chi tiết hành trình sắp tới."
+        pageTitle="Booking History"
+        subheading="YOUR JOURNEYS"
+        mainHeading="Manage History & Transactions"
+        description="Review the trekking tours you have participated in, check invoice payment status, or update details for upcoming trips."
         showDescription={true}
       />
 
@@ -130,7 +130,7 @@ const BookingHistory = () => {
               {(user.displayName || user.email || "U").charAt(0).toUpperCase()}
             </div>
             <div>
-              <p className="font-bold text-gray-800">{user.displayName || "Người dùng"}</p>
+              <p className="font-bold text-gray-800">{user.displayName || "User"}</p>
               <p className="text-xs text-gray-500">{user.email}</p>
             </div>
           </div>
@@ -157,7 +157,7 @@ const BookingHistory = () => {
         {fetching && (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <div className="w-9 h-9 border-4 border-[#012d1d] border-t-transparent rounded-full animate-spin" />
-            <p className="text-gray-500 text-sm">Đang tải lịch sử đặt tour...</p>
+            <p className="text-gray-500 text-sm">Loading booking history...</p>
           </div>
         )}
 
@@ -165,7 +165,7 @@ const BookingHistory = () => {
         {error && !fetching && (
           <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
             <span className="text-3xl">⚠️</span>
-            <h4 className="font-bold text-red-700 mt-2 mb-1">Lỗi kết nối dữ liệu</h4>
+            <h4 className="font-bold text-red-700 mt-2 mb-1">Failed to load bookings</h4>
             <p className="text-red-600 text-sm">{error}</p>
           </div>
         )}
@@ -184,13 +184,13 @@ const BookingHistory = () => {
             {bookings.length === 0 && !refreshing && (
               <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center shadow-sm">
                 <div className="text-5xl mb-3">🗺️</div>
-                <h4 className="font-bold text-gray-800 text-lg mb-1">Chưa có chuyến đi nào</h4>
-                <p className="text-gray-500 text-sm mb-5">Bạn không có đơn đặt tour nào trong danh mục này.</p>
+                <h4 className="font-bold text-gray-800 text-lg mb-1">No trips found</h4>
+                <p className="text-gray-500 text-sm mb-5">You don't have any tour bookings in this category.</p>
                 <Link
                   to="/locations"
                   className="inline-block bg-[#012d1d] hover:bg-[#0c432d] text-white text-sm font-bold px-6 py-2.5 rounded-full transition-all duration-200 shadow-md"
                 >
-                  Khám phá tour ngay
+                  Explore tours now
                 </Link>
               </div>
             )}
@@ -208,7 +208,7 @@ const BookingHistory = () => {
                       {/* Card Top */}
                       <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 bg-gray-50/50">
                         <span className="text-xs font-mono text-gray-500 font-semibold">
-                          Mã: {booking.bookingCode}
+                          {booking.bookingCode}
                         </span>
                         <span className={`text-xs font-bold px-3 py-1 rounded-full border ${s.bg} ${s.text_color} ${s.border}`}>
                           {s.text}
@@ -222,14 +222,14 @@ const BookingHistory = () => {
                         </h4>
                         <div className="flex flex-col sm:flex-row gap-2 text-sm text-gray-600">
                           <span className="flex items-center gap-1.5">
-                            📅 Khởi hành: <strong className="text-gray-800">{formatDate(booking.departureDate)}</strong>
-                            <span className="text-gray-400">({booking.durationDays} ngày)</span>
+                            📅 Departure: <strong className="text-gray-800">{formatDate(booking.departureDate)}</strong>
+                            <span className="text-gray-400">({booking.durationDays} days)</span>
                           </span>
                           <span className="flex items-center gap-1.5">
-                            👥 <strong className="text-gray-800">{booking.numParticipants} người</strong>
+                            👥 <strong className="text-gray-800">{booking.numParticipants} people</strong>
                           </span>
                           <span className="flex items-center gap-1.5">
-                            🕓 Đặt lúc: {formatDate(booking.bookedAt)}
+                            🕓 Booked at: {formatDate(booking.bookedAt)}
                           </span>
                         </div>
                       </div>
@@ -237,14 +237,14 @@ const BookingHistory = () => {
                       {/* Card Footer */}
                       <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 bg-gray-50/30">
                         <div>
-                          <span className="block text-xs text-gray-400 uppercase tracking-wider font-semibold">Tổng thanh toán</span>
+                          <span className="block text-xs text-gray-400 uppercase tracking-wider font-semibold">Total payment</span>
                           <span className="block text-lg font-extrabold text-[#012d1d]">{formatPrice(booking.totalPrice)}</span>
                         </div>
                         <Link
                           to={`/bookings/${booking.id}`}
                           className="bg-[#012d1d] hover:bg-[#0c432d] text-white text-sm font-bold px-5 py-2 rounded-full transition-all duration-150 shadow-sm flex items-center gap-1.5"
                         >
-                          Chi tiết <span>→</span>
+                          Details
                         </Link>
                       </div>
                     </div>
@@ -258,7 +258,7 @@ const BookingHistory = () => {
               page={page}
               totalPages={totalPages}
               onPageChange={setPage}
-              locale="vi"
+              locale="en"
               showSummary={true}
               totalElements={totalElements}
               pageSize={size}

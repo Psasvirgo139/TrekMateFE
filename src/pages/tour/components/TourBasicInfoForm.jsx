@@ -39,12 +39,19 @@ export default function TourBasicInfoForm({
               </label>
               <input 
                 type="text" 
-                required 
                 placeholder="Enter tour title..."
                 value={tour.title || ''}
                 onChange={handleTitleChange}
-                className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#012d1d] focus:ring-2 focus:ring-[#012d1d]/20 transition-all"
+                onBlur={() => handleBlur('title')}
+                className={`w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#012d1d]/20 transition-all ${
+                  showError('title') 
+                    ? 'border-red-500 focus:border-red-500' 
+                    : 'border-gray-300 focus:border-[#012d1d]'
+                }`}
               />
+              {showError('title') && (
+                <p className="mt-1 text-[11px] text-red-500 leading-tight">{errors.title}</p>
+              )}
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
@@ -102,7 +109,6 @@ export default function TourBasicInfoForm({
               <input 
                 type="number" 
                 min="0"
-                required
                 placeholder="e.g., 3"
                 value={tour.durationDays !== undefined && tour.durationDays !== null ? tour.durationDays : ''}
                 onChange={(e) => {
@@ -170,7 +176,6 @@ export default function TourBasicInfoForm({
                 <input 
                   type="number" 
                   min="0"
-                  required
                   placeholder="e.g., 2"
                   value={tour.durationNights !== undefined && tour.durationNights !== null ? tour.durationNights : ''}
                   onChange={(e) => {

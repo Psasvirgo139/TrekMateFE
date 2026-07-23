@@ -77,39 +77,16 @@ const ProfileHeader = ({ role, data, isOwnProfile, onAction }) => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-center gap-3 z-10 w-full md:w-auto">
-          {isGuide ? (
-            <button
-              onClick={() => onAction && onAction('book', data)}
-              disabled={!data.isAvailable}
-              className={`w-full md:w-auto px-6 py-3 rounded-xl font-bold shadow-lg transition-all duration-300 flex items-center justify-center gap-2 ${
-                data.isAvailable 
-                  ? 'bg-trek-secondary hover:bg-trek-secondary/95 text-white active:scale-95 shadow-orange-500/20' 
-                  : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-              }`}
-            >
-              <CalendarDays className="w-5 h-5" />
-              {data.isAvailable ? 'Book Guide' : 'Unavailable'}
-            </button>
-          ) : (
+        {!isGuide && (
+          <div className="flex items-center justify-center gap-3 z-10 w-full md:w-auto">
             <button
               onClick={() => onAction && onAction('edit', data)}
               className="w-full md:w-auto px-6 py-3 rounded-xl font-bold text-white bg-trek-primary hover:bg-trek-primary/95 shadow-lg shadow-emerald-950/20 transition-all duration-300 flex items-center justify-center gap-2 active:scale-95"
             >
               {isOwnProfile ? 'Edit Profile' : 'Book a Tour'}
             </button>
-          )}
-
-          {isOwnProfile && (
-            <button 
-              onClick={() => onAction && onAction('settings', data)}
-              className="p-3 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all duration-300 active:scale-95"
-              title="Settings"
-            >
-              <User className="w-5 h-5" />
-            </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

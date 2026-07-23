@@ -12,10 +12,10 @@ import CancelBookingModal from "../components/booking/CancelBookingModal";
 import WeatherForecast from "../components/booking/WeatherForecast";
 
 const STATUS_CONFIG = {
-  PENDING:   { text: "Chờ thanh toán", bg: "bg-amber-50",   text_color: "text-amber-700",   border: "border-amber-200",  step: 1 },
-  CONFIRMED: { text: "Đã xác nhận",    bg: "bg-emerald-50", text_color: "text-emerald-700", border: "border-emerald-200", step: 2 },
-  COMPLETED: { text: "Đã hoàn thành",  bg: "bg-blue-50",    text_color: "text-blue-700",    border: "border-blue-200",    step: 3 },
-  CANCELLED: { text: "Đã hủy",         bg: "bg-red-50",     text_color: "text-red-700",     border: "border-red-200",     step: 0 },
+  PENDING:   { text: "Waiting for payment", bg: "bg-amber-50",   text_color: "text-amber-700",   border: "border-amber-200",  step: 1 },
+  CONFIRMED: { text: "Confirmed",    bg: "bg-emerald-50", text_color: "text-emerald-700", border: "border-emerald-200", step: 2 },
+  COMPLETED: { text: "Completed",  bg: "bg-blue-50",    text_color: "text-blue-700",    border: "border-blue-200",    step: 3 },
+  CANCELLED: { text: "Cancelled",         bg: "bg-red-50",     text_color: "text-red-700",     border: "border-red-200",     step: 0 },
 };
 
 const BookingDetail = () => {
@@ -41,7 +41,7 @@ const BookingDetail = () => {
         throw new Error("Failed to load booking details");
       }
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Không thể tải thông tin đặt tour.");
+      setError(err.response?.data?.message || err.message || "Failed to load booking details");
     } finally {
       setLoading(false);
     }
@@ -64,10 +64,10 @@ const BookingDetail = () => {
         setShowCancelModal(false);
         setCancelReason("");
       } else {
-        throw new Error("Hủy đặt tour thất bại");
+        throw new Error("Failed to cancel booking");
       }
     } catch (err) {
-      setCancelError(err.response?.data?.message || err.message || "Lỗi khi hủy tour.");
+      setCancelError(err.response?.data?.message || err.message || "Failed to cancel booking");
     } finally {
       setCancelling(false);
     }
@@ -103,7 +103,7 @@ const BookingDetail = () => {
     return (
       <div className="min-h-screen bg-[#f7f9f6] flex flex-col items-center justify-center gap-3">
         <div className="w-10 h-10 border-4 border-[#012d1d] border-t-transparent rounded-full animate-spin" />
-        <p className="text-gray-500 text-sm">Đang tải chi tiết đặt tour...</p>
+        <p className="text-gray-500 text-sm">Loading booking details...</p>
       </div>
     );
   }
@@ -112,13 +112,13 @@ const BookingDetail = () => {
     return (
       <div className="min-h-screen bg-[#f7f9f6] flex flex-col items-center justify-center gap-4 p-6">
         <span className="text-5xl">⚠️</span>
-        <h4 className="font-bold text-gray-800 text-lg">Lỗi hiển thị chi tiết</h4>
-        <p className="text-gray-500 text-sm">{error || "Không tìm thấy dữ liệu đặt tour."}</p>
+        <h4 className="font-bold text-gray-800 text-lg">Error loading booking details</h4>
+        <p className="text-gray-500 text-sm">{error || "Failed to load booking details."}</p>
         <button
           onClick={() => navigate("/bookings")}
           className="bg-[#012d1d] text-white font-bold px-7 py-2.5 rounded-full hover:bg-[#0c432d] transition-all"
         >
-          Quay lại Lịch sử
+          Back to History
         </button>
       </div>
     );
@@ -155,8 +155,8 @@ const BookingDetail = () => {
     <div className="bg-[#f7f9f6] min-h-screen">
       <Header
         bgImage={BookingDetailBg}
-        pageTitle="Chi Tiết Đơn Đặt Tour"
-        subheading={`MÃ ĐẶT CHỖ: ${booking.bookingCode}`}
+        pageTitle="Booking Details"
+        subheading={`BOOKING CODE: ${booking.bookingCode}`}
         mainHeading={booking.tourTitle}
         showDescription={false}
       />
@@ -167,13 +167,13 @@ const BookingDetail = () => {
           to="/bookings"
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-[#012d1d] transition-colors mb-6"
         >
-          ‹ Quay lại danh sách đặt tour
+          ‹ Back to booking history
         </Link>
 
         {/* Status Timeline */}
         <Card>
           <div className="flex items-center justify-between mb-5 pb-4 border-b border-gray-100">
-            <h3 className="font-bold text-[#012d1d] text-base">Trạng thái hành trình</h3>
+            <h3 className="font-bold text-[#012d1d] text-base">Journey Status</h3>
             <span className={`text-xs font-bold px-3 py-1 rounded-full border ${statusInfo.bg} ${statusInfo.text_color} ${statusInfo.border}`}>
               {statusInfo.text}
             </span>
@@ -182,20 +182,20 @@ const BookingDetail = () => {
           {booking.status === "CANCELLED" ? (
             <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4">
               <div className="flex justify-between items-start flex-wrap gap-2 text-red-700 font-semibold text-sm">
-                <span>🚫 Đơn hàng này đã bị hủy</span>
-                <span className="text-xs font-normal text-red-500">Ngày hủy: {formatDate(booking.cancelledAt, true)}</span>
+                <span>🚫 This booking has been cancelled</span>
+                <span className="text-xs font-normal text-red-500">Cancellation date: {formatDate(booking.cancelledAt, true)}</span>
               </div>
               <p className="mt-3 text-red-900 text-sm bg-white border border-red-200 rounded-lg px-3 py-2">
-                <strong>Lý do hủy:</strong> "{booking.cancellationReason || "Không có lý do cụ thể"}"
+                <strong>Cancellation reason:</strong> "{booking.cancellationReason || "No specific reason"}"
               </p>
             </div>
           ) : (
             <div className="flex justify-between items-center relative px-4">
               {/* connector lines */}
               <div className={`absolute left-[calc(14.5%+18px)] right-[calc(14.5%+18px)] top-[17px] h-0.5 z-0 ${statusInfo.step >= 2 ? "bg-[#012d1d]" : "bg-emerald-100"}`} />
-              <StepNode num="1" label="Đã đặt tour"  date={formatDate(booking.bookedAt)}     active={statusInfo.step >= 1} />
-              <StepNode num="2" label="Đã thanh toán" date={booking.paidAt ? formatDate(booking.paidAt) : "Chờ..."} active={statusInfo.step >= 2} />
-              <StepNode num="3" label="Hoàn thành"   date={`Khởi hành: ${formatDate(booking.departureDate)}`} active={statusInfo.step >= 3} />
+              <StepNode num="1" label="Booked"  date={formatDate(booking.bookedAt)}     active={statusInfo.step >= 1} />
+              <StepNode num="2" label="Paid" date={booking.paidAt ? formatDate(booking.paidAt) : "Waiting..."} active={statusInfo.step >= 2} />
+              <StepNode num="3" label="Completed"   date={`Departure: ${formatDate(booking.departureDate)}`} active={statusInfo.step >= 3} />
             </div>
           )}
         </Card>
@@ -205,12 +205,12 @@ const BookingDetail = () => {
           {/* Left column */}
           <div className="flex flex-col gap-6">
             {/* Journey Info */}
-            <Card title="Hành trình & Địa điểm tập trung">
+            <Card title="Journey Info & Meeting Point">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
-                  { label: "Tên tuyến trekking", val: <span className="font-bold text-[#012d1d]">{booking.tourTitle}</span> },
-                  { label: "Thời gian đi",       val: `${booking.durationDays} ngày ${booking.durationNights} đêm` },
-                  { label: "Ngày đi - Ngày về",  val: `${formatDate(booking.departureDate)} → ${formatDate(booking.returnDate)}` },
+                  { label: "Tour Name", val: <span className="font-bold text-[#012d1d]">{booking.tourTitle}</span> },
+                  { label: "Duration",       val: `${booking.durationDays} days ${booking.durationNights} nights` },
+                  { label: "Departure → Return",  val: `${formatDate(booking.departureDate)} → ${formatDate(booking.returnDate)}` },
                 ].map(({ label, val }) => (
                   <div key={label}>
                     <span className="block text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-0.5">{label}</span>
@@ -218,9 +218,9 @@ const BookingDetail = () => {
                   </div>
                 ))}
                 <div className="sm:col-span-2">
-                  <span className="block text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-1">📍 Điểm tập trung đoàn</span>
+                  <span className="block text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-1">📍 Meeting Point</span>
                   <div className="bg-emerald-50 border border-emerald-100 rounded-lg px-4 py-2.5 text-sm font-semibold text-[#012d1d]">
-                    {booking.meetingPoint || "Đang cập nhật..."}
+                    {booking.meetingPoint || "Updating..."}
                   </div>
                 </div>
               </div>
@@ -258,23 +258,23 @@ const BookingDetail = () => {
           {/* Right sticky sidebar */}
           <div className="lg:sticky lg:top-24">
             <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-              <h3 className="font-extrabold text-[#012d1d] text-base mb-4">Tổng kết chi phí</h3>
+              <h3 className="font-extrabold text-[#012d1d] text-base mb-4">Summary of Costs</h3>
               <div className="h-px bg-gray-100 mb-4" />
 
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between text-gray-600">
-                  <span>Giá vé tour</span>
+                  <span>Tour price</span>
                   <span className="font-semibold text-gray-800">{formatPrice(booking.subtotalTour)}</span>
                 </div>
                 {booking.subtotalEquipment > 0 && (
                   <div className="flex justify-between text-gray-600">
-                    <span>Thuê thiết bị</span>
+                    <span>Equipment rental</span>
                     <span className="font-semibold text-gray-800">{formatPrice(booking.subtotalEquipment)}</span>
                   </div>
                 )}
                 {booking.discountAmount > 0 && (
                   <div className="flex justify-between text-red-600 font-semibold">
-                    <span>Khuyến mại</span>
+                    <span>Discount</span>
                     <span>-{formatPrice(booking.discountAmount)}</span>
                   </div>
                 )}
@@ -283,7 +283,7 @@ const BookingDetail = () => {
               <div className="h-px bg-gray-100 my-4" />
 
               <div className="flex justify-between items-center">
-                <span className="font-bold text-gray-700">Tổng chi phí</span>
+                <span className="font-bold text-gray-700">Total Cost</span>
                 <span className="font-extrabold text-[#012d1d] text-lg">{formatPrice(booking.totalPrice)}</span>
               </div>
 
@@ -294,7 +294,7 @@ const BookingDetail = () => {
                     onClick={() => navigate("/payment", { state: { bookingId: booking.id, amount: booking.totalPrice } })}
                     className="w-full bg-[#012d1d] hover:bg-[#0c432d] text-white text-sm font-bold py-3 rounded-full transition-all duration-150 shadow-md"
                   >
-                    Thanh toán ngay 💳
+                    Pay Now 💳
                   </button>
                 )}
                 {isCancellable() && (
@@ -302,7 +302,7 @@ const BookingDetail = () => {
                     onClick={() => setShowCancelModal(true)}
                     className="w-full bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-sm font-bold py-2.5 rounded-full transition-all duration-150"
                   >
-                    Hủy chuyến đi ⚠️
+                    Cancel Booking ⚠️
                   </button>
                 )}
               </div>
