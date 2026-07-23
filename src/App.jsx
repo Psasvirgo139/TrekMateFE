@@ -28,6 +28,7 @@ import TourLeading from './pages/guide/TourLeading';
 
 import BookingHistory from './pages/BookingHistory';
 import BookingDetail from './pages/BookingDetail';
+import AiChatWidget from './components/ai/AiChatWidget';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
@@ -146,6 +147,7 @@ function AppRoutes() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       {!isGuideArea && !isAuthPage && <Footer />}
+      {!isGuideArea && !isAuthPage && <AiChatWidget />}
     </>
   );
 }
