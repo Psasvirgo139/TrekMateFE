@@ -81,6 +81,14 @@ const Header = ({
               >
                 Contact
               </a>
+              <a
+                href="https://github.com/Psasvirgo139/EXETrekMate/releases/tag/v1.0.0"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="home-nav-link"
+              >
+                Download
+              </a>
             </nav>
 
             <div className="header-right-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -138,6 +146,14 @@ const Header = ({
                 className="home-nav-link"
               >
                 Contact
+              </a>
+              <a
+                href="https://github.com/Psasvirgo139/EXETrekMate/releases/tag/v1.0.0"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="home-nav-link"
+              >
+                Download
               </a>
             </nav>
 

@@ -38,6 +38,14 @@ export default function PublicNav({ activePath }) {
           >
             Contact
           </Link>
+          <a
+            href="https://github.com/Psasvirgo139/EXETrekMate/releases/tag/v1.0.0"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="home-nav-link"
+          >
+            Download
+          </a>
           {user && (
             <Link
               to="/admin/tours"

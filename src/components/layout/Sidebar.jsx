@@ -48,6 +48,9 @@ const Sidebar = ({ open, setOpen }) => {
           <a href="#contact-section" onClick={(e) => { e.preventDefault(); handleScrollNavigation("contact-section"); }}>
             <li>Contact us</li>
           </a>
+          <a href="https://github.com/Psasvirgo139/EXETrekMate/releases/tag/v1.0.0" target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)}>
+            <li>Download</li>
+          </a>
           <Link to='/faq' onClick={() => setOpen(false)}><li>FAQ</li></Link>
         </ul>
 
